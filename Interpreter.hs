@@ -10,9 +10,8 @@ import CoreTypes
 
 -- ====================================================================================================
 
-interpreter :: Parser -> Cxt -> String -> IO (Result Cxt)
-interpreter parser cxt line =
-    ifOk (parser line) $ \cmds -> runValues cxt cmds
+interpreter :: Cxt -> [Value] -> IO (Result Cxt)
+interpreter = runValues
 
 
 runValues :: Cxt -> [Value] -> IO (Result Cxt)

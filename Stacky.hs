@@ -15,11 +15,12 @@ repl = r (initCxt builtIns)
                  do -- putStrLn "STACKY V1.0 (c) Bengt Johansson"
                     putStr "> "
                     hFlush stdout
-                    line    <- getLine
-                    result  <- interpreter parser cxt line
-                    nextCxt <- either (\err    -> do { printError err; return cxt; })
-                                      (\newCxt -> do printStack newCxt
-                                                     return newCxt)
-                                      result
+                    line         <- getLine
+                    let parseRes =  parser line
+                    result       <- ifOk parseRes $ \cmds -> interpreter cxt cmds
+                    nextCxt      <- either (\err    -> do { printError err; return cxt; })
+                                           (\newCxt -> do printStack newCxt
+                                                          return newCxt)
+                                           result
                     r nextCxt
                                
