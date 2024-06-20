@@ -5,26 +5,42 @@ import System.IO
     
 -- ====================================================================================================
 
+type Name = String
+    
+type Operation = Cxt -> IO (Result Cxt)
+
 data Value = ValInt Integer
-           | ValAtom String
+           | ValAtom Name
            | ValString String
-           | ValStack Stack   deriving (Show, Eq)
+           | ValStack Stack
+           | ValOp Name Operation
+
+instance Show Value where
+    show (ValInt i)       = show i
+    show (ValAtom a)      = a
+    show (ValString str)  = "\"" ++ fmtString str ++ "\""
+    show (ValStack s)     = "[ " ++ (fmtStack $ reverse s) ++ " ]"
+    show (ValOp name _)  = "{"++name++"}"
+
+instance Eq Value where
+    (ValInt i1)    == (ValInt i2)    = i1 == i2
+    (ValAtom a1)   == (ValAtom a2)   = a1 == a2
+    (ValString s1) == (ValString s2) = s1 == s2
+    (ValStack st1) == (ValStack st2) = st1 == st2
+    (ValOp n1 _)   == (ValOp n2 _)   = n1 == n2
+    _              == _              = False
+
 
 valueType :: Value -> String
-valueType (ValInt _)     = "integer"
-valueType (ValAtom _)    = "atom"
-valueType (ValString _)  = "string"
-valueType (ValStack _)   = "stack"
-
+valueType (ValInt _)    = "integer"
+valueType (ValAtom _)   = "atom"
+valueType (ValString _) = "string"
+valueType (ValStack _)  = "stack"
+valueType (ValOp _ _)   = "atom"
+                          
 getValInt :: Value -> Result Integer
 getValInt (ValInt i) = Right i
 getValInt v          = Left ("Expected an int got: '" ++ valueType v ++ "'")
-
-fmtValue :: Value -> String
-fmtValue (ValInt i)       = show i
-fmtValue (ValAtom a)      = a
-fmtValue (ValString str)  = "\"" ++ fmtString str ++ "\""
-fmtValue (ValStack s)     = "[ " ++ (fmtStack $ reverse s) ++ " ]"
 
 fmtString :: String -> String
 fmtString "" = ""
@@ -39,6 +55,15 @@ type Error = String
 
 type Result a = Either Error a
 
+stackUnderflowError :: Name -> Result a
+stackUnderflowError name = Left $ "Stack underflow in operation: '" ++ name ++ "'"
+
+typeError :: Name -> String -> Value -> Value -> Result Value
+typeError name comment x y =
+    Left ("Operation '" ++ name ++ "' expects " ++ comment
+          ++ ", got '" ++ valueType x ++ "' and '" ++ valueType y ++ "', got '"
+          ++ show x ++ "' and '" ++ show y ++ "'")
+
 -- ====================================================================================================
 
 type Stack = [Value]
@@ -47,56 +72,28 @@ newStack :: Stack
 newStack = []
 
 fmtStack :: Stack -> String
-fmtStack = unwords . map fmtValue . reverse
+fmtStack = unwords . map show . reverse
 
 -- ====================================================================================================
 
-type Env = [(String, Operation)]
+type Env = [(Name, Value)]
 
 newEnv :: Env
-newEnv =
-    [
-     ("+", runBinIntOp "+" (+)),
-     ("-", runBinIntOp "-" (-)),
-     ("*", runBinIntOp "*" (*)),
-     ("/", runBinIntOp "/" div),
-     ("=", runBinCmpOp "=" (==)),
-     ("<", runBinCmpOp "<" (<)),
-     (">", runBinCmpOp ">" (>)),
-     ("<=", runBinCmpOp "<=" (<=)),
-     (">=", runBinCmpOp ">=" (>=)),
-     ("<>", runBinCmpOp "<>" (/=)),
+newEnv = builtIns
 
-     ("~", runUnBoolOp "~" not),
-     ("and", runBinBoolOp "and" (&&)),
-     ("or", runBinBoolOp "or" (||)),
-                                     
-     (";", runStash),
-     ("@", runApply),
-     ("?", runCond),
-
-     ("drop", runDrop),
-     ("swap", runSwap),
-     ("rot",  runRot),
-     ("over", runOver),
-     ("dup",  runDup),
-     ("clear", runClear),
-     ("depth", runDepth),
-     ("print", runPrint),
-
-     ("++", runAppend)
-    ]
-
-insertEnv :: Cxt -> String -> Operation -> Result Cxt
+insertEnv :: Cxt -> Name -> Value -> Result Cxt
 insertEnv Cxt{envs = env:_} key _ | key `elem` map fst env =
     Left $ "Redefining name: '" ++ key ++ "'"
-insertEnv cxt@Cxt{envs = env:es} key op =
-    Right $ cxt{envs=((key, op) : env) : es}
+insertEnv cxt@Cxt{envs = env:es} key val =
+    Right $ cxt{envs=((key, val) : env) : es}
 insertEnv _ _ _ = error "INSERTENV CALLED WITH EMPTY ENV STACK! THIS SHOULD NEVER HAPPEN!"
     
 
-lookupEnv :: Cxt -> String -> Maybe Operation
+lookupEnv :: Cxt -> Name -> Maybe Value
 lookupEnv Cxt{envs = es} key = lookup key (concat es)
+
+getBuiltIn :: Name -> Maybe Value
+getBuiltIn name = lookup name builtIns
 
 -- ====================================================================================================
 
@@ -105,17 +102,6 @@ data Cxt = Cxt{ stack :: Stack, envs :: [Env] }
 initCxt :: Cxt
 initCxt = Cxt{stack = newStack, envs = [newEnv]}
          
--- ====================================================================================================
-
-newtype Operation = Op (Cxt -> IO (Result Cxt))
-
-seqOp :: Operation -> Operation -> Operation
-seqOp (Op op1) (Op op2) =
-    Op $ \cxt1 ->
-        do res1 <- op1 cxt1
-           ifOk res1 $ \cxt2 ->
-               op2 cxt2
-
 -- ====================================================================================================
 
 repl :: IO ()
@@ -165,68 +151,101 @@ runValues cxt (v : vs) =
 
 runValue :: Cxt -> Value -> IO (Result Cxt)
 runValue cxt (ValAtom atom)     = runAtom cxt atom
+runValue cxt (ValOp _ op)       = op cxt
 runValue cxt@Cxt{stack = s} val = return $ Right cxt{stack = val : s}
-
-runAtom :: Cxt -> String -> IO (Result Cxt)
+                    
+runAtom :: Cxt -> Name -> IO (Result Cxt)
 runAtom cxt@Cxt{stack = s} atom =
     case s of
            ValAtom "'" : s1 ->
                return $ Right cxt{stack = ValAtom atom : s1}
            _ ->
                case lookupEnv cxt atom of
-                   Nothing      ->
+                   Nothing ->
                        return $ Right cxt{stack = ValAtom atom : s}
-                   Just (Op op) -> 
+                   Just (ValOp _ op) -> 
                        do res <- op cxt
                           ifOk res $ \cxt1 ->
                               return $ Right cxt1
+                   Just val ->
+                       runValue cxt{stack = val : s} defApply
                         
 
-runBinIntOp :: String -> (Integer -> Integer -> Integer) -> Operation
-runBinIntOp name f = runBinOp $ numBinOp name f
+-- ====================================================================================================
 
-runBinCmpOp :: String -> (Integer -> Integer -> Bool) -> Operation
-runBinCmpOp name f = runBinOp $ cmpBinOp name f
+builtIns :: Env
+builtIns =
+    map defBI [
+               defBinIntOp "+" (+),
+               defBinIntOp "-" (-),
+               defBinIntOp "*" (*),
+               defBinIntOp "/" div,
+               defBinCmpOp "=" (==),
+               defBinCmpOp "<" (<),
+               defBinCmpOp ">" (>),
+               defBinCmpOp "<=" (<=),
+               defBinCmpOp ">=" (>=),
+               defBinCmpOp "<>" (/=),
+               defUnBoolOp "~" not,
+               defBinBoolOp "and" (&&),
+               defBinBoolOp "or" (||),
+               defStash,
+               defApply,
+               defCond,
+               defDrop,
+               defSwap,
+               defRot,
+               defOver,
+               defDup,
+               defClear,
+               defDepth,
+               defPrint,
+               defAppend
+              ]
 
-runUnBoolOp :: String -> (Bool -> Bool) -> Operation
-runUnBoolOp name f = runUnOp $ boolUnOp name f
+defBI :: Value -> (Name, Value)
+defBI op@(ValOp name _) = (name, op)
+defBI op                = error $ "INTERNAL ERROR: A builtin is not a ValOp: '" ++ show op ++ "'"
 
-runBinBoolOp :: String -> (Bool -> Bool -> Bool) -> Operation
-runBinBoolOp name f = runBinOp $ boolBinOp name f
+defBinIntOp :: Name -> (Integer -> Integer -> Integer) -> Value
+defBinIntOp name f = defBinOp name $ numBinOp name f
 
-runBinOp :: (Value -> Value -> Result Value) -> Operation
-runBinOp f =
-    runOp $ \cxt ->
+defBinCmpOp :: Name -> (Integer -> Integer -> Bool) -> Value
+defBinCmpOp name f = defBinOp name $ cmpBinOp name f
+
+defUnBoolOp :: Name -> (Bool -> Bool) -> Value
+defUnBoolOp name f = defUnOp name $ boolUnOp name f
+
+defBinBoolOp :: Name -> (Bool -> Bool -> Bool) -> Value
+defBinBoolOp name f = defBinOp name $ boolBinOp name f
+
+defBinOp :: Name -> (Value -> Value -> Result Value) -> Value
+defBinOp name f =
+    defOp name $ \cxt ->
         case stack cxt of
             x : y : stack1 -> do { val <- f y x; return cxt{stack = val : stack1}; }
-            _              -> Left "Stack underflow"
+            _              -> stackUnderflowError name
                          
-runUnOp :: (Value -> Result Value) -> Operation
-runUnOp f = 
-    runOp $ \cxt ->
+defUnOp :: Name -> (Value -> Result Value) -> Value
+defUnOp name f = 
+    defOp name $ \cxt ->
         case cxt of
             cxt1@Cxt{stack = x : s} -> do { val <- f x; return cxt1{stack = val : s}; }
-            _                       -> Left "Stack underflow"
+            _                       -> stackUnderflowError name
 
-numBinOp :: String -> (Integer -> Integer -> Integer) -> Value -> Value -> Result Value
+numBinOp :: Name -> (Integer -> Integer -> Integer) -> Value -> Value -> Result Value
 numBinOp _    f (ValInt v1) (ValInt v2) = Right $ ValInt $ f v1 v2
 numBinOp name _ x           y           = typeError name "numerical arguments of same type" x y
 
-cmpBinOp :: String -> (Integer -> Integer -> Bool) -> Value -> Value -> Result Value
+cmpBinOp :: Name -> (Integer -> Integer -> Bool) -> Value -> Value -> Result Value
 cmpBinOp _    f (ValInt v1) (ValInt v2) = Right $ bool2Truth $ f v1 v2
 cmpBinOp name _ x           y           = typeError name "comparable arguments of same type" x y
 
-boolBinOp :: String -> (Bool -> Bool -> Bool) -> Value -> Value -> Result Value
+boolBinOp :: Name -> (Bool -> Bool -> Bool) -> Value -> Value -> Result Value
 boolBinOp _ f v1 v2 = Right $ bool2Truth $ f (truth2Bool v1) (truth2Bool v2)
 
-boolUnOp :: String -> (Bool -> Bool) -> Value -> Result Value
+boolUnOp :: Name -> (Bool -> Bool) -> Value -> Result Value
 boolUnOp _ f v1 = Right $ bool2Truth $ f (truth2Bool v1)
-
-typeError :: String -> String -> Value -> Value -> Result Value
-typeError name comment x y =
-    Left ("Operation '" ++ name ++ "' expects " ++ comment
-          ++ ", got '" ++ valueType x ++ "' and '" ++ valueType y ++ "', got '"
-          ++ fmtValue x ++ "' and '" ++ fmtValue y ++ "'")
 
 
 bool2Truth :: Bool -> Value
@@ -240,94 +259,88 @@ truth2Bool _             = True
 
 -- ====================================================================================================
 
-runOp :: (Cxt -> Result Cxt) -> Operation
-runOp op = Op $ \cxt -> return $ op cxt
+defOp :: Name -> (Cxt -> Result Cxt) -> Value
+defOp name op = ValOp name $ \cxt -> return $ op cxt
 
 
-runCond :: Operation
-runCond =
-    Op $ \cxt@Cxt{stack = s0} ->
+defCond :: Value
+defCond =
+    ValOp "?" $ \cxt@Cxt{stack = s0} ->
         case s0 of
            elsePart : thenPart : predicate : s1 ->
-               do result <- runValues cxt{stack = s1} [predicate, ValAtom "@"]
+               do result <- runValues cxt{stack = s1} [predicate, defApply]
                   ifOk result $ \cxt1@Cxt{stack = s2} ->
                       ifOk (getValInt $ head s2) $ \predInt ->
                           runValues cxt1{stack = tail s2} $
                               if predInt /= 0
-                                  then [thenPart, ValAtom "@"]
-                                  else [elsePart, ValAtom "@"]
+                                  then [thenPart, defApply]
+                                  else [elsePart, defApply]
            _ ->
-               return $ Left "Stack underflow"
+               return $ stackUnderflowError "?"
 
-runPush :: Value -> Operation
-runPush val = runOp $ \cxt@Cxt{stack = s} -> Right cxt{stack = val : s}
-
-runDrop :: Operation
-runDrop = runOp $ \cxt@Cxt{stack = s0} ->
+defDrop :: Value
+defDrop = defOp "drop" $ \cxt@Cxt{stack = s0} ->
               case s0 of
                   _ : s1 -> Right cxt{stack = s1}
-                  _      -> Left "Stack underflow"
+                  _      -> stackUnderflowError "drop"
 
-runSwap :: Operation
-runSwap = runOp $ \cxt@Cxt{stack = s0} ->
+defSwap :: Value
+defSwap = defOp "swap" $ \cxt@Cxt{stack = s0} ->
               case s0 of
                   x : y : s1 -> Right cxt{stack = y : x : s1}
-                  _          -> Left "stack underflow"
+                  _          -> stackUnderflowError "swap"
 
 
-runRot :: Operation
-runRot = runOp $ \cxt@Cxt{stack = s0} ->
+defRot :: Value
+defRot = defOp "rot" $ \cxt@Cxt{stack = s0} ->
              case s0 of
                  x : y : z : s1 -> Right cxt{stack = z : y : x : s1}
-                 _              -> Left "stack underflow"
+                 _              -> stackUnderflowError "rot"
 
-runOver :: Operation
-runOver = runOp $ \cxt@Cxt{stack = s0} ->
+defOver :: Value
+defOver = defOp "over" $ \cxt@Cxt{stack = s0} ->
               case s0 of
                   x : y : s1 -> Right cxt{stack = y : x : y : s1}
-                  _          -> Left "stack underflow"
+                  _          -> stackUnderflowError "over"
 
-runDup :: Operation
-runDup = runOp $ \cxt@Cxt{stack = s0} ->
+defDup :: Value
+defDup = defOp "dup" $ \cxt@Cxt{stack = s0} ->
              case s0 of
                  x : s1 -> Right cxt{stack = x : x : s1}
-                 _      -> Left "stack underflow"
+                 _      -> stackUnderflowError "dup"
 
-runClear :: Operation
-runClear = runOp $ \cxt -> Right cxt{stack = []}
+defClear :: Value
+defClear = defOp "clear" $ \cxt -> Right cxt{stack = []}
 
-runDepth :: Operation
-runDepth = runOp $ \cxt@Cxt{stack = s} ->
+defDepth :: Value
+defDepth = defOp "depth" $ \cxt@Cxt{stack = s} ->
                let
                    depth = (ValInt $ toInteger $ length s)
                in
                    Right cxt{stack = depth : s}
                          
-runPrint :: Operation
-runPrint = Op $ \cxt@Cxt{stack = s0} ->
+defPrint :: Value
+defPrint = ValOp "print" $ \cxt@Cxt{stack = s0} ->
           case s0 of
-              val : s1 -> do putStrLn $ fmtValue val
+              val : s1 -> do putStrLn $ show val
                              return $  Right cxt{stack = s1}
-              _        -> return $ Left "stack underflow"
+              _        -> return $ stackUnderflowError "print"
                                  
-runStash :: Operation
-runStash = runOp $ \cxt@Cxt{stack = s0} ->
+defStash :: Value
+defStash = defOp ";" $ \cxt@Cxt{stack = s0} ->
                        case s0 of
                            ValAtom key : val : s1 ->
-                               let
-                                   op = seqOp (runPush val) runApply
-                               in
-                                   insertEnv cxt{stack = s1} key op 
+                               insertEnv cxt{stack = s1} key val 
                            key : _ : _ ->
                                Left ("Type error: Expected an atom as key for stash, found: '"
                                      ++ valueType key ++ "' with value '"
-                                    ++ fmtValue key ++ "'")
+                                    ++ show key ++ "'")
                            _ ->
-                               Left "Stack underflow"
+                               stackUnderflowError ";"
 
-runApply :: Operation
-runApply =
-    Op $ \cxt@Cxt{stack = s0} ->
+defApply :: Value
+defApply =
+    ValOp "@" $ \cxt@Cxt{stack = s0} ->
            case s0 of
               ValStack cmds : s1 ->
                   runLocalValues cxt{stack = s1} cmds
@@ -336,11 +349,11 @@ runApply =
               _ : _ ->
                   return $ Right cxt
               _ ->
-                  return $ Left "Stack underflow"
+                  return $ stackUnderflowError "@"
 
-runAppend :: Operation
-runAppend  =
-    runOp $ \cxt@Cxt{stack = s0} ->
+defAppend :: Value
+defAppend  =
+    defOp "++" $ \cxt@Cxt{stack = s0} ->
         case s0 of
             ValStack s1 : ValStack s2 : s3 ->
                 Right cxt{stack = ValStack (s2 ++ s1) : s3}
@@ -350,7 +363,7 @@ runAppend  =
                 Left ("(++) expects either two stacks or strings, got '"
                       ++ valueType v2 ++ "' and '" ++ valueType v1 ++ "'")
             _ ->
-                Left "stack underflow"
+                stackUnderflowError "++"
 
 -- ====================================================================================================
 
@@ -363,11 +376,25 @@ parser str =
 
 parseCmds :: [Value] -> Result [Value]
 parseCmds []                   = return []
-parseCmds (ValAtom "[" : cmds) = do (sCmds, rest) <- parseStack cmds
-                                    cmds'         <- parseCmds rest
-                                    return $ ValStack sCmds : cmds'
-parseCmds (cmd : cmds)         = do cmds' <- parseCmds cmds
-                                    return $ cmd : cmds'
+parseCmds (ValAtom "[" : cmds) =
+    do (sCmds, rest) <- parseStack cmds
+       cmds'         <- parseCmds rest
+       return $ ValStack sCmds : cmds'
+parseCmds (inhibitor@(ValAtom "'") : atom@(ValAtom _) : cmds) =
+    do cmds' <- parseCmds cmds
+       return $ inhibitor : atom : cmds'
+parseCmds (ValAtom atom : cmds) =
+    do cmds' <- parseCmds cmds
+       return $ (parseAtom atom) : cmds'
+parseCmds (cmd : cmds) =
+    do cmds' <- parseCmds cmds
+       return $ cmd : cmds'
+
+parseAtom :: Name -> Value
+parseAtom atom =
+    case getBuiltIn atom of
+        Nothing -> ValAtom atom
+        Just op -> op
 
 parseStack :: [Value] -> Result ([Value], [Value])
 parseStack []                   = Left "Missing end of stack marker. (']')"
@@ -420,10 +447,10 @@ atomToken (c:_)                          = Left ("Unknown character: '" ++ [c] +
 atomToken ""                             = Left "Out of input data"
                                                               
 ops1 :: [Char]
-ops1 = ['\'', '[', ']'] ++ [ c | ([c], _) <- newEnv, not $ isAlphaNum c ]
+ops1 = ['\'', '[', ']'] ++ [ c | ([c], _) <- builtIns, not $ isAlphaNum c ]
 
 ops2 :: [String]
-ops2 = [ [c,d] | ([c,d], _) <- newEnv, not $ isAlphaNum c ]
+ops2 = [ [c,d] | ([c,d], _) <- builtIns, not $ isAlphaNum c ]
 
 
 
