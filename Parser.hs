@@ -17,7 +17,8 @@ parser str =
        else parseCmds cmds
 
 parseCmds :: [Value] -> Result [Value]
-parseCmds []                   = return []
+parseCmds [] =
+    return []
 parseCmds (ValAtom "[" : cmds) =
     do (sCmds, rest) <- parseStack cmds
        cmds'         <- parseCmds rest
