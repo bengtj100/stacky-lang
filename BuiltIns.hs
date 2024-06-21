@@ -11,12 +11,17 @@
 
 module BuiltIns (
                  builtIns,
-                 getBuiltIn
+                 parseLine
                 ) where
+
+import Data.Char
 
 import CoreTypes
 import Interpreter
-
+import InputOutput
+import Parser
+import Lexer
+    
 -- ====================================================================================================
 
 builtIns :: Env
@@ -35,18 +40,11 @@ builtIns =
                defUnBoolOp "~" not,
                defBinBoolOp "and" (&&),
                defBinBoolOp "or" (||),
-               defStash,
-               defApply,
-               defCond,
-               defDrop,
-               defSwap,
-               defRot,
-               defOver,
-               defDup,
-               defClear,
-               defDepth,
-               defPrint,
-               defAppend
+               defStash, defApply, defCond,
+               defDrop, defSwap, defRot, defOver, defDup, defClear, defDepth,
+               defAppend,
+               defPrint, defPut, defPutLn, defInput, defPrompt,
+               defEval
               ]
 
 defBI :: Value -> (Name, Value)
@@ -54,14 +52,10 @@ defBI op@(ValOp name _) = (name, op)
 defBI op                = error $ "INTERNAL ERROR: A builtin is not a ValOp: '" ++ show op ++ "'"
 
 
-getBuiltIn :: Name -> Maybe Value
-getBuiltIn name = lookup name builtIns
-
-
 defBinIntOp :: Name -> (Integer -> Integer -> Integer) -> Value
 defBinIntOp name f = defBinOp name $ numBinOp name f
 
-defBinCmpOp :: Name -> (Integer -> Integer -> Bool) -> Value
+defBinCmpOp :: Name -> (Value -> Value -> Bool) -> Value
 defBinCmpOp name f = defBinOp name $ cmpBinOp name f
 
 defUnBoolOp :: Name -> (Bool -> Bool) -> Value
@@ -86,11 +80,11 @@ defUnOp name f =
 
 numBinOp :: Name -> (Integer -> Integer -> Integer) -> Value -> Value -> Result Value
 numBinOp _    f (ValInt v1) (ValInt v2) = Right $ ValInt $ f v1 v2
-numBinOp name _ x           y           = typeError2 name "numerical arguments of same type" x y
+numBinOp name _ x           y           = typeError2 name "numerical arguments" x y
 
-cmpBinOp :: Name -> (Integer -> Integer -> Bool) -> Value -> Value -> Result Value
-cmpBinOp _    f (ValInt v1) (ValInt v2) = Right $ bool2Truth $ f v1 v2
-cmpBinOp name _ x           y           = typeError2 name "comparable arguments of same type" x y
+cmpBinOp :: Name -> (Value -> Value -> Bool) -> Value -> Value -> Result Value
+cmpBinOp name f x y | isComparable x y = Right $ bool2Truth $ f x y
+                    | otherwise        = typeError2 name "comparable arguments" x y
 
 boolBinOp :: Name -> (Bool -> Bool -> Bool) -> Value -> Value -> Result Value
 boolBinOp _ f v1 v2 = Right $ bool2Truth $ f (truth2Bool v1) (truth2Bool v2)
@@ -168,15 +162,8 @@ defDepth = defOp "depth" $ \cxt@Cxt{stack = s} ->
                let
                    depth = (ValInt $ toInteger $ length s)
                in
-                   Right cxt{stack = depth : s}
-                         
-defPrint :: Value
-defPrint = ValOp "print" $ \cxt@Cxt{stack = s0} ->
-          case s0 of
-              val : s1 -> do putStrLn $ show val
-                             return $  Right cxt{stack = s1}
-              _        -> return $ stackUnderflowError "print"
-                                 
+                   Right cxt{stack = depth : s}                         
+                                
 defStash :: Value
 defStash = defOp ";" $ \cxt@Cxt{stack = s0} ->
                        case s0 of
@@ -200,4 +187,70 @@ defAppend  =
             _ ->
                 stackUnderflowError "++"
 
+defPrint :: Value
+defPrint = ValOp "print" $ \cxt@Cxt{stack = s0} ->
+           case s0 of
+               val : s1 -> do putStrLn $ show val
+                              return $  Right cxt{stack = s1}
+               _        -> return $ stackUnderflowError "print"
+
+defPut :: Value
+defPut = putVal putStr "put"
+
+defPutLn :: Value
+defPutLn = putVal putStrLn "putLn"
+
+putVal :: (String -> IO ()) -> Name -> Value
+putVal f n = ValOp n $ \cxt@Cxt{stack = s0} ->
+             case s0 of
+                 ValString val : s1 ->
+                     do f val
+                        return $ Right cxt{stack = s1}
+                 val : s1 ->
+                     do f $ show val
+                        return $  Right cxt{stack = s1}
+                 _  ->
+                     return $ stackUnderflowError "put"
+
+defInput :: Value
+defInput = ValOp "input" $ \cxt@Cxt{stack = s0} ->
+           do str <- getLines "? "
+              return $ Right cxt{stack = ValString str : s0}
+
+defPrompt :: Value
+defPrompt = ValOp "prompt" $ \cxt@Cxt{stack = s0} ->
+            case s0 of
+                ValString prompt : s1 ->
+                    do str <- getLines prompt
+                       return $ Right cxt{stack = ValString str : s1}
+                val : _ ->
+                    return $ typeError1 "prompt" "a string to use as a prompt" val
+                _ ->
+                    return $ stackUnderflowError "prompt"
+
+defEval :: Value
+defEval = ValOp "eval" $ \cxt@Cxt{stack = s0} ->
+          case s0 of
+              (ValString str) : s1 ->
+                  do let parseRes = parseLine str
+                     ifOk parseRes $ \cmds -> interpreter cxt{stack = s1} cmds
+              other : _ ->
+                  return $ typeError1 "eval" "a string to be evaluated" other
+              _ ->
+                  return $ stackUnderflowError "eval"
+
 -- ====================================================================================================
+
+parseLine :: String -> Result [Value]
+parseLine str =
+    do (cmds, rest) <- lexer (ops1, ops2) str
+       if rest /= ""
+       then Left ("Trailing input garbage: '" ++ rest ++ "'")
+       else parser builtIns cmds
+    
+
+ops1 :: [Char]
+ops1 = ['\'', '[', ']'] ++ [ c | ([c], _) <- builtIns, not $ isAlphaNum c ]
+
+ops2 :: [String]
+ops2 = [ [c,d] | ([c,d], _) <- builtIns, not $ isAlphaNum c ]

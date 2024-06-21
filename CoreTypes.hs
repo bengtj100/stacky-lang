@@ -21,6 +21,7 @@ module CoreTypes (
                   Parser,
                   -- Value functions
                   getValInt,
+                  isComparable,
                   -- Error functions
                   printError,
                   -- Result functions
@@ -58,13 +59,34 @@ instance Show Value where
     show (ValOp name _)  = "{"++name++"}"
 
 instance Eq Value where
-    (ValInt i1)    == (ValInt i2)    = i1 == i2
-    (ValAtom a1)   == (ValAtom a2)   = a1 == a2
-    (ValString s1) == (ValString s2) = s1 == s2
+    (ValInt i1)    == (ValInt i2)    =  i1 == i2
+    (ValAtom a1)   == (ValAtom a2)   =  a1 == a2
+    (ValString s1) == (ValString s2) =  s1 == s2
     (ValStack st1) == (ValStack st2) = st1 == st2
-    (ValOp n1 _)   == (ValOp n2 _)   = n1 == n2
+    (ValOp n1 _)   == (ValOp n2 _)   =  n1 == n2
+    (ValAtom n1)   == (ValOp n2 _)   =  n1 == n2
+    (ValOp n1 _)   == (ValAtom n2)   =  n1 == n2
     _              == _              = False
 
+instance Ord Value where
+    (ValInt i1)    <= (ValInt i2)    =  i1 <= i2
+    (ValAtom a1)   <= (ValAtom a2)   =  a1 <= a2
+    (ValString s1) <= (ValString s2) =  s1 <= s2
+    (ValOp s1 _)   <= (ValOp s2 _)   =  s1 <= s2
+    (ValOp s1 _)   <= (ValAtom s2)   =  s1 <= s2
+    (ValAtom s1)   <= (ValOp s2 _)   =  s1 <= s2
+    (ValStack st1) <= (ValStack st2) = st1 <= st2
+    _              <= _              = False
+
+isComparable :: Value -> Value -> Bool
+isComparable (ValInt _)    (ValInt _)    = True
+isComparable (ValString _) (ValString _) = True
+isComparable (ValStack _)  (ValStack _)  = True
+isComparable (ValAtom _)   (ValAtom _)   = True
+isComparable (ValOp _ _)   (ValAtom _)   = True
+isComparable (ValAtom _)   (ValOp _ _)   = True
+isComparable (ValOp _ _)   (ValOp _ _)   = True
+isComparable _             _             = False
 
 valueType :: Value -> String
 valueType (ValInt _)    = "integer"
@@ -78,9 +100,13 @@ getValInt (ValInt i) = Right i
 getValInt v          = Left ("Expected an int got: '" ++ valueType v ++ "'")
 
 fmtString :: String -> String
-fmtString "" = ""
-fmtString ('"' : str) = '\\' : '"' : fmtString str
-fmtString (c : str)   = c : fmtString str
+fmtString ""           = ""
+fmtString ('"' : str)  = '\\' : '"' : fmtString str
+fmtString ('\n' : str) = '\\' : 'n' : fmtString str
+fmtString ('\r' : str) = '\\' : 'r' : fmtString str
+fmtString ('\t' : str) = '\\' : 't' : fmtString str
+fmtString ('\\' : str) = '\\' : '\\' : fmtString str
+fmtString (c : str)    = c : fmtString str
                            
 -- ====================================================================================================
 
@@ -99,14 +125,15 @@ stackUnderflowError name = Left $ "Stack underflow in operation: '" ++ name ++ "
 typeError1 :: Name -> String -> Value -> Result a
 typeError1 name comment x =
     Left ("Operation '" ++ name ++ "' expects " ++ comment
-          ++ ", got '" ++ valueType x ++  "', got '"
-          ++ show x  ++ "'")
+          ++ ", got '" ++ valWType x ++ "'")
 
 typeError2 :: Name -> String -> Value -> Value -> Result a
 typeError2 name comment x y =
     Left ("Operation '" ++ name ++ "' expects " ++ comment
-          ++ ", got '" ++ valueType x ++ "' and '" ++ valueType y ++ "', got '"
-          ++ show x ++ "' and '" ++ show y ++ "'")
+          ++ ", got '" ++ valWType x ++ "' and '" ++ valWType y ++ "'")
+
+valWType :: Value -> String
+valWType x = show x ++ " : " ++ valueType x
 
 ifOk :: Result a -> (a -> IO (Result b)) -> IO (Result b)
 ifOk (Left err) _    = return $ Left err
@@ -153,4 +180,4 @@ initCxt initEnv = Cxt{stack = newStack, envs = [newEnv ++ initEnv]}
 
 -- ====================================================================================================
 
-type Parser = String -> Result [Value]
+type Parser = [Value] -> Result [Value]

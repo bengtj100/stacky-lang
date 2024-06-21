@@ -10,58 +10,66 @@
 -- ====================================================================================================
 
 module Lexer (
+              OpsData,
               lexer
              ) where
 
 import Data.Char
 
 import CoreTypes
-import BuiltIns
+
+type OpsData = ([Char], [String])
     
 -- ====================================================================================================
 
-lexer :: String -> Result ([Value], String)
-lexer = lx . dropWhite
-        where lx "" =
-                  Right ([], "")
-              lx str =           
-                  do (t, next) <- token str
-                     (ts, rest) <- lexer next
-                     Right $ (t:ts, rest)
+lexer ::  OpsData -> String -> Result ([Value], String)
+lexer ops =
+    lx . dropWhite
+    where lx "" =
+              Right ([], "")
+          lx str =           
+              do (t, next) <- token ops str
+                 (ts, rest) <- lexer ops next
+                 Right $ (t:ts, rest)
 
-token :: String -> Result (Value, String)
-token str@('-' : c :_) | isDigit c = intToken str
-token str@(c : _)      | isDigit c = intToken str
-token ('"' : str)                  = strToken str
-token str                          = atomToken str
+token :: OpsData -> String -> Result (Value, String)
+token _   str@('-' : c :_) | isDigit c = intToken str
+token _   str@(c : _)      | isDigit c = intToken str
+token _   ('"' : str)                  = strToken str
+token ops str                          = atomToken ops str
 
 strToken :: String -> Result(Value, String)
 strToken str = case rest of
                    ""       -> Left $ "Unterminated string constant: '" ++ val ++ "'"
                    _ : rest' -> Right (ValString val, rest')
                where (val, rest) = tok str
-                     tok ""                   = ("", "")
-                     tok rest'@('"' : _)      = ("", rest')
-                     tok ('\\' : '"' : str')  = let (val', rest') = tok str'
-                                                in ('"' : val', rest')
-                     tok (c : str')           = let (val', rest') = tok str'
-                                                in (c: val', rest')
+                     tok ""                    = ("", "")
+                     tok rest'@('"' : _)       = ("", rest')
+                     tok ('\\' : '"' : str')   = let (val', rest') = tok str'
+                                                 in ('"' : val', rest')
+                     tok ('\\' : 'n' : str')   = let (val', rest') = tok str'
+                                                 in ('\n' : val', rest')
+                     tok ('\\' : 'r' : str')   = let (val', rest') = tok str'
+                                                 in ('\n' : val', rest')
+                     tok ('\\' : 't' : str')   = let (val', rest') = tok str'
+                                                 in ('\n' : val', rest')
+                     tok ('\\' : '\\' : str')  = let (val', rest') = tok str'
+                                                 in ('\n' : val', rest')
+                     tok (c : str')            = let (val', rest') = tok str'
+                                                 in (c: val', rest')
 intToken :: String -> Result (Value, String)
 intToken str = Right (ValInt x, rest) where (x, rest) = head $ reads str
 
-atomToken :: String -> Result (Value, String)
-atomToken (c:d:rest) | [c,d] `elem` ops2 = Right (ValAtom [c,d], rest)
-atomToken (c:rest)   | c     `elem` ops1 = Right (ValAtom [c],   rest)
-atomToken (c:str)    | isAlpha c         = let (cs, rest) = span (\x -> isAlphaNum x || x=='_') str
-                                           in Right (ValAtom (c:cs), rest)
-atomToken (c:_)                          = Left ("Unknown character: '" ++ [c] ++ "'")
-atomToken ""                             = Left "Out of input data"
-                                                              
-ops1 :: [Char]
-ops1 = ['\'', '[', ']'] ++ [ c | ([c], _) <- builtIns, not $ isAlphaNum c ]
+atomToken :: OpsData -> String -> Result (Value, String)
+atomToken (_, ops2) (c:d:rest) | [c,d] `elem` ops2 = Right (ValAtom [c,d], rest)
+atomToken (ops1, _) (c:rest)   | c     `elem` ops1 = Right (ValAtom [c], rest)
+atomToken _         (c:str)    | isAlpha c         = let (cs, rest) = spanName str
+                                                     in Right (ValAtom (c:cs), rest)
+atomToken _         (c:_)                          = Left ("Unknown character: '" ++ [c] ++ "'")
+atomToken _         ""                             = Left "Out of input data"
 
-ops2 :: [String]
-ops2 = [ [c,d] | ([c,d], _) <- builtIns, not $ isAlphaNum c ]
+spanName :: String -> (String, String)
+spanName = span (\x -> isAlphaNum x || x=='_')
 
 dropWhite :: String -> String
 dropWhite = dropWhile isSpace
