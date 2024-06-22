@@ -1,6 +1,10 @@
 # Example: Fibonacci
 
 ```
+42 'foo;
+```
+Comment
+```
 ` [
 `  'n;
 `  [ [dup 0 >] ['i; over over + i 1 - fib_] [] ? ] 'fib_;

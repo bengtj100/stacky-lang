@@ -11,31 +11,43 @@
 
 module CoreTypes (
                   Name,
+
                   Operation,
+
                   Value(..),
-                  Error,
-                  Result,
-                  Stack,
-                  Env,
-                  Cxt(..),
-                  Parser,
-                  -- Value functions
                   getValInt,
                   isComparable,
-                  -- Error functions
+                  getValPos,
+
+                  Error,
+                  newError, newErrPos,
                   printError,
-                  -- Result functions
+
+                  Result,
                   stackUnderflowError,
                   typeError1,
                   typeError2,
                   ifOk,
-                  -- Stack functions
+
+                  Stack,
                   printStack,
-                  -- Env functions
+
+                  Env,
                   insertEnv,
                   lookupEnv,
-                  -- Cxt functions
-                  initCxt
+
+                  Cxt(..),
+                  initCxt,
+
+                  Parser,
+
+                  Position(..),
+                  initPos,
+                  nextPos,
+                  nextPosStr,
+                  incPosLine,
+                  incPosChar,
+                  noPos
                  ) where
 
     
@@ -45,59 +57,70 @@ type Name = String
     
 type Operation = Cxt -> IO (Result Cxt)
 
-data Value = ValInt Integer
-           | ValAtom Name
-           | ValString String
-           | ValStack Stack
-           | ValOp Name Operation
+data Value = ValInt    Position Integer
+           | ValAtom   Position Name
+           | ValString Position String
+           | ValStack  Position Stack
+           | ValOp     Position Name Operation
+           | ValNoop
 
 instance Show Value where
-    show (ValInt i)       = show i
-    show (ValAtom a)      = a
-    show (ValString str)  = "\"" ++ fmtString str ++ "\""
-    show (ValStack s)     = "[ " ++ (fmtStack $ reverse s) ++ " ]"
-    show (ValOp name _)  = "{"++name++"}"
+    show (ValInt    _ i     ) = show i
+    show (ValAtom   _ a     ) = a
+    show (ValString _ str   ) = "\"" ++ fmtString str ++ "\""
+    show (ValStack  _ s     ) = "[ " ++ (fmtStack $ reverse s) ++ " ]"
+    show (ValOp     _ name _) = "{"++name++"}"
+    show (ValNoop           ) = "{}"
 
 instance Eq Value where
-    (ValInt i1)    == (ValInt i2)    =  i1 == i2
-    (ValAtom a1)   == (ValAtom a2)   =  a1 == a2
-    (ValString s1) == (ValString s2) =  s1 == s2
-    (ValStack st1) == (ValStack st2) = st1 == st2
-    (ValOp n1 _)   == (ValOp n2 _)   =  n1 == n2
-    (ValAtom n1)   == (ValOp n2 _)   =  n1 == n2
-    (ValOp n1 _)   == (ValAtom n2)   =  n1 == n2
-    _              == _              = False
+    (ValInt    _ i1)   == (ValInt    _ i2)   =  i1 == i2
+    (ValAtom   _ a1)   == (ValAtom   _ a2)   =  a1 == a2
+    (ValString _ s1)   == (ValString _ s2)   =  s1 == s2
+    (ValStack  _ st1)  == (ValStack  _ st2)  = st1 == st2
+    (ValOp     _ n1 _) == (ValOp     _ n2 _) =  n1 == n2
+    (ValAtom   _ n1)   == (ValOp     _ n2 _) =  n1 == n2
+    (ValOp     _ n1 _) == (ValAtom   _ n2)   =  n1 == n2
+    _                  == _                  =  False
 
 instance Ord Value where
-    (ValInt i1)    <= (ValInt i2)    =  i1 <= i2
-    (ValAtom a1)   <= (ValAtom a2)   =  a1 <= a2
-    (ValString s1) <= (ValString s2) =  s1 <= s2
-    (ValOp s1 _)   <= (ValOp s2 _)   =  s1 <= s2
-    (ValOp s1 _)   <= (ValAtom s2)   =  s1 <= s2
-    (ValAtom s1)   <= (ValOp s2 _)   =  s1 <= s2
-    (ValStack st1) <= (ValStack st2) = st1 <= st2
-    _              <= _              = False
+    (ValInt    _ i1)   <= (ValInt    _ i2)   =  i1 <= i2
+    (ValAtom   _ a1)   <= (ValAtom   _ a2)   =  a1 <= a2
+    (ValString _ s1)   <= (ValString _ s2)   =  s1 <= s2
+    (ValOp     _ s1 _) <= (ValOp     _ s2 _) =  s1 <= s2
+    (ValOp     _ s1 _) <= (ValAtom   _ s2)   =  s1 <= s2
+    (ValAtom   _ s1)   <= (ValOp     _ s2 _) =  s1 <= s2
+    (ValStack  _ st1)  <= (ValStack  _ st2)  = st1 <= st2
+    _                  <= _                  =  False
 
 isComparable :: Value -> Value -> Bool
-isComparable (ValInt _)    (ValInt _)    = True
-isComparable (ValString _) (ValString _) = True
-isComparable (ValStack _)  (ValStack _)  = True
-isComparable (ValAtom _)   (ValAtom _)   = True
-isComparable (ValOp _ _)   (ValAtom _)   = True
-isComparable (ValAtom _)   (ValOp _ _)   = True
-isComparable (ValOp _ _)   (ValOp _ _)   = True
+isComparable (ValInt _ _)    (ValInt _ _)    = True
+isComparable (ValString _ _) (ValString _ _) = True
+isComparable (ValStack _ _)  (ValStack _ _)  = True
+isComparable (ValAtom _ _)   (ValAtom _ _)   = True
+isComparable (ValOp _ _ _)   (ValAtom _ _)   = True
+isComparable (ValAtom _ _)   (ValOp _ _ _)   = True
+isComparable (ValOp _ _ _)   (ValOp _ _ _)   = True
 isComparable _             _             = False
 
 valueType :: Value -> String
-valueType (ValInt _)    = "integer"
-valueType (ValAtom _)   = "atom"
-valueType (ValString _) = "string"
-valueType (ValStack _)  = "stack"
-valueType (ValOp _ _)   = "atom"
+valueType (ValInt _ _)    = "integer"
+valueType (ValAtom _ _)   = "atom"
+valueType (ValString _ _) = "string"
+valueType (ValStack _ _)  = "stack"
+valueType (ValOp _ _ _)   = "atom"
+valueType (ValNoop)       = "noop"
                           
+getValPos :: Value -> Position
+getValPos (ValInt pos _)    = pos
+getValPos (ValAtom pos _)   = pos
+getValPos (ValString pos _) = pos
+getValPos (ValStack pos _)  = pos
+getValPos (ValOp pos _ _)   = pos
+getValPos (ValNoop)         = noPos
+                              
 getValInt :: Value -> Result Integer
-getValInt (ValInt i) = Right i
-getValInt v          = Left ("Expected an int got: '" ++ valueType v ++ "'")
+getValInt (ValInt _ i) = Right i
+getValInt v            = newError v ("Expected an int got: '" ++ valueType v ++ "'")
 
 fmtString :: String -> String
 fmtString ""           = ""
@@ -110,27 +133,39 @@ fmtString (c : str)    = c : fmtString str
                            
 -- ====================================================================================================
 
-type Error = String
+type Error = (Position, String)
 
 printError :: Error -> IO ()
-printError = putStrLn . ("ERROR: "++)
+printError (pos, msg) = putStrLn (fmtPosition pos ++"ERROR: " ++ msg)
+
+fmtPosition :: Position -> String
+fmtPosition pos | pos == noPos = ""
+                | otherwise    = fileName pos ++ ":"
+                                 ++ show (linePos pos) ++ ":"
+                                 ++ show (charPos pos) ++ ": "
+
+newError :: Value -> String -> Result a
+newError val err = newErrPos (getValPos val) err
+
+newErrPos :: Position -> String -> Result a
+newErrPos pos err = Left (pos, err)
 
 -- ====================================================================================================
 
 type Result a = Either Error a
 
-stackUnderflowError :: Name -> Result a
-stackUnderflowError name = Left $ "Stack underflow in operation: '" ++ name ++ "'"
+stackUnderflowError :: Value -> Name -> Result a
+stackUnderflowError val name = newError val $ "Stack underflow in operation: '" ++ name ++ "'"
 
-typeError1 :: Name -> String -> Value -> Result a
-typeError1 name comment x =
-    Left ("Operation '" ++ name ++ "' expects " ++ comment
-          ++ ", got '" ++ valWType x ++ "'")
+typeError1 :: Value ->  Name -> String -> Value -> Result a
+typeError1 val name comment x =
+    newError val ("Operation '" ++ name ++ "' expects " ++ comment
+                  ++ ", got '" ++ valWType x ++ "'")
 
-typeError2 :: Name -> String -> Value -> Value -> Result a
-typeError2 name comment x y =
-    Left ("Operation '" ++ name ++ "' expects " ++ comment
-          ++ ", got '" ++ valWType x ++ "' and '" ++ valWType y ++ "'")
+typeError2 :: Value -> Name -> String -> Value -> Value -> Result a
+typeError2 val name comment x y =
+    newError val ("Operation '" ++ name ++ "' expects " ++ comment
+                  ++ ", got '" ++ valWType x ++ "' and '" ++ valWType y ++ "'")
 
 valWType :: Value -> String
 valWType x = show x ++ " : " ++ valueType x
@@ -162,7 +197,7 @@ newEnv = []
 
 insertEnv :: Cxt -> Name -> Value -> Result Cxt
 insertEnv Cxt{envs = env:_} key _ | key `elem` map fst env =
-    Left $ "Redefining name: '" ++ key ++ "'"
+    newError ValNoop $ "Redefining name: '" ++ key ++ "'"
 insertEnv cxt@Cxt{envs = env:es} key val =
     Right $ cxt{envs=((key, val) : env) : es}
 insertEnv _ _ _ = error "INSERTENV CALLED WITH EMPTY ENV STACK! THIS SHOULD NEVER HAPPEN!"
@@ -181,3 +216,33 @@ initCxt initEnv = Cxt{stack = newStack, envs = [newEnv ++ initEnv]}
 -- ====================================================================================================
 
 type Parser = [Value] -> Result [Value]
+
+-- ====================================================================================================
+
+data Position = Pos{ fileName :: String, linePos :: Int, charPos :: Int } deriving (Show, Read, Eq)
+
+initPos :: String -> Position
+initPos fname = Pos{fileName = fname, linePos = 0, charPos = 0}
+
+
+nextPos :: Position -> Char -> Position
+nextPos p@Pos{linePos = l} '\n' = p{linePos = l + 1, charPos = 0}
+nextPos p                  '\r' = p{charPos = 0}
+nextPos p@Pos{charPos = c} '\t' = p{charPos = calcTab c}
+nextPos p@Pos{charPos = c} _    = p{charPos = c + 1}
+
+
+nextPosStr :: Position -> String -> Position
+nextPosStr = foldl nextPos
+
+incPosLine :: Position -> Int -> Position
+incPosLine p@Pos{linePos = l} i = p{linePos = l + i}
+
+incPosChar :: Position -> Int -> Position
+incPosChar p@Pos{charPos = l} i = p{charPos = l + i}
+                                  
+calcTab :: Int -> Int
+calcTab c = c + (8 - c `mod` 8)
+
+noPos :: Position
+noPos = Pos{fileName = "", linePos = -1, charPos = -1}

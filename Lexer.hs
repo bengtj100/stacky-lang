@@ -21,77 +21,105 @@ import Data.List.Split (splitOn)
 import CoreTypes
 
 type OpsData = ([Char], [String])
+
+type Lexer = Position -> String -> Result ([Value], String, Position)
     
 -- ====================================================================================================
 
-lexer :: OpsData -> String -> Result ([Value], String)
-lexer ops = lexerDirect ops . removeComments
+lexer :: OpsData -> Lexer
+lexer ops pos = lexerDirect ops pos . removeComments pos
 
-lexerDirect ::  OpsData -> String -> Result ([Value], String)
-lexerDirect ops =
-    lx . dropWhite
-    where lx ""  = Right ([], "")
-          lx str = do (t, next) <- token ops str
-                      (ts, rest) <- lexerDirect ops next
-                      Right $ (t:ts, rest)
+lexerDirect ::  OpsData -> Lexer
+lexerDirect ops pos str =
+    lx newPos newStr
+    where (newStr, newPos) = dropWhite pos str
+          lx pos0 ""   = Right ([], "", pos0)
+          lx pos0 str0 = do (t, next, pos1) <- token ops pos0 str0
+                            (ts, rest, pos2) <- lexerDirect ops pos1 next
+                            Right $ (t:ts, rest, pos2)
 
-token :: OpsData -> String -> Result (Value, String)
-token _   str@('-' : c :_) | isDigit c = intToken str
-token _   str@(c : _)      | isDigit c = intToken str
-token _   ('"' : str)                  = strToken str
-token ops str                          = atomToken ops str
+token :: OpsData -> Position -> String -> Result(Value, String, Position)
+token _   pos str@('-' : c :_) | isDigit c = intToken pos str
+token _   pos str@(c : _)      | isDigit c = intToken pos str
+token _   pos ('"' : str)                  = strToken pos str
+token _   pos ('@':'@':'@':str)            = posToken pos str                 
+token ops pos str                          = atomToken ops pos str
 
-strToken :: String -> Result(Value, String)
-strToken str = case rest of
-                   ""       -> Left $ "Unterminated string constant: '" ++ val ++ "'"
-                   _ : rest' -> Right (ValString val, rest')
-               where (val, rest) = tok str
-                     tok ""                    = ("", "")
-                     tok rest'@('"' : _)       = ("", rest')
-                     tok ('\\' : '"' : str')   = let (val', rest') = tok str'
-                                                 in ('"' : val', rest')
-                     tok ('\\' : 'n' : str')   = let (val', rest') = tok str'
-                                                 in ('\n' : val', rest')
-                     tok ('\\' : 'r' : str')   = let (val', rest') = tok str'
-                                                 in ('\n' : val', rest')
-                     tok ('\\' : 't' : str')   = let (val', rest') = tok str'
-                                                 in ('\n' : val', rest')
-                     tok ('\\' : '\\' : str')  = let (val', rest') = tok str'
-                                                 in ('\n' : val', rest')
-                     tok (c : str')            = let (val', rest') = tok str'
-                                                 in (c: val', rest')
-intToken :: String -> Result (Value, String)
-intToken str = Right (ValInt x, rest) where (x, rest) = head $ reads str
+posToken :: Position -> String -> Result(Value, String, Position)
+posToken _ str =
+    Right (ValNoop, rest, read posStr)
+    where
+        (posStr, rest) = span (/= '\n') str
+        
+ 
+strToken :: Position -> String -> Result(Value, String, Position)
+strToken pos str =
+    case rest of
+        ""        -> newErrPos pos $ "Unterminated string constant: '" ++ val ++ "'"
+        _ : rest' -> Right (ValString pos val, rest', pos1)
+    where (val, rest, pos1)              = tok pos str
+          tok pos0 ""                    = ("", "", pos0)
+          tok pos0 rest'@('"' : _)       = ("", rest', incPosChar pos0 1)
+          tok pos0 ('\\' : '"' : str')   = let (val', rest', pos2) = tok (incPosChar pos0 2) str'
+                                           in ('"' : val', rest', pos2)
+          tok pos0 ('\\' : 'n' : str')   = let (val', rest', pos2) = tok (incPosChar pos0 2) str'
+                                           in ('\n' : val', rest', pos2)
+          tok pos0 ('\\' : 'r' : str')   = let (val', rest', pos2) = tok (incPosChar pos0 2) str'
+                                           in ('\n' : val', rest', pos2)
+          tok pos0 ('\\' : 't' : str')   = let (val', rest', pos2) = tok (incPosChar pos0 2) str'
+                                           in ('\n' : val', rest', pos2)
+          tok pos0 ('\\' : '\\' : str')  = let (val', rest', pos2) = tok (incPosChar pos0 2) str'
+                                           in ('\n' : val', rest', pos2)
+          tok pos0 (c : str')            = let (val', rest', pos2) = tok (nextPos pos0 c) str'
+                                           in (c    : val', rest', pos2)
 
-atomToken :: OpsData -> String -> Result (Value, String)
-atomToken (_, ops2) (c:d:rest) | [c,d] `elem` ops2 = Right (ValAtom [c,d], rest)
-atomToken (ops1, _) (c:rest)   | c     `elem` ops1 = Right (ValAtom [c], rest)
-atomToken _         (c:str)    | isAlpha c         = let (cs, rest) = spanName str
-                                                     in Right (ValAtom (c:cs), rest)
-atomToken _         (c:_)                          = Left ("Unknown character: '" ++ [c] ++ "'")
-atomToken _         ""                             = Left "Out of input data"
+intToken :: Position -> String -> Result(Value, String, Position)
+intToken pos str =
+    Right (ValInt pos x, rest, pos1)
+    where (x, rest) = head $ reads str
+          pos1      = incPosChar pos $ length $ show x
+                      
+atomToken :: OpsData -> Position -> String -> Result(Value, String, Position)
+atomToken (_, ops2) pos (c:d:rest)
+    | [c,d] `elem` ops2 =
+        Right (ValAtom pos [c,d], rest, nextPosStr pos [c,d])
+atomToken (ops1, _) pos (c:rest)
+    | c `elem` ops1 =
+        Right (ValAtom pos [c], rest, nextPos pos c)
+atomToken _ pos (c:str)
+    | isAlpha c =
+        let (cs, rest) = spanName str
+        in Right (ValAtom pos (c:cs), rest, nextPosStr pos (c:cs))
+atomToken _ pos (c:_) =
+    newErrPos pos ("Unknown character: '" ++ [c] ++ "'")
+atomToken _ pos "" =
+    newErrPos pos "Out of input data"
 
 spanName :: String -> (String, String)
 spanName = span (\x -> isAlphaNum x || x=='_')
 
-dropWhite :: String -> String
-dropWhite = dropWhile isSpace
+dropWhite :: Position -> String -> (String, Position)
+dropWhite pos str = (rest, nextPosStr pos ws)
+                    where (ws, rest) = span isSpace str
 
 
 -- ====================================================================================================
 
-removeComments :: String -> String
-removeComments = removeShortComments . removeLongComments
+removeComments :: Position -> String -> String
+removeComments pos = removeShortComments . removeLongComments pos
 
-removeLongComments :: String -> String
-removeLongComments = unlines . remCmts . splitOn "```"
+removeLongComments :: Position -> String -> String
+removeLongComments pos = unlines . remCmts pos . splitOn "```"
 
-remCmts :: [String] -> [String]
-remCmts (_ : nonCmt : xs) = nonCmt : remCmts xs
-remCmts _                 = []
+remCmts :: Position -> [String] -> [String]
+remCmts pos (cmt : nonCmt : xs) = marker : nonCmt : remCmts nonCmtPos xs
+                                  where cmtPos = nextPosStr pos cmt
+                                        nonCmtPos = nextPosStr cmtPos nonCmt
+                                        marker    = "@@@" ++ show cmtPos
+remCmts _ _ = []
 
 removeShortComments :: String -> String
 removeShortComments ""           = ""
 removeShortComments ('`' : rest) = removeShortComments rest'
-                                   where rest' = dropWhile ((/=) '\n') rest
+                                   where rest' = dropWhile ('\n' /=) rest
 removeShortComments (c : str)    = c : removeShortComments str
