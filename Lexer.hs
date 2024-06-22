@@ -11,10 +11,12 @@
 
 module Lexer (
               OpsData,
-              lexer
+              lexer,
+              lexerDirect
              ) where
 
 import Data.Char
+import Data.List.Split (splitOn)
 
 import CoreTypes
 
@@ -22,15 +24,16 @@ type OpsData = ([Char], [String])
     
 -- ====================================================================================================
 
-lexer ::  OpsData -> String -> Result ([Value], String)
-lexer ops =
+lexer :: OpsData -> String -> Result ([Value], String)
+lexer ops = lexerDirect ops . removeComments
+
+lexerDirect ::  OpsData -> String -> Result ([Value], String)
+lexerDirect ops =
     lx . dropWhite
-    where lx "" =
-              Right ([], "")
-          lx str =           
-              do (t, next) <- token ops str
-                 (ts, rest) <- lexer ops next
-                 Right $ (t:ts, rest)
+    where lx ""  = Right ([], "")
+          lx str = do (t, next) <- token ops str
+                      (ts, rest) <- lexerDirect ops next
+                      Right $ (t:ts, rest)
 
 token :: OpsData -> String -> Result (Value, String)
 token _   str@('-' : c :_) | isDigit c = intToken str
@@ -75,3 +78,20 @@ dropWhite :: String -> String
 dropWhite = dropWhile isSpace
 
 
+-- ====================================================================================================
+
+removeComments :: String -> String
+removeComments = removeShortComments . removeLongComments
+
+removeLongComments :: String -> String
+removeLongComments = unlines . remCmts . splitOn "```"
+
+remCmts :: [String] -> [String]
+remCmts (_ : nonCmt : xs) = nonCmt : remCmts xs
+remCmts _                 = []
+
+removeShortComments :: String -> String
+removeShortComments ""           = ""
+removeShortComments ('`' : rest) = removeShortComments rest'
+                                   where rest' = dropWhile ((/=) '\n') rest
+removeShortComments (c : str)    = c : removeShortComments str

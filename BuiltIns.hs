@@ -15,6 +15,7 @@ module BuiltIns (
                 ) where
 
 import Data.Char
+import Control.Exception
 
 import CoreTypes
 import Interpreter
@@ -43,8 +44,8 @@ builtIns =
                defStash, defApply, defCond,
                defDrop, defSwap, defRot, defOver, defDup, defClear, defDepth,
                defAppend,
-               defPrint, defPut, defPutLn, defInput, defPrompt,
-               defEval
+               defPrint, defPut, defPutLn, defInput, defPrompt, defReadFile,
+               defEval, defImport
               ]
 
 defBI :: Value -> (Name, Value)
@@ -139,7 +140,7 @@ defSwap = defOp "swap" $ \cxt@Cxt{stack = s0} ->
 defRot :: Value
 defRot = defOp "rot" $ \cxt@Cxt{stack = s0} ->
              case s0 of
-                 x : y : z : s1 -> Right cxt{stack = z : y : x : s1}
+                 x : y : z : s1 -> Right cxt{stack = z : x : y : s1}
                  _              -> stackUnderflowError "rot"
 
 defOver :: Value
@@ -239,15 +240,55 @@ defEval = ValOp "eval" $ \cxt@Cxt{stack = s0} ->
               _ ->
                   return $ stackUnderflowError "eval"
 
+defReadFile :: Value
+defReadFile = ValOp "readFile" $ \cxt@Cxt{stack = s0} ->
+          case s0 of
+              (ValString fName) : s1 ->
+                  do res <- readTheFile fName
+                     ifOk res $ \str ->
+                         return $ Right cxt{stack = ValString str : s1}
+              other : _ ->
+                  return $ typeError1 "readFile" "a string file path" other
+              _ ->
+                  return $ stackUnderflowError "readFile"
+
+defImport :: Value
+defImport = ValOp "import" $ \cxt@Cxt{stack = s0} ->
+          case s0 of
+              (ValString fName) : s1 ->
+                  do res <- readTheFile fName
+                     ifOk res (\str ->
+                               do let parseRes = parseFile str
+                                  ifOk parseRes (\cmds -> interpreter cxt{stack = s1} cmds))
+              other : _ ->
+                  return $ typeError1 "import" "a string file path" other
+              _ ->
+                  return $ stackUnderflowError "readFile"
+
+readTheFile :: String -> IO (Result String)
+readTheFile fName =
+    (do str <- readFile fName
+        return $ Right str) `catch` handleError
+
+handleError :: IOError -> IO (Result a)
+handleError err =
+    return $ Left $ show err
+
+
 -- ====================================================================================================
 
 parseLine :: String -> Result [Value]
-parseLine str =
-    do (cmds, rest) <- lexer (ops1, ops2) str
+parseLine = parseCont lexerDirect
+
+parseFile :: String -> Result [Value]
+parseFile = parseCont lexer
+
+parseCont :: (OpsData -> String -> Result ([Value], String)) -> String -> Result [Value]
+parseCont l str = 
+    do (cmds, rest) <- l (ops1, ops2) str
        if rest /= ""
        then Left ("Trailing input garbage: '" ++ rest ++ "'")
        else parser builtIns cmds
-    
 
 ops1 :: [Char]
 ops1 = ['\'', '[', ']'] ++ [ c | ([c], _) <- builtIns, not $ isAlphaNum c ]
