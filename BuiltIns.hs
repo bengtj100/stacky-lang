@@ -45,7 +45,7 @@ builtIns =
                defDrop, defSwap, defRot, defOver, defDup, defClear, defDepth,
                defAppend,
                defPrint, defPut, defPutLn, defInput, defPrompt, defReadFile,
-               defEval, defImport
+               defEval, defImport, defEnv
               ]
 
 defBI :: Value -> (Name, Value)
@@ -274,6 +274,11 @@ handleError :: Position -> IOError -> IO (Result a)
 handleError pos err =
     return $ newErrPos pos $ show err
 
+
+defEnv :: Value
+defEnv = ValOp noPos "env" $ \cxt@Cxt{envs = e0} ->
+         do putStrLn $ unlines $ map (\(k,v) -> show k ++ " : " ++ show v) $ concat e0
+            return $ Right cxt
 
 -- ====================================================================================================
 
