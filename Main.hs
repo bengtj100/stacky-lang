@@ -15,8 +15,8 @@ import System.IO.Error
 import System.Exit
 import System.Environment
 import Control.Exception
-    
 import Repl
+import Version
 
 -- ====================================================================================================
 
@@ -30,7 +30,7 @@ main =
 printGreeting :: IO ()
 printGreeting =
     do putStrLn ""
-       putStrLn "STACKY v0.1"
+       putStrLn $ "STACKY v0.1 -- Build: " ++ build
        putStrLn ""
        putStrLn "Copyright (c) 2024 Bengt Johansson -- All rights reserved"
        putStrLn ""
@@ -39,7 +39,7 @@ printGreeting =
 
 handleError :: IOError -> IO ()
 handleError err =
-    if isEOFError err && False
+    if isEOFError err
     then do putStrLn ""
             putStrLn "Leaving stacky interpreter"
             putStrLn "Bye!"
