@@ -14,7 +14,10 @@ cat <<EOF
 
 -- ================    This is an auto-generated file. Do not edit!    ================
 
-module Version (build) where
+module Version (version, build) where
+
+version :: String
+version = "$CABAL_VERSION"
 
 build :: String
 build = "$VERSION"

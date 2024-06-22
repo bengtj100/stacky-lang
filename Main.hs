@@ -30,7 +30,7 @@ main =
 printGreeting :: IO ()
 printGreeting =
     do putStrLn ""
-       putStrLn $ "STACKY v0.1 -- Build: " ++ build
+       putStrLn $ "STACKY version: " ++ version ++", build: " ++ build
        putStrLn ""
        putStrLn "Copyright (c) 2024 Bengt Johansson -- All rights reserved"
        putStrLn ""

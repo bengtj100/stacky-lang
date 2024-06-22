@@ -10,7 +10,9 @@
 ## ====================================================================================================
 
 PROJECT    = stacky
-EXECUTABLE = $(shell find dist-newstyle -type f -executable -name $(PROJECT))
+CABAL_FILE = $(PROJECT).cabal
+
+EXECUTABLE = $(shell cabal list-bin $(PROJECT))
 EXE_ARGS   = 
 
 HASKTAGS   = ~/.cabal/bin/hasktags
@@ -18,10 +20,13 @@ HASKTAGS_ARGS = -e .
 
 INST_BIN   = ~/bin
 
-VERSION_FILE = Version.hs
-VERSION_TEMPLATE = $(VERSION_FILE).template
-MAKE_VERSION_FILE = ~/src/build-tools/bin/make-version-file
-MAKE_VERSION_ARGS = --template $(VERSION_TEMPLATE) --output $(VERSION_FILE)
+
+VERSION_FILE       = Version.hs
+VERSION_TEMPLATE   = $(VERSION_FILE).template
+MAKE_VERSION_PATH  = ~/src/build-tools/bin/make-version-file
+MAKE_VERSION_ARGS  = --cabal $(CABAL_FILE)
+MAKE_VERSION_ARGS += --template $(VERSION_TEMPLATE)
+MAKE_VERSION_ARGS += --output $(VERSION_FILE)
 
 all: build
 
@@ -30,8 +35,8 @@ build: tags $(VERSION_FILE)
 	cabal build
 
 run: build
-	@echo ">>>>>>>>>>>>    Executing executable ..."
-	$(EXECUTABLE) $(EXE_ARGS)
+	@echo ">>>>>>>>>>>>    Running executable '$(shell basename $(EXECUTABLE))'..."
+	@$(EXECUTABLE) $(EXE_ARGS)
 
 test: build
 	@echo ">>>>>>>>>>>>    Running unit tests ..."
@@ -53,8 +58,8 @@ tags:
 .PHONY: version
 version:
 	@echo ">>>>>>>>>>>>    Generating new build version ..."
-	$(MAKE_VERSION_FILE) $(MAKE_VERSION_ARGS)
+	$(MAKE_VERSION_PATH) $(MAKE_VERSION_ARGS)
 
-$(VERSION_FILE): $(VERSION_TEMPLATE)
+$(VERSION_FILE): $(VERSION_TEMPLATE) $(CABAL_FILE)
 	@echo ">>>>>>>>>>>>    Initializing build versioning ..."
-	$(MAKE_VERSION_FILE) $(MAKE_VERSION_ARGS)
+	$(MAKE_VERSION_PATH) $(MAKE_VERSION_ARGS)
