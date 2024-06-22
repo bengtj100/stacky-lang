@@ -52,6 +52,7 @@ runAtom cxt@Cxt{stack = s} atom =
                        runValue cxt{stack = val : s} defApply
 
 
+injectPos :: Position -> IO (Result a) -> IO (Result a)
 injectPos pos iop =
     iop >>= \res ->
                return $ case res of
