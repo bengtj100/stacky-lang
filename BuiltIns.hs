@@ -28,24 +28,39 @@ import Lexer
 builtIns :: Env
 builtIns =
     map defBI [
+               -- Arithmetic operations
                defBinIntOp "+" (+),
                defBinIntOp "-" (-),
                defBinIntOp "*" (*),
                defBinIntOp "/" div,
+
+               -- Comparison operations
                defBinCmpOp "=" (==),
                defBinCmpOp "<" (<),
                defBinCmpOp ">" (>),
                defBinCmpOp "<=" (<=),
                defBinCmpOp ">=" (>=),
                defBinCmpOp "<>" (/=),
+
+               -- Boolean operations
                defUnBoolOp "~" not,
                defBinBoolOp "and" (&&),
                defBinBoolOp "or" (||),
-               defStash, defApply, defCond,
+
+               -- Control operations
+               defStash, defCond,
+
+               -- Stack operations
                defDrop, defSwap, defRot, defOver, defDup, defClear, defDepth,
+
+               -- String/sub-stack operations
                defAppend,
+
+               -- Input/output operations
                defPrint, defPut, defPutLn, defInput, defPrompt, defReadFile,
-               defEval, defImport, defEnv
+
+               -- Reflection/introspection operations
+               defApply, defEval, defImport, defEnv
               ]
 
 defBI :: Value -> (Name, Value)
@@ -99,9 +114,10 @@ bool2Truth pos False = ValInt pos 0
 bool2Truth pos True  = ValInt pos 1
 
 truth2Bool :: Value -> Bool
-truth2Bool (ValInt _ 0)    = False
-truth2Bool (ValStack _ []) = False
-truth2Bool _               = True
+truth2Bool (ValInt _ 0)      = False
+truth2Bool (ValStack _ [])   = False
+truth2Bool (ValString _ "" ) = False                             
+truth2Bool _                 = True
 
 -- ====================================================================================================
 

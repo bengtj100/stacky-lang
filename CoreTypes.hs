@@ -47,7 +47,7 @@ module CoreTypes (
                   nextPosStr,
                   incPosLine,
                   incPosChar,
-                  noPos
+                  noPos, isNoPos
                  ) where
 
     
@@ -139,7 +139,7 @@ printError :: Error -> IO ()
 printError (pos, msg) = putStrLn (fmtPosition pos ++"ERROR: " ++ msg)
 
 fmtPosition :: Position -> String
-fmtPosition pos | pos == noPos = ""
+fmtPosition pos | isNoPos pos  = ""
                 | otherwise    = fileName pos ++ ":"
                                  ++ show (linePos pos) ++ ":"
                                  ++ show (charPos pos) ++ ": "
@@ -186,7 +186,7 @@ fmtStack :: Stack -> String
 fmtStack = unwords . map show . reverse
 
 printStack :: Cxt -> IO ()
-printStack Cxt{stack = elems} = putStrLn $ fmtStack elems
+printStack Cxt{stack = elems} = putStrLn $ "[ " ++ fmtStack elems ++ " <]"
 
 -- ====================================================================================================
 
@@ -246,3 +246,8 @@ calcTab c = c + (8 - c `mod` 8)
 
 noPos :: Position
 noPos = Pos{fileName = "", linePos = -1, charPos = -1}
+
+isNoPos :: Position -> Bool
+isNoPos Pos{fileName = ""} = True
+isNoPos _                  = False
+                             

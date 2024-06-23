@@ -56,7 +56,7 @@ injectPos :: Position -> IO (Result a) -> IO (Result a)
 injectPos pos iop =
     iop >>= \res ->
                return $ case res of
-                            l@(Left (p, err)) | p == noPos -> Left (pos, err)
+                            l@(Left (p, err)) | isNoPos p  -> Left (pos, err)
                                               | otherwise  -> l
                             right                          -> right
 

@@ -20,14 +20,26 @@ import BuiltIns
 -- ====================================================================================================
 
 repl :: IO ()
-repl = r (initCxt builtIns)
-       where r cxt =
-                 do -- putStrLn "STACKY V1.0 (c) Bengt Johansson"
-                    line         <- getLines "> "
-                    let parseRes =  parseLine line
-                    result       <- ifOk parseRes $ \cmds -> interpreter cxt cmds
-                    nextCxt      <- either (\err    -> do { printError err; return cxt; })
-                                           (\newCxt -> do printStack newCxt
-                                                          return newCxt)
-                                           result
-                    r nextCxt
+repl = do let cxt = initCxt builtIns
+          printStack cxt
+          loop cxt
+
+loop :: Cxt -> IO ()
+loop cxt =
+    do line         <- getLines "> "
+       let parseRes =  parseLine line
+       result       <- ifOk parseRes $ \cmds -> interpreter cxt cmds
+       either (handleError cxt)
+              handleSuccess
+              result
+
+handleSuccess :: Cxt -> IO ()
+handleSuccess cxt =
+    do printStack cxt
+       loop cxt
+
+handleError :: Cxt -> Error -> IO ()
+handleError cxt err =
+    do printError err
+       loop cxt
+            
