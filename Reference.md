@@ -349,3 +349,29 @@ TBD
 
 TBD
 
+## Syntax description
+
+```
+Commands         <-- Command*
+
+Command          <-- Integer
+                 <-- Atom
+                 <-- String
+                 <-- Stack
+
+Stack            <-- '[' Commands ']'
+
+Integer          <-- [-]?[0-9]+
+
+Atom             <-- [a-zA-Z][a-zA-Z0-9_]*
+                 <-- Builtin-Operator
+
+String           <-- '"' Character* '"'
+
+Builtin-Operator <-- '+' | '-' | '*' | '/' | '=' | '<>' | '<' | '>' | '<=' | '>=' | '~' 
+
+Character        <-- ASCII-Character
+                 <-- Escape-Sequence
+
+Escape-Sequence  <-- '\'[\"rnt]
+```
