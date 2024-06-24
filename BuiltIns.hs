@@ -36,11 +36,11 @@ builtIns =
 
                -- Comparison operations
                defBinCmpOp "=" (==),
+               defBinCmpOp "<>" (/=),
                defBinCmpOp "<" (<),
                defBinCmpOp ">" (>),
                defBinCmpOp "<=" (<=),
                defBinCmpOp ">=" (>=),
-               defBinCmpOp "<>" (/=),
 
                -- Boolean operations
                defUnBoolOp "~" not,

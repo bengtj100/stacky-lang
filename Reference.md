@@ -1,4 +1,3 @@
-<center>
 # Stacky - A simple stack language
 ## Language Reference
 ### Version 0.1
@@ -10,100 +9,6 @@ The Stacky language is still in beta version 0.1, so things are moving fast and 
 **USE THIS LANGUAGE AT YOUR OWN RISK!**
 
 **IT SHOULD NOT BE CONSIDERED FOR PRODUCTION DEPLOYMENTS UNTIL FURTHER NOTICE!!!**
-</center>
-
-## Introduction
-
-*Stacky* is a simple stack-based language. This means that all operations use a [stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) to get parameters from and convey results to.
-
-In short, this means that most elements of the language are commands that operate on the stack. Even literals such as `42` are commands in Stacky. `42` is a command that pushes the integer value 42 onto the stack.
-
-## Hello World
-
-One of the simplest programs used to show a language is the so called *Hello World* program, which simply prints the greeting on the terminal and then terminates.
-
-This is *Hello World* in Stacky:
-
-```
-"Hello World" putLn
-```
-
-It consists of the string literal `"Hello World"` that pushes the string onto the stack and `putLn` that takes the value on the top of the stack and prints it.
-
-## The Stack
-
-The [stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) is a common data structure in Computer Science. It's an ordered collection of values with two operations:
-
-* `push` - Takes a value and inserts it into the stack. The values are stored in the order they are entered into the stack.
-* `pop` - Retrieves the most recently pushed elemen from the stack. It is removed from the stack, as well.
-
-In Stacky, the stack is represented as a sequence between `[` and `<]`. The stack is listed from bottom on the left to the top on the right hand side. When we start the Stacky interpreter, we are presented with the (initially) empty stack and a prompt where we enter our commands:
-
-```
-$ stacky 
-
-STACKY version: 0.1, build: v2024-06-23.12-13-49
-
-Copyright (c) 2024 Bengt Johansson -- All rights reserved
-
-[  <]
-> 
-```
-
-Let's enter the *Hello World* program in stages. First, we enter the string:
-
-```
-> "Hello World"
-[ "Hello World" <]
-> 
-```
-
-After doing so, we now see that the string has been pushed onto the stack as the stack printout now shows `[ "Hello World" <]`.
-
-Now we enter the `putLn` command:
-
-```
-> putLn
-Hello World
-[  <]
-> 
-```
-
-This takes the greeting from the stack, prints it and returns. As can be seen, the stack is now empty.
-
-Here is another example of how the stack works, using the `+` command.
-
-```
-> 1 2 3 4 5 6
-[ 1 2 3 4 5 6 <]
-> +
-[ 1 2 3 4 11 <]
-> +
-[ 1 2 3 15 <]
-> +
-[ 1 2 18 <]
-> +
-[ 1 20 <]
-> +
-[ 21 <]
-> 
-```
-
-First, six integers are pushed onto the stack. Next the plus (`+`) command takes the two topmost elements, adds them together and pushes the result onto the stack once more.
-
-In the rest of the manual, we will denote operations on the stack as follows:
-
-```
-+ : [ x y <] ---> [ (x+y) <]
-```
-
-**NOTE:** Unlike most ordinary languages, where function parameters can have varying arities, in most stck-based languages the results of an operation may have more than unary arity. Take for instance the swap operation, that swaps the frontmost elements on the stack. It is binary on the arguments, as well as the results.
-
-```
-swap: [ x y <] ---> [ y x <]
-```
-
-# Language reference
 
 ## Notational conventions
 
@@ -135,37 +40,29 @@ When the type of the operation is important, and it is not clear from the contex
 + : [ (x:integer) (y:integer) <] ---> [ (x+y:integer) <]
 ```
 
-## Comments
+## Execution environment
 
-Stacky has two kinds of comments. *Short comments* encompass everything between a backtick (`) and the end of the line.
-
-*Long comments* on the other hand can encompass severa lines. They start and end with three backticks (\`\`\``).
-
-Unlike most languages, Stacky consider all text to be comments until a long comment appears. This makes it possible to embed valid Stacky code in another format, such as [Markdown](https://en.wikipedia.org/wiki/Markdown).
-
-Example:
-
-~~~
-This is the beginning of the file. It is a comment.
-Below is the code.
-```
-"This is the code" 'And this is a short comment.
-~~~
-
-## The stack
+### The stack
 
 Stacky has an unbounded stack, which - in the reference implementation - is limited only by the available memory. Other implementations may impose some other limit inherent in that implementation, such as only allowing the total size of the stack to be less than what can be counted by an unsigned, 64 bit integer.
 
 All items in in the language - with a few exceptions, operate solely on the stack and only the stack. Typical exceptions to that rule are I/O and variable operations.
 
-## Variables
+### Variables and the environment
 
-Stacky does not have variables of the kind one would find in other languages, such as C++, Go, or Java. It does however offer the possibility to bind a name to a value on the stack. This makes it possible to define, e.g., user defined commands.
+Stacky does not have variables of the kind one would find in other languages, such as C++, Go, or Java. It does however offer the possibility to bind a name to a value on the stack. This mapping of names to values is called the environment.
 
 Any *atom* may be bound to a value by the *stash* (`;`) command:
 
 ```
 ; : [ v (n:atom) <] --- [ <]
+```
+
+This makes it possible to define, e.g., user defined commands.
+
+```
+` Compute the square of an integer
+[ dup * ] sq;
 ```
 
 **NOTE:** Attempting to bind an atom more than once will lead to a run-time error!
@@ -185,11 +82,29 @@ The first error arises from the fact that `theAnswer` is bound, so it will be re
 
 Putting a single quote (`'`) in front of an atom, will inhibit its evaluation. This is actually useful, when writing complex programs. 
 
-**NOTE:** It is considered best practice to *always* prefix a name with the quote when stashing it. Thus, the correct code for storing `theAnswer` is:
+**NOTE:** It is considered best practice to *always* prefix a name with the quote when storing it in the environment. Thus, the correct code for storing `theAnswer` is:
 
 ```
 42 'theAnswer;
 ```
+
+## Comments
+
+Stacky has two kinds of comments. *Short comments* encompass everything between a backtick (`) and the end of the line.
+
+*Long comments* on the other hand can encompass severa lines. They start and end with three backticks (\`\`\`).
+
+Unlike most languages, Stacky consider all text to be comments until a long comment appears. This makes it possible to embed valid Stacky code in another format, such as [Markdown](https://en.wikipedia.org/wiki/Markdown).
+
+Example:
+
+~~~
+This is the beginning of the file. It is a comment.
+Below is the code.
+```
+"This is the code" 'And this is a short comment.
+~~~
+
     
 ## Datatypes
 
@@ -226,7 +141,10 @@ The following operations are defined on integers:
   | Less than or equal    | `<=`   |
   | Greater than or equal | `>=`   |
   
-All operations follow this pattern: `[ x y <] ---> [ (x 'op' y) <]
+All operations follow this pattern:
+```
+[ x y <] ---> [ (x 'op' y) <]
+```
 
 ### Boolean values
 
@@ -275,12 +193,12 @@ The name atom in programming languages originated with [Prolog](https://en.wikip
 
 The most important operations that use atom are, inhibitor (`'`), stash (`;`) and evaluation.
 
-When an atom is encountered during evaluation, one of two things can happen. If the previous operation was the inhibitor (`'`), then the atom will be pushed onto the stack. Without the inhibitor, the atom will be pushed onto the stack, unless it has been previously stashed. If that is the case, the contents that was stashed away will be evalutated.
+When an atom is encountered during evaluation, one of two things can happen. If the previous operation was the inhibitor (`'`), then the atom will be pushed onto the stack. Without the inhibitor, the atom will be pushed onto the stack, unless it has been previously stored. If that is the case, the contents that was stored away will be evalutated.
 
 Example:
 
 ```
-19700101 epoch;      `First year of the UNIX epoch is stashed.
+19700101 epoch;      `First year of the UNIX epoch is stored.
 
 epoch                'Since epoch is defined, 19700101 is pushed onto the stack.
 
@@ -318,7 +236,7 @@ The following operations mainly operate on strings:
 
 ### Stacks
 
-Stacks are ordered lists of Stacky values. This is the main [composite datatype](https://en.wikipedia.org/wiki/Composite_data_type). The elements of a stack can be any Stacky value, such as atoms and integers, but also other stacks. Unlike other code, stacks aren't immediatelly evaluated, making it possible to delay execution and even store them using stashing This is how new operations are defined in Stacky.
+Stacks are ordered lists of Stacky values. This is the main [composite datatype](https://en.wikipedia.org/wiki/Composite_data_type). The elements of a stack can be any Stacky value, such as atoms and integers, but also other stacks. Unlike other code, stacks aren't immediatelly evaluated, making it possible to delay execution and even store them in the environment. This is how new operations are defined in Stacky.
 
 A stored stack will be immediatelly evaluated when it is retrieved.
 
@@ -379,15 +297,29 @@ Finally, append (`++`) also works on stacks:
 
 ## Operation Reference
 
-TBD
-
 ### Arithmetic operations
 
-TBD
+Arithmetic operators are only defined for *integers*. Any other argument type will lead to a run-time error'
+
+| Operator | Stack                      | Comment          |
+|:--------:|:---------------------------|:-----------------|
+| `+`      | `[ x y <] ---> [ (x+y) <]` | Addition         |
+| `-`      | `[ x y <] ---> [ (x-y) <]` | Subtraction      |
+| `*`      | `[ x y <] ---> [ (xy) <]`  | Multiplication   |
+| `/`      | `[ x y <] ---> [ (x/y) <]` | Integer division |
 
 ### Comparison operations
 
-TBD
+It is possible to compare all builtin datatypes. However, both arguments must be of the same type. Different types will never return a true values, e.g., comparing an integer and string will always return a false value.
+
+| Operator | Stack                       | Comment                          |
+|:--------:|:----------------------------|:---------------------------------|
+| `=`      | `[ x y <] ---> [ (x=y) <]`  | x is equal to y                  |
+| `<>`     | `[ x y <] ---> [ (x<>y) <]` | x is not equal to y              |
+| `<`      | `[ x y <] ---> [ (x<y) <]`  | x is less than y                 |
+| `>`      | `[ x y <] ---> [ (x>y) <]`  | x is greater than y              |
+| `<=`     | `[ x y <] ---> [ (x<=y) <]` | x is less than or equal to y     |
+| `>=`     | `[ x y <] ---> [ (x>=y) <]` | x is greater than or equal to y  |
 
 ### Boolean operations
 
