@@ -121,26 +121,10 @@ The Stacky language does not put any limitations to the maximum size of an integ
 
 The following operations are defined on integers:
 
-* Arithmetic: 
+* [Arithmetic](#arithmetic-operators): `+`, `-`, `*`, `/`
 
-  | Operation      | Syntax |
-  |:---------------|:------:|
-  | Addition       | `+`    |
-  | Subtraction    | `-`    |
-  | Multiplication | `*`    |
-  | Division       | `/`    |
+* [Comparison](#comparison-operators): `=`, `<>`, `<`, `>`, `<=`, `>=`
 
-* Comparison:
-
-  | Operation             | Syntax |
-  |:----------------------|:------:|
-  | Equal to              | `=`    |
-  | Not equal to          | `<>`   |
-  | Less than             | `<`    |
-  | Greater than          | `>`    |
-  | Less than or equal    | `<=`   |
-  | Greater than or equal | `>=`   |
-  
 All operations follow this pattern:
 ```
 [ x y <] ---> [ (x 'op' y) <]
@@ -156,13 +140,7 @@ Stacky does not define a *boolean* type, but uses the concept of "truthiness", i
 | `""`  | The empty string.              |
 | `[]`  | The empty [sub-stack](#stacks) |
 
-The language defines the following boolean operations:
-
-| Operation             | Syntax | Stack                         |
-|:----------------------|:------:|:------------------------------|
-| And                   | `=`    | `[ x y <] ---> [ and(x,y) <]` |
-| Or                    | `<>`   | `[ x y <] ---> [ or(x,y) <]`  |
-| Not                   | `<`    | `[ x <]   ---> [ not(x) <]`   |
+The language defines the following boolean operations: `and`, `or`, `~` (*not*)
 
 **NOTE:** Although the boolean operations accept several types of values as input, they only emot either `0` for false and `1` for true values.
 
@@ -301,33 +279,101 @@ Finally, append (`++`) also works on stacks:
 
 Arithmetic operators are only defined for *integers*. Any other argument type will lead to a run-time error'
 
-| Operator | Stack                      | Comment          |
-|:--------:|:---------------------------|:-----------------|
-| `+`      | `[ x y <] ---> [ (x+y) <]` | Addition         |
-| `-`      | `[ x y <] ---> [ (x-y) <]` | Subtraction      |
-| `*`      | `[ x y <] ---> [ (xy) <]`  | Multiplication   |
-| `/`      | `[ x y <] ---> [ (x/y) <]` | Integer division |
+| Operation | Stack                      | Comment          |
+|:---------:|:---------------------------|:-----------------|
+| `+`       | `[ x y <] ---> [ (x+y) <]` | Addition         |
+| `-`       | `[ x y <] ---> [ (x-y) <]` | Subtraction      |
+| `*`       | `[ x y <] ---> [ (xy) <]`  | Multiplication   |
+| `/`       | `[ x y <] ---> [ (x/y) <]` | Integer division |
 
 ### Comparison operations
 
 It is possible to compare all builtin datatypes. However, both arguments must be of the same type. Different types will never return a true values, e.g., comparing an integer and string will always return a false value.
 
-| Operator | Stack                       | Comment                          |
-|:--------:|:----------------------------|:---------------------------------|
-| `=`      | `[ x y <] ---> [ (x=y) <]`  | x is equal to y                  |
-| `<>`     | `[ x y <] ---> [ (x<>y) <]` | x is not equal to y              |
-| `<`      | `[ x y <] ---> [ (x<y) <]`  | x is less than y                 |
-| `>`      | `[ x y <] ---> [ (x>y) <]`  | x is greater than y              |
-| `<=`     | `[ x y <] ---> [ (x<=y) <]` | x is less than or equal to y     |
-| `>=`     | `[ x y <] ---> [ (x>=y) <]` | x is greater than or equal to y  |
+| Operation | Stack                       | Comment                         |
+|:---------:|:----------------------------|:--------------------------------|
+| `=`       | `[ x y <] ---> [ (x=y) <]`  | x is equal to y                 |
+| `<>`      | `[ x y <] ---> [ (x<>y) <]` | x is not equal to y             |
+| `<`       | `[ x y <] ---> [ (x<y) <]`  | x is less than y                |
+| `>`       | `[ x y <] ---> [ (x>y) <]`  | x is greater than y             |
+| `<=`      | `[ x y <] ---> [ (x<=y) <]` | x is less than or equal to y    |
+| `>=`      | `[ x y <] ---> [ (x>=y) <]` | x is greater than or equal to y |
 
 ### Boolean operations
 
-TBD
+As described [above](#boolean-values), Stacky does not provide a boolean type. Instead it has a notion of *[truthiness](#boolean-values)*, i.e, some values represent the truth value *false*, while all other values represent *true*.
 
-### Control operation
+While the boolean operator accept several values, they will all return zero (`0`) for *false*, and one (`1`) for *true*.
 
-TBD
+| Operation | Stack                         | Comment |
+|:---------:|:------------------------------|:--------|
+| `and`     | `[ x y <] ---> [ and(x,y) <]` | And     |
+| `or`      | `[ x y <] ---> [ or(x,y) <]`  | Or      |
+| `~`       | `[ x <]   ---> [ not(x) <]`   | Not     |
+
+### Control operations
+
+Control opertions are operations that either control the flow or execution or affects the execution environment.
+
+#### The stash operation
+
+The *stash* (`;`) operation's single purpose is to bind names to the *Name -> Value* map in the environment. It takes values and stashes them in the environment, thus the name.
+
+The names that are created are immediatelly made available to the program.
+
+**NOTE:** Bound names can not be updated! It is similar to how names (variables) are treated in mathematics and in functional programming languages, like Haskell or Erlang.
+
+| Operation | Stack                             | Comment                    |
+|:---------:|:----------------------------------|:---------------------------|
+| `;`       | `[ value name:atom <] ---> [  <]` | *name* is bound to *value. |
+
+Examples:
+
+```
+42 'theAnswer;               ` The value 42 is bound to theAnswer
+
+[ dup * ] 'square            ` This is how functions are defined.
+                             ' Store a sub-stack!
+
+theAnswer square             ' Compute 42 * 42 = 1764
+```
+#### The `cond` operation
+
+The *cond* operation (`?`) is the way one controls the execution flow in Stacky. It is basically the same as the *if-then-else* construct found in many languages. Its syntax and semantics are as follows:
+
+| Operation | Stack                                | Comment                       |
+|:---------:|:-------------------------------------|:------------------------------|
+| `?`       | `[ pred then else <] ---> [ then <]` | If `pred` evaluates to *true* |
+|           | `[ pred then else <] ---> [ else <]` | Otherwise                     |
+
+In another language one might write something like this to compute a discount:
+
+```
+if age >= 65 then
+    finalPrice = price / 2
+else
+    finalPrice = price
+```
+
+In stacky, this becomes:
+
+```
+[ age 65 >= ]
+    [ price 2 / ]
+    [ price ]
+    ?
+    'finalPrice;
+```
+
+So the `if <predicate> then <do-if-true> else <do-if-false>` becomes `<predicate> <do-if-true> <do-if-false> ?`.
+
+**NOTE:** the sub-stacks are not necessary unless a branch needs to execute more than one operation. The example above can be rewritten as:
+
+```
+age 65 >= 2 1 ? price / finalPrice;
+```
+
+More concise, but the readability may be affected.
 
 ### Stack operations
 
