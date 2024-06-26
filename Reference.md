@@ -349,31 +349,44 @@ The *cond* operation (`?`) is the way one controls the execution flow in Stacky.
 In another language one might write something like this to compute a discount:
 
 ```
-if age >= 65 then
-    finalPrice = price / 2
-else
-    finalPrice = price
+compute_discount(age, price) =
+    if age >= 65 then
+        return (price / 2)
+    else
+        return price
 ```
 
 In stacky, this becomes:
 
 ```
-[ age 65 >= ]
-    [ price 2 / ]
-    [ price ]
-    ?
-    'finalPrice;
+[ 'price; 'age;
+  [ age 65 >= ]
+      [ price 2 / ]
+      [ price ]
+      ?
+] 'compute_discount;
+
+[  <]
+> 20 100 compute_discount print
+100
+[  <]
+> 75 100 compute_discount print
+50
+[  <]
 ```
+
+(`print` takes a term from the stack and prints it on *stdout*.)
 
 So the `if <predicate> then <do-if-true> else <do-if-false>` becomes `<predicate> <do-if-true> <do-if-false> ?`.
 
 **NOTE:** the sub-stacks are not necessary unless a branch needs to execute more than one operation. The example above can be rewritten as:
 
 ```
-age 65 >= 2 1 ? price / finalPrice;
+[ swap 65 >= 2 1 ? / ] 'compute_discount;
+
 ```
 
-More concise, but the readability may be affected.
+More concise, but the readability may be affected...
 
 ### Stack operations
 
