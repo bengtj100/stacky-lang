@@ -33,6 +33,7 @@ builtIns =
                defBinIntOp "-" (-),
                defBinIntOp "*" (*),
                defBinIntOp "/" div,
+               defBinIntOp "%" rem,
 
                -- Comparison operations
                defBinCmpOp "=" (==),

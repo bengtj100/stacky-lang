@@ -121,7 +121,7 @@ The Stacky language does not put any limitations to the maximum size of an integ
 
 The following operations are defined on integers:
 
-* [Arithmetic](#arithmetic-operators): `+`, `-`, `*`, `/`
+* [Arithmetic](#arithmetic-operators): `+`, `-`, `*`, `/`, `%`
 
 * [Comparison](#comparison-operators): `=`, `<>`, `<`, `>`, `<=`, `>=`
 
@@ -279,12 +279,13 @@ Finally, append (`++`) also works on stacks:
 
 Arithmetic operators are only defined for *integers*. Any other argument type will lead to a run-time error'
 
-| Operation | Stack                      | Comment          |
-|:---------:|:---------------------------|:-----------------|
-| `+`       | `[ x y <] ---> [ (x+y) <]` | Addition         |
-| `-`       | `[ x y <] ---> [ (x-y) <]` | Subtraction      |
-| `*`       | `[ x y <] ---> [ (xy) <]`  | Multiplication   |
-| `/`       | `[ x y <] ---> [ (x/y) <]` | Integer division |
+| Operation | Stack                      | Comment                       |
+|:---------:|:---------------------------|:------------------------------|
+| `+`       | `[ x y <] ---> [ (x+y) <]` | Addition                      |
+| `-`       | `[ x y <] ---> [ (x-y) <]` | Subtraction                   |
+| `*`       | `[ x y <] ---> [ (xy) <]`  | Multiplication                |
+| `/`       | `[ x y <] ---> [ (x/y) <]` | Integer division              |
+| `%`       | `[ x y <] ---> [ (x/y) <]` | Integer reminder as in C(++). |
 
 ### Comparison operations
 
