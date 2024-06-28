@@ -79,7 +79,8 @@ executable stacky
     -- Other library packages from which modules are imported.
     build-depends:
         base ^>=4.17.1.0,
-        split ^>=0.2.5
+        split ^>=0.2.5,
+        raw-strings-qq ^>=1.1
         
     -- Directories containing source files.
     hs-source-dirs:   .
