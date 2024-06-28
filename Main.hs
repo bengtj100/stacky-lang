@@ -29,7 +29,7 @@ main =
     do args <- getArgs
        let cargs = parseArguments args
        case cargs of
-           CmdError errMsg -> printError (noPos, errMsg)
+           CmdError errMsg -> printErrorWithProgname (noPos, errMsg)
            CmdVersion      -> printVersion
            CmdUsage        -> printUsage
            CmdArg{interactive = i,

@@ -21,7 +21,7 @@ module CoreTypes (
 
                   Error,
                   newError, newErrPos,
-                  printError,
+                  printError, printErrorWithProgname,
 
                   Result,
                   stackUnderflowError,
@@ -50,6 +50,7 @@ module CoreTypes (
                   noPos, isNoPos
                  ) where
 
+import System.Environment(getProgName)
     
 -- ====================================================================================================
 
@@ -138,6 +139,11 @@ type Error = (Position, String)
 printError :: Error -> IO ()
 printError (pos, msg) = putStrLn (fmtPosition pos ++"ERROR: " ++ msg)
 
+printErrorWithProgname :: Error -> IO ()
+printErrorWithProgname (pos, msg) =
+    do pName <- getProgName
+       putStrLn (fmtPosition pos ++ pName ++ ": " ++ msg)
+                                    
 fmtPosition :: Position -> String
 fmtPosition pos | isNoPos pos  = ""
                 | otherwise    = fileName pos ++ ":"
