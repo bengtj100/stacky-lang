@@ -9,7 +9,10 @@
 --
 -- ====================================================================================================
 
-module Repl (repl) where
+module Repl (
+             runPrelude,
+             repl
+            ) where
 
 import InputOutput
 
@@ -19,10 +22,18 @@ import BuiltIns
 
 -- ====================================================================================================
 
-repl :: IO ()
-repl = do let cxt = initCxt builtIns
-          printStack cxt
-          loop cxt
+runPrelude :: [Value] -> IO (Maybe Cxt)
+runPrelude cmds =
+    do let cxt = initCxt builtIns
+       result <- interpreter cxt cmds
+       case result of
+           Left  err  -> do printError err
+                            return $ Nothing
+           Right cxt' -> return $ Just cxt'
+                   
+repl :: Cxt -> IO ()
+repl cxt = do printStack cxt
+              loop cxt
 
 loop :: Cxt -> IO ()
 loop cxt =
