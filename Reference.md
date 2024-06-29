@@ -116,7 +116,7 @@ The Stacky language has the following datatypes:
 * Integers of unbounded size
 * Atoms (also called names when appropriate).
 * Strings
-* Stacks
+* Lists
 
 ### Integers
 
@@ -137,11 +137,11 @@ All operations follow this pattern:
 
 Stacky does not define a *boolean* type, but uses the concept of "truthiness", i.e., it uses some values as false, and all other as true:
 
-| Value | Comment                        |
-|:-----:|:-------------------------------|
-| `0`   | The integer zero (0).          |
-| `""`  | The empty string.              |
-| `[]`  | The empty [sub-stack](#stacks) |
+| Value | Comment                  |
+|:-----:|:-------------------------|
+| `0`   | The integer zero (0).    |
+| `""`  | The empty string.        |
+| `[]`  | The empty [list](#lists) |
 
 The language defines the following boolean operations: `and`, `or`, `~` (*not*)
 
@@ -217,11 +217,11 @@ The following operations mainly operate on strings:
 |:----------|:------:|:---------------------------------------------------------|
 | Append    | `++`   | `[ s1:string s2:string <] ---> [ "s1 followed by s2" <]` |
 
-### Stacks
+### Listss
 
-Stacks are ordered lists of Stacky values. This is the main [composite datatype](https://en.wikipedia.org/wiki/Composite_data_type). The elements of a stack can be any Stacky value, such as atoms and integers, but also other stacks. Unlike other code, stacks aren't immediatelly evaluated, making it possible to delay execution and even store them in the environment. This is how new operations are defined in Stacky.
+Lists are ordered sequences of Stacky values. This is the main [composite datatype](https://en.wikipedia.org/wiki/Composite_data_type). The elements of a list can be any Stacky value, such as atoms and integers, but also other lists. Unlike other code, lists aren't immediatelly evaluated, making it possible to delay execution and even store them in the environment. This is how new operations are defined in Stacky.
 
-A stored stack will be immediatelly evaluated when it is retrieved.
+A stored list will be immediatelly evaluated when it is retrieved.
 
 Example:
 
@@ -233,7 +233,7 @@ Example:
 [ 625 <]
 ```
 
-The apply operation (`@`) is used to evaluate a stack.
+The apply operation (`@`) is used to evaluate a list.
 
 Example:
 
@@ -266,7 +266,7 @@ Example:
 > 
 ```
 
-Finally, append (`++`) also works on stacks:
+Finally, append (`++`) also works on listss:
 
 ```
 [  <]
@@ -339,7 +339,7 @@ Examples:
 42 'theAnswer;               ` The value 42 is bound to theAnswer
 
 [ dup * ] 'square            ` This is how functions are defined.
-                             ' Store a sub-stack!
+                             ' Store a list!
 
 theAnswer square             ' Compute 42 * 42 = 1764
 ```
@@ -385,7 +385,7 @@ In stacky, this becomes:
 
 So the `if <predicate> then <do-if-true> else <do-if-false>` becomes `<predicate> <do-if-true> <do-if-false> ?`.
 
-**NOTE:** the sub-stacks are not necessary unless a branch needs to execute more than one operation. The example above can be rewritten as:
+**NOTE:** the lists are not necessary unless a branch needs to execute more than one operation. The example above can be rewritten as:
 
 ```
 [ swap 65 >= 2 1 ? / ] 'compute_discount;
@@ -528,11 +528,40 @@ Examples:
 [ 1 2 3 <]
 ```
 
-### String operations
+### Sequence operations
 
-TBD
+Stacky had two sequence datatypes: *lists* and *strings*. With some exceptions, most operations on strings, also work on lists and vice versa.
 
-### Sub-stack operations
+Stacky implements the following common list and string operations:
+
+| Operation              | Comment                                        |
+|:-----------------------|:-----------------------------------------------|
+| [`++`](#concatenation) | Concatenate two sequences on the stack to one. |
+
+#### Concatenation
+
+This operation takes two sequences on the stack and returns the concatenated sequence
+
+```
+++ :: [s2 s1<] ---> [(s1 s2)<]
+```
+
+Examples:
+
+```
+> "HELLO " "WORLD"
+[ "HELLO " "WORLD" <]
+> ++
+[ "HELLO WORLD" <]
+
+> "" "FOO" ++
+[ "FOO" <]
+
+[1 2 3] [4 5 6] ++
+[ [1 2 3 4 5 6] <]
+```
+
+### List operations
 
 TBD
 

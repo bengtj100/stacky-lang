@@ -69,7 +69,7 @@ instance Show Value where
     show (ValInt    _ i     ) = show i
     show (ValAtom   _ a     ) = a
     show (ValString _ str   ) = "\"" ++ fmtString str ++ "\""
-    show (ValList   _ xs    ) = "[ " ++ fmtList xs ++ " ]"
+    show (ValList   _ xs    ) = fmtList xs
     show (ValOp     _ name _) = "{"++name++"}"
     show (ValNoop           ) = "{}"
 
