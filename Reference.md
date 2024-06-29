@@ -4,7 +4,7 @@
 
 ## Disclaimer
 
-The Stacky language is still in beta version 0.1, so things are moving fast and all versions below 1.0 may break **backwards compatability without notice**!
+The Stacky language is still in beta version 0.1, so things are moving fast and all versions below 1.0 may break **backwards compatibility without notice**!
 
 **USE THIS LANGUAGE AT YOUR OWN RISK!**
 
@@ -22,7 +22,7 @@ The convention for showing how an command handles the stack is as follows:
 
 This reads as `<operation>` transforms the stack looking like '<stack before command>' (the *input stack*) to '<stack after command>' (the *output stack*).
 
-It is assumed that the number of elements on the input stack is the minimal number needed to perform the operation. So, `+`, see below, needs atleast two elements on the stack and leaves one element on the stack as the result of the operation.
+It is assumed that the number of elements on the input stack is the minimal number needed to perform the operation. So, `+`, see below, needs at least two elements on the stack and leaves one element on the stack as the result of the operation.
 
 Sometimes, other conventions may be used to show *how* the stack is affected. Ellipsis (`...`) is used do denote zero or more elements as in `[x_n ... x_1 <]` denoting a stack with exactly *n* elements.
 
@@ -93,9 +93,9 @@ Putting a single quote (`'`) in front of an atom, will inhibit its evaluation. T
 
 ## Comments
 
-Stacky has two kinds of comments. *Short comments* encompass everything between a backtick (`) and the end of the line.
+Stacky has two kinds of comments. *Short comments* encompass everything between a back-tick (`) and the end of the line.
 
-*Long comments* on the other hand can encompass severa lines. They start and end with three backticks (\`\`\`).
+*Long comments* on the other hand can encompass several lines. They start and end with three back-ticks (\`\`\`).
 
 Unlike most languages, Stacky consider all text to be comments until a long comment appears. This makes it possible to embed valid Stacky code in another format, such as [Markdown](https://en.wikipedia.org/wiki/Markdown).
 
@@ -109,14 +109,14 @@ Below is the code.
 ~~~
 
     
-## Datatypes
+## Data-types
 
-The Stacky language has the following datatypes:
+The Stacky language has the following data-types:
 
-* Integers of unbounded size
-* Atoms (also called names when appropriate).
-* Strings
-* Lists
+* [Integers](#integers) of unbounded size
+* [Atoms](#atoms) (also called names when appropriate).
+* [Strings](#strings)
+* [Lists](#lists)
 
 ### Integers
 
@@ -124,9 +124,9 @@ The Stacky language does not put any limitations to the maximum size of an integ
 
 The following operations are defined on integers:
 
-* [Arithmetic](#arithmetic-operators): `+`, `-`, `*`, `/`, `%`
+* [Arithmetic](#arithmetic-operations): `+`, `-`, `*`, `/`, `%`
 
-* [Comparison](#comparison-operators): `=`, `<>`, `<`, `>`, `<=`, `>=`
+* [Comparison](#comparison-operations): `=`, `<>`, `<`, `>`, `<=`, `>=`
 
 All operations follow this pattern:
 ```
@@ -145,7 +145,7 @@ Stacky does not define a *boolean* type, but uses the concept of "truthiness", i
 
 The language defines the following boolean operations: `and`, `or`, `~` (*not*)
 
-**NOTE:** Although the boolean operations accept several types of values as input, they only emot either `0` for false and `1` for true values.
+**NOTE:** Although the boolean operations accept several types of values as input, they only emit either `0` for false and `1` for true values.
 
 Examples:
 
@@ -164,7 +164,7 @@ Examples:
 
 Atoms are short alphanumeric strings that mostly fill the role of identifiers in other languages. However, in Stacky, atoms are values unto their own. They can be compared and manipulated by operations.
 
-An atom always starts with a letter, either upper or lower case. Ith then continues with letters, numbers and underscores. The valid atoms can be described with the following [regex](https://en.wikipedia.org/wiki/Regular_expression):
+An atom always starts with a letter, either upper or lower case. It then continues with letters, numbers and underscores. The valid atoms can be described with the following [regex](https://en.wikipedia.org/wiki/Regular_expression):
 
 ```
 [a-zA-Z][a-zA-Z0-9_]*
@@ -174,7 +174,7 @@ The name atom in programming languages originated with [Prolog](https://en.wikip
 
 The most important operations that use atom are, inhibitor (`'`), stash (`;`) and evaluation.
 
-When an atom is encountered during evaluation, one of two things can happen. If the previous operation was the inhibitor (`'`), then the atom will be pushed onto the stack. Without the inhibitor, the atom will be pushed onto the stack, unless it has been previously stored. If that is the case, the contents that was stored away will be evalutated.
+When an atom is encountered during evaluation, one of two things can happen. If the previous operation was the inhibitor (`'`), then the atom will be pushed onto the stack. Without the inhibitor, the atom will be pushed onto the stack, unless it has been previously stored. If that is the case, the contents that was stored away will be evaluated.
 
 Example:
 
@@ -188,7 +188,7 @@ epoch                'Since epoch is defined, 19700101 is pushed onto
                      `the stack.
 ```
 
-**NOTE:** Best practice is to always inhibit an atom if it is going to be used as a value. Even if it isn't defined for the moment, it might become so in the future of the program's eceution.
+**NOTE:** Best practice is to always inhibit an atom if it is going to be used as a value. Even if it isn't defined for the moment, it might become so in the future of the program's execution.
 
 | Operation  | Syntax | Stack                            | Comment            |
 |:-----------|:------:|:---------------------------------|--------------------|
@@ -217,11 +217,11 @@ The following operations mainly operate on strings:
 |:----------|:------:|:---------------------------------------------------------|
 | Append    | `++`   | `[ s1:string s2:string <] ---> [ "s1 followed by s2" <]` |
 
-### Listss
+### Lists
 
-Lists are ordered sequences of Stacky values. This is the main [composite datatype](https://en.wikipedia.org/wiki/Composite_data_type). The elements of a list can be any Stacky value, such as atoms and integers, but also other lists. Unlike other code, lists aren't immediatelly evaluated, making it possible to delay execution and even store them in the environment. This is how new operations are defined in Stacky.
+Lists are ordered sequences of Stacky values. This is the main [composite data-type](https://en.wikipedia.org/wiki/Composite_data_type). The elements of a list can be any Stacky value, such as atoms and integers, but also other lists. Unlike other code, lists aren't immediately evaluated, making it possible to delay execution and even store them in the environment. This is how new operations are defined in Stacky.
 
-A stored list will be immediatelly evaluated when it is retrieved.
+A stored list will be immediately evaluated when it is retrieved.
 
 Example:
 
@@ -266,7 +266,7 @@ Example:
 > 
 ```
 
-Finally, append (`++`) also works on listss:
+Finally, append (`++`) also works on lists:
 
 ```
 [  <]
@@ -282,7 +282,7 @@ Finally, append (`++`) also works on listss:
 
 ### Arithmetic operations
 
-Arithmetic operators are only defined for *integers*. Any other argument type will lead to a run-time error'. If there are not enough elements on the stack for the operation, an error will occurr.
+Arithmetic operators are only defined for *integers*. Any other argument type will lead to a run-time error'. If there are not enough elements on the stack for the operation, an error will occur.
 
 | Operation | Stack                      | Comment                       |
 |:---------:|:---------------------------|:------------------------------|
@@ -294,7 +294,7 @@ Arithmetic operators are only defined for *integers*. Any other argument type wi
 
 ### Comparison operations
 
-It is possible to compare all builtin datatypes. However, both arguments must be of the same type. Different types will never return a true values, e.g., comparing an integer and string will always return a false value.
+It is possible to compare all built-in data types. However, both arguments must be of the same type. Different types will never return a true values, e.g., comparing an integer and string will always return a false value.
 
 | Operation | Stack                       | Comment                         |
 |:---------:|:----------------------------|:--------------------------------|
@@ -319,13 +319,13 @@ While the boolean operator accept several values, they will all return zero (`0`
 
 ### Control operations
 
-Control opertions are operations that either control the flow or execution or affects the execution environment.
+Control operations are operations that either control the flow or execution or affects the execution environment.
 
 #### The stash operation
 
 The *stash* (`;`) operation's single purpose is to bind names to the *Name -> Value* map in the environment. It takes values and stashes them in the environment, thus the name.
 
-The names that are created are immediatelly made available to the program.
+The names that are created are immediately made available to the program.
 
 **NOTE:** Bound names can not be updated! It is similar to how names (variables) are treated in mathematics and in functional programming languages, like Haskell or Erlang.
 
@@ -362,7 +362,7 @@ compute_discount(age, price) =
         return price
 ```
 
-In stacky, this becomes:
+In Stacky, this becomes:
 
 ```
 [ 'price; 'age;
@@ -400,18 +400,18 @@ The main purpose of stack operations is to manipulate the stack and/or gain info
 
 Stacky implements the following stack operations:
 
-| Operation         | Comment                                                             |
-|:------------------|:--------------------------------------------------------------------|
-| [`clear`](#clear) | Clear the stack, i.e., removes any information stored on the stack. |
-| [`depth`](#depth) | Return the number of elements on the stack.                         |
-| [`drop`](#drop)   | Remove the topmost element on the stack                             |
-| [`over`](#over)   | Copy the second topmost element to the top of the stack.            |
-| [`rot`](#rot)     | Rotate the three topmost elements.                                  |
-| [`swap`](#swap)   | Swap the two topmost elements                                       |
+| Operation                       | Comment                                                             |
+|:--------------------------------|:--------------------------------------------------------------------|
+| [`clear`](#the-clear-operation) | Clear the stack, i.e., removes any information stored on the stack. |
+| [`depth`](#the-depth-operation) | Return the number of elements on the stack.                         |
+| [`drop`](#the-drop-operation)   | Remove the topmost element on the stack                             |
+| [`over`](#the-over-operation)   | Copy the second topmost element to the top of the stack.            |
+| [`rot`](#the-rot-operation)     | Rotate the three topmost elements.                                  |
+| [`swap`](#the-swap-operation)   | Swap the two topmost elements                                       |
 
 
 
-#### Clear
+#### The `clear` operation
 
 Clear the stack of all information. 
 
@@ -427,7 +427,7 @@ Example:
 [  <]
 ```
 
-#### Depth
+#### The `depth` operation
 
 Puts the current number of elements (*depth*) onto the top of the stack
 
@@ -451,9 +451,9 @@ Example:
 [ 0 1 2 <]
 ```
 
-#### Drop
+#### The `drop` operation
 
-Remove the topmost element from the stack. If the stack is empty, an error will occurr.
+Remove the topmost element from the stack. If the stack is empty, an error will occur.
 
 ```
 drop : [x <] ---> [ <]
@@ -472,7 +472,8 @@ Example:
 > drop
 ERROR: Stack underflow in operation: 'drop'
 ```
-#### Over
+
+#### The `over` operation
 
 Copy the second topmost element of the stack to the top of the stack.
 
@@ -490,7 +491,7 @@ Examples:
 [ 8 16 32 16 32 <]
 ```
 
-#### Rot
+#### The `rot` operation
 
 Rotate the three topmost elements by moving the third element to the top, shifting the two topmost element one step down.
 
@@ -510,7 +511,7 @@ Examples:
 [ 1 2 3 <]
 ```
 
-#### Swap
+#### The `swap` operation
 
 Swap the two topmost elements by moving the second element to the top, shifting the topmost element one step down.
 
@@ -530,7 +531,7 @@ Examples:
 
 ### Sequence operations
 
-Stacky had two sequence datatypes: *lists* and *strings*. With some exceptions, most operations on strings, also work on lists and vice versa.
+Stacky had two sequence data-types: *lists* and *strings*. With some exceptions, most operations on strings, also work on lists and vice versa.
 
 Stacky implements the following common list and string operations:
 
@@ -540,11 +541,12 @@ Stacky implements the following common list and string operations:
 
 #### Concatenation
 
-This operation takes two sequences on the stack and returns the concatenated sequence
+This operation takes two similar sequences on the stack and returns the concatenated sequence
 
 ```
-++ :: [s2 s1<] ---> [(s1 s2)<]
+++ :: [s2:T s1:T<] ---> [(s1 s2):T<]
 ```
+`T` here is either a list or a string. `s1` and `s2` must be the same type, i.e., it is not possible to concatenate a string and a list.
 
 Examples:
 
@@ -561,17 +563,301 @@ Examples:
 [ [1 2 3 4 5 6] <]
 ```
 
-### List operations
-
-TBD
-
 ### Input/Output operations
 
-TBD
+The following I/O operations are currently available:
+
+| Operation                             | Comment                                                             |
+|:--------------------------------------|:--------------------------------------------------------------------|
+| [`input`](#the-input-operation)       | Read a line from *stdin* and push it onto the stack as a string.    |
+| [`print`](#the-print-operation)       | Take the topmost value off the stack and print, in verbatim.        |
+| [`prompt`](#the-prompt-operation)     | Same as `input` but it prints a user-defined prompt before reading. |
+| [`put`](#the-put-operation)           | Put the topmost term (without newline) on stdout.                   |
+| [`putLn`](#the-putln-operation)       | Same as `put` but add a newline to the end.                         |
+| [`readFile`](#the-readfile-operation) | Read the named file from the file system.                           |
+
+#### The `input` operation
+
+Read a line from *standard input* and store it on the stack as a string. To notify the user it prints the prompt "? ". This is equivalent to `"? " prompt`.
+
+```
+input : [ <] ---> [ line:string <]
+```
+
+Example:
+
+```
+[  <]
+> input 
+? foo
+[ "foo" <]
+```
+
+#### The `print` operation
+
+This operation is used to print a term as it is written in stacky on stdout. A newline is added after the printout. This means that strings are printed with double quotes (`"`) and visible escape sequences.
+
+```
+print :: [ x <] ---> [ <]
+```
+
+Example:
+
+```
+[  <]
+> 42 print
+42
+[  <]
+
+[  <]
+> "HELLORLD" print
+"HELLORLD"
+[  <]
+
+[  <]
+> [abc def ghi] print
+[abc def ghi]
+[  <]
+> [1 2 3 + ] print
+[1 2 3 {+}]
+[  <]
+```
+
+#### The `prompt` operation
+
+Read a line from *standard input* and store it on the stack as a string. To inform the user as to what is to be read, it takes a string from the top of the stack and uses it as a prompt.
+
+Example:
+
+```
+[  <]
+> "Width: " prompt "Height: " prompt "Depth: " prompt
+Width: 100
+Height: 200
+Depth: 300
+[ "100" "200" "300" <]
+```
+
+`prompt` and `input` both allow multiple lines to be read into one string. Just add *backslash* (`\`) to the input before pressing return and you will be prompted for another line. This continues until no more backslashes are added to the input.
+
+```
+[  <]
+> input 
+? 123\
+ ... ? 456\
+ ... ? 789
+[ "123\n456\n789" <]
+> clear
+[  <]
+> "Text: " prompt
+Text: abc\
+ ... Text: def\
+ ... Text: ghi
+[ "abc\ndef\nghi" <]
+```
+
+#### The `put` operation
+
+This operation is used to print a term on stdout. `put` does however treat strings specially. It will simply output the string as text to the stdout.
+
+No newline character is added to the output so several `put` commands will print to the same line. Special characters in the string will have the actions they usually have, like causing a new line.
+
+```
+put :: [ x <] ---> [ <]
+```
+
+Example:
+
+```
+[  <]
+> "HELLO" put " " put "WORLD" put
+HELLO WORLD[  <]
+
+[  <]
+> "abc\ndef\nghi\n" put
+abc
+def
+ghi
+[  <]
+
+[  <]
+> [ a b c d] put
+[a b c d][  <]
+
+```
+
+#### The `putLn` operation
+
+`putLn` has the same semantics as `put` but it adds a newline to the output.
+
+```
+put :: [ x <] ---> [ <]
+```
+
+Example:
+
+```
+[  <]
+> [1 2 foo =] putLn
+[1 2 foo {=}]
+[  <]
+> "HELLORLD" putLn
+HELLORLD
+[  <]
+```
+
+#### The `readFile` operation
 
 ### Reflection/introspection operations
 
-TBD
+Stacky has some support for [reflection](https://en.wikipedia.org/wiki/Reflective_programming) and [type introspection](https://en.wikipedia.org/wiki/Type_introspection).
+
+*Reflection* comes from the fact that, much like the[Lisp programming language](https://en.wikipedia.org/wiki/Lisp_(programming_language)), Stacky can treat data as code, and vice versa. This is due to the fact that [lists](#lists) can be executed using the [apply](#the-apply-operation).
+
+As of now, there are no operations for *type introspection*, but such will be added in the near future.
+
+| Operation                         | Comment                                                         |
+|:----------------------------------|:----------------------------------------------------------------|
+| [`@`](#the-apply-operation)       | Evaluate a list or execute a defined name.                      |
+| [`eval`](#the-eval-operation)     | Evaluates a string as if it was code.                           |
+| [`import`](#the-import-operation) | Reads the contents of a file and executes its contents as code. |
+| [`env`](#the-env-operation)       | Prints a list of all defined names on stdout.                   |
+
+#### The apply operation
+
+This operation allows programmer to execute lists and defined names as code. It is automatically applied when stored names are resolved, but manually constructed code snippets must be executed using the *apply* (`@`) operation.
+
+```
+@ : [ x:list <] ---> [... <]    `Whatever executing the list evaluates to.
+  : [ x:atom <] ---> [... <]    `Whatever executing the atom evaluates to.
+```
+
+**NOTE:** If the atom does not contain anything executable, `@` just leaves it on the top of the stack.
+
+Examples:
+
+```
+[  <]
+> [1 2 3 + +]
+[ [1 2 3 {+} {+}] <]
+> @
+[ 6 <]
+
+> "HELLORLD" 'ahoy;
+[ <]
+> ahoy
+[ "HELLORLD" <]
+> 'ahoy
+[ "HELLORLD" ahoy <]
+> @
+[ 6 "HELLORLD" "HELLORLD" <]
+
+[ <]
+> 1 2 3 [+ +]
+[ 1 2 3 [{+} {+}] <]
+> @
+[ 6 <]
+```
+
+#### The `eval` operation
+
+The `eval` operation takes a string from the top of the stack and executes it as Stacky code.
+
+```
+eval : [ str:string <] ---> [... <]    `Whatever executing the string evaluates to.
+```
+
+Example:
+
+```
+[  <]
+> "1 2 3 4 + + +"
+[ "1 2 3 4 + + +" <]
+> eval
+[ 10 <]
+
+[ <]
+> "\"HELLO \" \"WORLD\" ++ print" eval
+"HELLO WORLD"
+[ <]
+```
+
+**NOTE:** Code here means **ANY** code that is valid Stacky. This means that `eval` is incredibly powerful. In fact, using `eval` and `prompt`, it is possible to implement the Stacky REPL!
+
+```
+> [ "REPL> " prompt eval repl ] 'repl;
+[  <]
+> repl
+REPL> 1 2 3 + + 
+REPL> print
+6
+REPL> [dup *] 'sq;
+REPL> 256 sq print
+65536
+REPL>
+```
+
+#### The `import` operation
+
+This operation takes a string off the stack, reads it and executes it as Stacky code. This is useful when creating stand-alone programs and libraries.
+
+```
+import : [ fname:string <] ---> [...<]
+```
+
+Example:
+
+Loading a module containing a tester for the [Collatz conjecture](https://en.wikipedia.org/wiki/Collatz_conjecture) and then testing it for the number *15*.
+
+```
+> "examples/collatz.sy" import
+[  <]
+> 15 collatz
+46
+23
+70
+35
+106
+53
+160
+80
+40
+20
+10
+5
+16
+8
+4
+2
+1
+N = 17
+[  <]
+```
+
+#### The `env` operation
+
+This operation prints the bound names in the [environment](#variables-and-the-environment).
+
+```
+env : [ <] ---> [ <]
+```
+
+Example (after loading the Collatz conjecture tester):
+```
+> env
+"ones" : [1 {swap} onesLoop {drop}]
+"onesLoop" : [[{dup} 0 {>}] [{swap} 10 {*} 1 {+} {swap} 1 {-} onesLoop] [] {?}]
+"collatz" : [0 {swap} collatzLoop {drop} "N = " {put} {putLn}]
+"collatzLoop" : [{swap} 1 {+} {swap} [{dup} isEven] [2 {/}] [3 {*} 1 {+}] {?} {dup} {print} [{dup} 1 {>}] [collatzLoop] [] {?}]
+"isEven" : [2 {%} 0 {=}]
+"+" : {+}
+"-" : {-}
+"*" : {*}
+...
+```
+
+**NOTE:** Items enclosed in brackets are built-in operations, that are treated somewhat differently by the Stacky interpreter.
+
 
 ## Syntax description
 
@@ -581,18 +867,18 @@ Commands         <-- Command*
 Command          <-- Integer
                  <-- Atom
                  <-- String
-                 <-- Stack
+                 <-- List
 
-Stack            <-- '[' Commands ']'
+List             <-- '[' Commands ']'
 
 Integer          <-- [-]?[0-9]+
 
 Atom             <-- [a-zA-Z][a-zA-Z0-9_]*
-                 <-- Builtin-Operator
+                 <-- BuiltIn-Operator
 
 String           <-- '"' Character* '"'
 
-Builtin-Operator <-- '+' | '-' | '*' | '/' | '=' | '<>' | '<' | '>' | '<=' | '>=' | '~' 
+BuiltIn-Operator <-- '+' | '-' | '*' | '/' | '=' | '<>' | '<' | '>' | '<=' | '>=' | '~' 
 
 Character        <-- ASCII-Character
                  <-- Escape-Sequence
