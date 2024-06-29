@@ -25,7 +25,8 @@ import BuiltIns
 runPrelude :: [Value] -> IO (Maybe Cxt)
 runPrelude cmds =
     do let cxt = initCxt builtIns
-       result <- interpreter cxt cmds
+           prl = [ValString noPos "Prelude.sy", ValAtom noPos "import"] ++ cmds
+       result <- interpreter cxt prl
        case result of
            Left  err  -> do printError err
                             return $ Nothing

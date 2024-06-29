@@ -1,0 +1,9 @@
+# Stacky Prelude
+
+*Copyright (c) 2024 Bengt Johansson - All Rights Reserved*
+
+## List operations
+```
+"Loading the Prelude" putLn
+
+```
