@@ -19,16 +19,19 @@ The convention for showing how an command handles the stack is as follows:
 ```
 <operation> : <stack before command> ---> <stack after command>
 ```
+
+This reads as `<operation>` transforms the stack looking like '<stack before command>' (the *input stack*) to '<stack after command>' (the *output stack*).
+
+It is assumed that the number of elements on the input stack is the minimal number needed to perform the operation. So, `+`, see below, needs atleast two elements on the stack and leaves one element on the stack as the result of the operation.
+
+Sometimes, other conventions may be used to show *how* the stack is affected. Ellipsis (`...`) is used do denote zero or more elements as in `[x_n ... x_1 <]` denoting a stack with exactly *n* elements.
+
 Examples:
 
 ```
-+    : [ x y <] ---> [ (x+y) <]
-
-swap : [ x y <] ---> [ y x <]
-
-dup  : [ x <]   ---> [ x x <]
-
-drop : [ x <]   ---> [ <]
++      : [ x y <]           ---> [ (x+y) <]
+swap   : [ x y <]           ---> [ y x <]
+depth  : [ x_n ... x_1 <]   ---> [ x_n ... x_1 n <]
 
 ```
 
@@ -178,9 +181,11 @@ Example:
 ```
 19700101 epoch;      `First year of the UNIX epoch is stored.
 
-epoch                'Since epoch is defined, 19700101 is pushed onto the stack.
+epoch                'Since epoch is defined, 19700101 is pushed onto
+                     `the stack.
 
-'epoch               `The inhibitor ensures that the atom is pushed onto the stack.
+'epoch               `The inhibitor ensures that the atom is pushed onto
+                     `the stack.
 ```
 
 **NOTE:** Best practice is to always inhibit an atom if it is going to be used as a value. Even if it isn't defined for the moment, it might become so in the future of the program's eceution.
@@ -277,7 +282,7 @@ Finally, append (`++`) also works on stacks:
 
 ### Arithmetic operations
 
-Arithmetic operators are only defined for *integers*. Any other argument type will lead to a run-time error'
+Arithmetic operators are only defined for *integers*. Any other argument type will lead to a run-time error'. If there are not enough elements on the stack for the operation, an error will occurr.
 
 | Operation | Stack                      | Comment                       |
 |:---------:|:---------------------------|:------------------------------|
@@ -391,7 +396,137 @@ More concise, but the readability may be affected...
 
 ### Stack operations
 
-TBD
+The main purpose of stack operations is to manipulate the stack and/or gain information about the stack.
+
+Stacky implements the following stack operations:
+
+| Operation         | Comment                                                             |
+|:------------------|:--------------------------------------------------------------------|
+| [`clear`](#clear) | Clear the stack, i.e., removes any information stored on the stack. |
+| [`depth`](#depth) | Return the number of elements on the stack.                         |
+| [`drop`](#drop)   | Remove the topmost element on the stack                             |
+| [`over`](#over)   | Copy the second topmost element to the top of the stack.            |
+| [`rot`](#rot)     | Rotate the three topmost elements.                                  |
+| [`swap`](#swap)   | Swap the two topmost elements                                       |
+
+
+
+#### Clear
+
+Clear the stack of all information. 
+
+```
+clear : [...<] ---> [<]
+```
+
+Example:
+
+```
+[ 1 2 3 4 4 5 6 7 <]
+> clear
+[  <]
+```
+
+#### Depth
+
+Puts the current number of elements (*depth*) onto the top of the stack
+
+```
+depth : [x_n ... x_1 <] ---> [x_n ... x_1 n:integer<]
+```
+
+Example:
+
+```
+[ 10 20 40 80 <]
+> depth
+[ 10 20 40 80 4 <]
+> clear
+[  <]
+> depth
+[ 0 <]
+> depth
+[ 0 1 <]
+> depth
+[ 0 1 2 <]
+```
+
+#### Drop
+
+Remove the topmost element from the stack. If the stack is empty, an error will occurr.
+
+```
+drop : [x <] ---> [ <]
+```
+
+Example:
+
+```
+[ 1 4 9 <]
+> drop
+[ 1 4 <]
+> drop
+[ 1 <]
+> drop
+[  <]
+> drop
+ERROR: Stack underflow in operation: 'drop'
+```
+#### Over
+
+Copy the second topmost element of the stack to the top of the stack.
+
+```
+over : [x y<] ---> [x y x<]
+```
+
+Examples:
+
+```
+[ 8 16 32 <]
+> over
+[ 8 16 32 16 <]
+> over
+[ 8 16 32 16 32 <]
+```
+
+#### Rot
+
+Rotate the three topmost elements by moving the third element to the top, shifting the two topmost element one step down.
+
+```
+rot : [x y z<] ---> [y z x<]
+```
+
+Examples:
+
+```
+[ 1 2 3 <]
+> rot
+[ 2 3 1 <]
+> rot 
+[ 3 1 2 <]
+> rot
+[ 1 2 3 <]
+```
+
+#### Swap
+
+Swap the two topmost elements by moving the second element to the top, shifting the topmost element one step down.
+
+```
+swap : [x y<] ---> [y z<]
+```
+
+Examples:
+
+```
+[ 1 2 3 <]
+> swap
+[ 1 3 2 <]
+> swap
+[ 1 2 3 <]
+```
 
 ### String operations
 
