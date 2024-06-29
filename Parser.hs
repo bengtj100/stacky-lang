@@ -27,9 +27,9 @@ parseCmds _ [] =
 parseCmds bIns (ValNoop : cmds) =
     parseCmds bIns cmds
 parseCmds bIns (ValAtom pos "[" : cmds) =
-    do (sCmds, rest) <- parseStack bIns cmds
+    do (sCmds, rest) <- parseList bIns cmds
        cmds'         <- parseCmds bIns rest
-       return $ ValStack pos sCmds : cmds'
+       return $ ValList pos sCmds : cmds'
 parseCmds bIns (inhibitor@(ValAtom _ "'") : atom@(ValAtom _ _) : cmds) =
     do cmds' <- parseCmds bIns cmds
        return $ inhibitor : atom : cmds'
@@ -50,18 +50,18 @@ parseCmd bIns (ValAtom pos atom) =
 parseCmd _ cmd =
     return cmd
 
-parseStack :: Env -> [Value] -> Result ([Value], [Value])
-parseStack _ [] =
-    newErrPos noPos "Missing end of stack marker. (']')"
-parseStack _ (ValAtom _ "]" : cmds) =
+parseList :: Env -> [Value] -> Result ([Value], [Value])
+parseList _ [] =
+    newErrPos noPos "Missing end of list marker. (']')"
+parseList _ (ValAtom _ "]" : cmds) =
     return ([], cmds)
-parseStack bIns (ValAtom pos "[" : cmds) =
-    do (sCmds, rest)   <- parseStack bIns cmds
-       (sCmds', rest') <- parseStack bIns rest
-       return (ValStack pos sCmds : sCmds', rest')
-parseStack bIns (cmd : cmds) =
+parseList bIns (ValAtom pos "[" : cmds) =
+    do (sCmds, rest)   <- parseList bIns cmds
+       (sCmds', rest') <- parseList bIns rest
+       return (ValList pos sCmds : sCmds', rest')
+parseList bIns (cmd : cmds) =
     do cmd'          <- parseCmd bIns cmd
-       (cmds', rest) <- parseStack bIns cmds
+       (cmds', rest) <- parseList bIns cmds
        return (cmd' : cmds', rest)
 
 -- ====================================================================================================

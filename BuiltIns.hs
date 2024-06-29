@@ -116,7 +116,7 @@ bool2Truth pos True  = ValInt pos 1
 
 truth2Bool :: Value -> Bool
 truth2Bool (ValInt _ 0)      = False
-truth2Bool (ValStack _ [])   = False
+truth2Bool (ValList _ [])    = False
 truth2Bool (ValString _ "" ) = False                             
 truth2Bool _                 = True
 
@@ -196,8 +196,8 @@ defAppend :: Value
 defAppend  =
     defOp "++" $ \cxt@Cxt{stack = s0} ->
         case s0 of
-            ValStack p s1 : ValStack _ s2 : s3 ->
-                Right cxt{stack = ValStack p (s2 ++ s1) : s3}
+            ValList p xs : ValList _ ys : s3 ->
+                Right cxt{stack = ValList p (ys ++ xs) : s3}
             ValString p str1 : ValString _ str2 : s3 ->
                 Right cxt{stack = ValString p (str2 ++ str1) : s3}
             v1 : v2 : _ ->

@@ -61,7 +61,7 @@ type Operation = Cxt -> IO (Result Cxt)
 data Value = ValInt    Position Integer
            | ValAtom   Position Name
            | ValString Position String
-           | ValStack  Position Stack
+           | ValList   Position [Value]
            | ValOp     Position Name Operation
            | ValNoop
 
@@ -69,7 +69,7 @@ instance Show Value where
     show (ValInt    _ i     ) = show i
     show (ValAtom   _ a     ) = a
     show (ValString _ str   ) = "\"" ++ fmtString str ++ "\""
-    show (ValStack  _ s     ) = "[ " ++ (fmtStack $ reverse s) ++ " ]"
+    show (ValList   _ xs    ) = "[ " ++ fmtList xs ++ " ]"
     show (ValOp     _ name _) = "{"++name++"}"
     show (ValNoop           ) = "{}"
 
@@ -77,7 +77,7 @@ instance Eq Value where
     (ValInt    _ i1)   == (ValInt    _ i2)   =  i1 == i2
     (ValAtom   _ a1)   == (ValAtom   _ a2)   =  a1 == a2
     (ValString _ s1)   == (ValString _ s2)   =  s1 == s2
-    (ValStack  _ st1)  == (ValStack  _ st2)  = st1 == st2
+    (ValList   _ xs1)  == (ValList   _ xs2)  = xs1 == xs2
     (ValOp     _ n1 _) == (ValOp     _ n2 _) =  n1 == n2
     (ValAtom   _ n1)   == (ValOp     _ n2 _) =  n1 == n2
     (ValOp     _ n1 _) == (ValAtom   _ n2)   =  n1 == n2
@@ -90,13 +90,13 @@ instance Ord Value where
     (ValOp     _ s1 _) <= (ValOp     _ s2 _) =  s1 <= s2
     (ValOp     _ s1 _) <= (ValAtom   _ s2)   =  s1 <= s2
     (ValAtom   _ s1)   <= (ValOp     _ s2 _) =  s1 <= s2
-    (ValStack  _ st1)  <= (ValStack  _ st2)  = st1 <= st2
+    (ValList   _ xs1)  <= (ValList   _ xs2)  = xs1 <= xs2
     _                  <= _                  =  False
 
 isComparable :: Value -> Value -> Bool
 isComparable (ValInt _ _)    (ValInt _ _)    = True
 isComparable (ValString _ _) (ValString _ _) = True
-isComparable (ValStack _ _)  (ValStack _ _)  = True
+isComparable (ValList _ _)   (ValList _ _)  = True
 isComparable (ValAtom _ _)   (ValAtom _ _)   = True
 isComparable (ValOp _ _ _)   (ValAtom _ _)   = True
 isComparable (ValAtom _ _)   (ValOp _ _ _)   = True
@@ -107,7 +107,7 @@ valueType :: Value -> String
 valueType (ValInt _ _)    = "integer"
 valueType (ValAtom _ _)   = "atom"
 valueType (ValString _ _) = "string"
-valueType (ValStack _ _)  = "stack"
+valueType (ValList _ _)   = "list"
 valueType (ValOp _ _ _)   = "atom"
 valueType (ValNoop)       = "noop"
                           
@@ -115,13 +115,16 @@ getValPos :: Value -> Position
 getValPos (ValInt pos _)    = pos
 getValPos (ValAtom pos _)   = pos
 getValPos (ValString pos _) = pos
-getValPos (ValStack pos _)  = pos
+getValPos (ValList pos _)   = pos
 getValPos (ValOp pos _ _)   = pos
 getValPos (ValNoop)         = noPos
                               
 getValInt :: Value -> Result Integer
 getValInt (ValInt _ i) = Right i
 getValInt v            = newError v ("Expected an int got: '" ++ valueType v ++ "'")
+
+fmtList :: [Value] -> String
+fmtList xs = "[" ++ unwords (map show xs) ++ "]"
 
 fmtString :: String -> String
 fmtString ""           = ""

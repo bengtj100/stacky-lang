@@ -67,7 +67,7 @@ defApply :: Value
 defApply =
     ValOp noPos "@" $ \cxt@Cxt{stack = s0} ->
            case s0 of
-              ValStack _ cmds : s1 ->
+              ValList _ cmds : s1 ->
                   runLocalValues cxt{stack = s1} cmds
               ValAtom _ atom : s1 ->
                   runAtom cxt{stack = s1} atom
