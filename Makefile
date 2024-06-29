@@ -9,20 +9,24 @@
 ##
 ## ====================================================================================================
 
-PROJECT    = stacky
-CABAL_FILE = $(PROJECT).cabal
+SRC = ./src
 
-EXECUTABLE = $(shell cabal list-bin $(PROJECT))
+CABAL = cd $(SRC) && cabal
+
+PROJECT    = stacky
+CABAL_FILE = $(SRC)/$(PROJECT).cabal
+
+EXECUTABLE = $(shell $(CABAL) list-bin $(PROJECT))
 EXE_ARGS   = 
 
-HASKTAGS   = ~/.cabal/bin/hasktags
+HASKTAGS   = cd $(SRC) && ~/.cabal/bin/hasktags
 HASKTAGS_ARGS = -e .
 
 INST_BIN   = ~/bin
 
 
-VERSION_FILE       = Version.hs
-VERSION_TEMPLATE   = $(VERSION_FILE).template
+VERSION_FILE       = $(SRC)/Version.hs
+VERSION_TEMPLATE   = ./templates/Version.hs.template
 MAKE_VERSION_PATH  = ~/src/build-tools/bin/make-version-file
 MAKE_VERSION_ARGS  = --cabal $(CABAL_FILE)
 MAKE_VERSION_ARGS += --template $(VERSION_TEMPLATE)
@@ -32,7 +36,7 @@ all: build
 
 build: tags $(VERSION_FILE)
 	@echo ">>>>>>>>>>>>    Building executable ..."
-	cabal build
+	$(CABAL) build
 
 run: build
 	@echo ">>>>>>>>>>>>    Running executable '$(shell basename $(EXECUTABLE))'..."
@@ -40,11 +44,11 @@ run: build
 
 test: build
 	@echo ">>>>>>>>>>>>    Running unit tests ..."
-	cabal test
+	$(CABAL) test
 
 clean:
 	@echo ">>>>>>>>>>>>    Taking out the trash ..."
-	cabal clean
+	$(CABAL) clean
 	rm -f TAGS $(VERSION_FILE)
 
 install: version test
