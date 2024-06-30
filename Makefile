@@ -17,13 +17,13 @@ PROJECT    = stacky
 CABAL_FILE = $(SRC)/$(PROJECT).cabal
 
 EXECUTABLE = $(shell $(CABAL) list-bin $(PROJECT))
-EXE_ARGS   = 
+EXE_ARGS   = --prelude ~/src/stacky/Prelude.sy
 
 HASKTAGS   = cd $(SRC) && ~/.cabal/bin/hasktags
 HASKTAGS_ARGS = -e .
 
 INST_BIN   = ~/bin
-
+INST_LIB   = ~/lib
 
 VERSION_FILE       = $(SRC)/Version.hs
 VERSION_TEMPLATE   = ./templates/Version.hs.template
@@ -53,7 +53,9 @@ clean:
 
 install: version test
 	@echo ">>>>>>>>>>>>    Installing to: $(INST_BIN) ..."
+	mkdir -p $(INST_BIN) $(INST_LIB)
 	cp $(EXECUTABLE) $(INST_BIN)/
+	cp ./Prelude.sy $(INST_LIB)/
 
 tags:
 	@echo ">>>>>>>>>>>>    (Re)generating TAGS file ..."

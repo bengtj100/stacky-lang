@@ -8,13 +8,15 @@ import CoreTypes
     
 -- ====================================================================================================
 
-data CmdArgs = CmdArg { interactive :: Bool, prelude :: [Value] }
+data CmdArgs = CmdArg { interactive :: Bool,
+                        prelude     :: [Value],
+                        preludeFile :: String }
              | CmdError String
              | CmdUsage
              | CmdVersion
 
 newCmdArgs :: CmdArgs
-newCmdArgs = CmdArg{interactive = True, prelude = []}
+newCmdArgs = CmdArg{interactive = True, prelude = [], preludeFile = ""}
 
 -- ====================================================================================================
 
@@ -24,6 +26,7 @@ parseArguments args = parseArgs args newCmdArgs
 parseArgs :: [String] -> CmdArgs -> CmdArgs
 parseArgs (opt : code : args) cargs
     | opt `elem` ["--eval", "-e"]        = parseArgs args $ makeEval cargs code
+    | opt `elem` ["--prelude"]           = parseArgs args $ makePrelude cargs code
 parseArgs [opt] _
     | opt `elem` ["--eval", "-e"]        = tooFewArgsError opt 1 0
 parseArgs (opt : args) cargs
@@ -42,6 +45,12 @@ makeEval ca@CmdArg{prelude = p} code =
     ca{prelude = p ++ [ValString noPos code, ValAtom noPos "eval"]}
 makeEval _ _ =
     error "INTERNAL ERROR in CommandLine.makeEval"
+
+makePrelude :: CmdArgs -> String -> CmdArgs
+makePrelude ca@CmdArg{} fName =
+    ca{preludeFile = fName}
+makePrelude _ _ =
+    error "INTERNAL ERROR in CommandLine.makePrelude"
 
 makeImport :: CmdArgs -> String -> CmdArgs
 makeImport ca@CmdArg{prelude = p} fName

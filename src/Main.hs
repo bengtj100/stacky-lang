@@ -37,11 +37,12 @@ main =
            CmdVersion      -> printVersion
            CmdUsage        -> printUsage
            CmdArg{interactive = i,
-                  prelude     = p} -> runMain i p
+                  prelude     = p,
+                  preludeFile = pFile} -> runMain i p pFile
 
-runMain :: Bool -> [Value] -> IO ()
-runMain int prel =
-    do res <- runPrelude prel
+runMain :: Bool -> [Value] -> String -> IO ()
+runMain int prel pFile =
+    do res <- runPrelude prel pFile
        case res of
            Nothing -> exitWith (ExitFailure 1)
            Just cxt ->

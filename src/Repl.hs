@@ -14,6 +14,10 @@ module Repl (
              repl
             ) where
 
+import Data.List
+import Data.List.Utils
+import System.Environment
+    
 import InputOutput
 
 import CoreTypes
@@ -22,11 +26,11 @@ import BuiltIns
 
 -- ====================================================================================================
 
-runPrelude :: [Value] -> IO (Maybe Cxt)
-runPrelude cmds =
-    do let cxt = initCxt builtIns
-           prl = [ValString noPos "Prelude.sy", ValAtom noPos "import"] ++ cmds
-       result <- interpreter cxt prl
+runPrelude :: [Value] -> String -> IO (Maybe Cxt)
+runPrelude cmds pFile=
+    do let cxt =  initCxt builtIns
+       prl     <- makePrelude pFile cmds
+       result  <- interpreter cxt prl
        case result of
            Left  err  -> do printError err
                             return $ Nothing
@@ -55,3 +59,20 @@ handleError cxt err =
     do printError err
        loop cxt
             
+makePrelude :: String -> [Value] -> IO [Value]
+makePrelude pFile cmds =
+    do path <- if pFile == ""
+               then do exePath <- getExecutableDir
+                       return $ exePath ++ "/../lib/Prelude.sy"
+               else return pFile
+       return $ [ValString noPos path, ValAtom noPos "import"] ++ cmds
+
+
+getExecutableDir :: IO String
+getExecutableDir =
+    do path <- getExecutablePath
+       return $ dirname path
+
+dirname :: String -> String
+dirname path =
+    intercalate "/" $ init $ split "/" path
