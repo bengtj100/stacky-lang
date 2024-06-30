@@ -97,7 +97,7 @@ In the rest of the manual, we will denote operations on the stack as follows:
 + : [ x y <] ---> [ (x+y) <]
 ```
 
-**NOTE:** Unlike most ordinary languages, where function parameters can have varying arities, in most stck-based languages the results of an operation may have more than unary arity. Take for instance the swap operation, that swaps the frontmost elements on the stack. It is binary on the arguments, as well as the results.
+**NOTE:** Unlike most ordinary languages, where function parameters can have varying arities, in most stack-based languages the results of an operation may have more than unary arity. Take for instance the swap operation, that swaps the frontmost elements on the stack. It is binary on the arguments, as well as the results.
 
 ```
 swap: [ x y <] ---> [ y x <]
