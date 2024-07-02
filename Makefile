@@ -9,21 +9,22 @@
 ##
 ## ====================================================================================================
 
-SRC = ./src
+SRC                = ./src
+PRELUDE            = ./prelude
 
-CABAL = cd $(SRC) && cabal
+CABAL              = cd $(SRC) && cabal
 
-PROJECT    = stacky
-CABAL_FILE = $(SRC)/$(PROJECT).cabal
+PROJECT            = stacky
+CABAL_FILE         = $(SRC)/$(PROJECT).cabal
 
-EXECUTABLE = $(shell $(CABAL) list-bin $(PROJECT))
-EXE_ARGS   = --prelude ~/src/stacky/Prelude.sy
+EXECUTABLE         = $(shell $(CABAL) list-bin $(PROJECT))
+EXE_ARGS           = --prelude $(PRELUDE)/Prelude.sy
 
-HASKTAGS   = cd $(SRC) && ~/.cabal/bin/hasktags
-HASKTAGS_ARGS = -e .
+HASKTAGS           = cd $(SRC) && ~/.cabal/bin/hasktags
+HASKTAGS_ARGS      = -e .
 
-INST_BIN   = ~/bin
-INST_LIB   = ~/lib/$(PROJECT)
+INST_BIN           = ~/bin
+INST_LIB           = ~/lib/$(PROJECT)
 
 VERSION_FILE       = $(SRC)/Version.hs
 VERSION_TEMPLATE   = ./templates/Version.hs.template
@@ -32,40 +33,60 @@ MAKE_VERSION_ARGS  = --cabal $(CABAL_FILE)
 MAKE_VERSION_ARGS += --template $(VERSION_TEMPLATE)
 MAKE_VERSION_ARGS += --output $(VERSION_FILE)
 
+## ====================================================================================================
+
 all: build
+
+## ----------------------------------------------------------------------------------------------------
 
 build: tags $(VERSION_FILE)
 	@echo ">>>>>>>>>>>>    Building executable ..."
 	$(CABAL) build
 
+## ----------------------------------------------------------------------------------------------------
+
 run: build
 	@echo ">>>>>>>>>>>>    Running executable '$(shell basename $(EXECUTABLE))'..."
 	@$(EXECUTABLE) $(EXE_ARGS)
 
+## ----------------------------------------------------------------------------------------------------
+
 test: build
 	@echo ">>>>>>>>>>>>    Running unit tests ..."
 	$(CABAL) test
+
+## ----------------------------------------------------------------------------------------------------
 
 clean:
 	@echo ">>>>>>>>>>>>    Taking out the trash ..."
 	$(CABAL) clean
 	rm -f TAGS $(VERSION_FILE)
 
+## ----------------------------------------------------------------------------------------------------
+
 install: version test
 	@echo ">>>>>>>>>>>>    Installing to: $(INST_BIN) ..."
 	mkdir -p $(INST_BIN) $(INST_LIB)
 	cp $(EXECUTABLE) $(INST_BIN)/
-	cp ./Prelude.sy $(INST_LIB)/
+	cp $(PRELUDE)/Prelude.sy $(INST_LIB)/
+
+## ----------------------------------------------------------------------------------------------------
 
 tags:
 	@echo ">>>>>>>>>>>>    (Re)generating TAGS file ..."
 	$(HASKTAGS) $(HASKTAGS_ARGS)
+
+## ----------------------------------------------------------------------------------------------------
 
 .PHONY: version
 version:
 	@echo ">>>>>>>>>>>>    Generating new build version ..."
 	$(MAKE_VERSION_PATH) $(MAKE_VERSION_ARGS)
 
+## ----------------------------------------------------------------------------------------------------
+
 $(VERSION_FILE): $(VERSION_TEMPLATE) $(CABAL_FILE)
 	@echo ">>>>>>>>>>>>    Initializing build versioning ..."
 	$(MAKE_VERSION_PATH) $(MAKE_VERSION_ARGS)
+
+## ====================================================================================================
