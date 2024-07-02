@@ -57,14 +57,15 @@ runRepl cxt = repl cxt `catch` handleError
 
 handleError :: IOError -> IO ()
 handleError err =
-    if isEOFError err
-    then do putStrLn ""
-            putStrLn "Leaving stacky interpreter"
-            putStrLn "Bye!"
-            putStrLn ""
-            exitWith ExitSuccess
-    else do pname <- getProgName
-            putStrLn ""
-            putStrLn $ pname ++ ": " ++ show err
-            putStrLn "Terminating!"
-            exitWith (ExitFailure 1)
+    if isEOFError err then
+        do putStrLn ""
+           putStrLn "Leaving stacky interpreter"
+           putStrLn "Bye!"
+           putStrLn ""
+           exitWith ExitSuccess
+    else
+        do pname <- getProgName
+           putStrLn ""
+           putStrLn $ pname ++ ": " ++ show err
+           putStrLn "Terminating!"
+           exitWith (ExitFailure 1)
