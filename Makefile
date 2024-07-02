@@ -23,7 +23,7 @@ HASKTAGS   = cd $(SRC) && ~/.cabal/bin/hasktags
 HASKTAGS_ARGS = -e .
 
 INST_BIN   = ~/bin
-INST_LIB   = ~/lib
+INST_LIB   = ~/lib/$(PROJECT)
 
 VERSION_FILE       = $(SRC)/Version.hs
 VERSION_TEMPLATE   = ./templates/Version.hs.template

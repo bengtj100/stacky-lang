@@ -59,13 +59,14 @@ handleError :: Cxt -> Error -> IO ()
 handleError cxt err =
     do printError err
        loop cxt
-            
+
+
 makePrelude :: CmdRes -> IO [Value]
 makePrelude opts =
     do
-        exePath  <- getExecutableDir
+        (exePath,exeName) <- splitExecutableDir
         let path = if (preludeFile opts) == "" then
-                       exePath ++ "/../lib/Prelude.sy"
+                       exePath ++ "/../lib/" ++ exeName ++ "/Prelude.sy"
                    else
                        preludeFile opts
         let isInteractive =
@@ -75,11 +76,13 @@ makePrelude opts =
 setDef :: String -> Value -> [Value]
 setDef name val = [val, ValAtom noPos "'", ValAtom noPos name, ValAtom noPos ";"]
 
-getExecutableDir :: IO String
-getExecutableDir =
+splitExecutableDir :: IO (String, String)
+splitExecutableDir =
     do path <- getExecutablePath
-       return $ dirname path
+       return $ splitDirname path
 
-dirname :: String -> String
-dirname path =
-    intercalate "/" $ init $ split "/" path
+splitDirname :: String -> (String, String)
+splitDirname path = (dirName, exeName)
+              where dirName = intercalate "/" $ init parts 
+                    exeName = last parts
+                    parts   = split "/" path
