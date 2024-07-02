@@ -1,34 +1,38 @@
 # Stacky to-do list
 
-# TODO
-- [x] **Add a prelude file for new operations! TOP!!!**
-- [ ] Generalized stack operations:
-  - [ ] `ndrop` - Operate on a variable size of the stack.
-  - [ ] `ndup` -""-
-  - [ ] `nswap` -""-
-  - [ ] `nrot` -""-
-- [ ] List/string operations:
-  - [ ] `toList`, `fromList`
-  - [ ] `cons` - Add an element/character to the beginning of a list/string
-  - [ ] `head` - Get the first element from a list/string
-  - [ ] `tail` - Remove the first element from a list/string
-  - [ ] `init` - Get a list/string with all but the last element
-  - [ ] `last` - Get the last element of a list/string
-  - [ ] `size` - Get the number of elements/characters in a list/string
-  - [ ] `reverse` - Reverse the order of the list/string
-- [ ] List combinators
-  - [ ] `map`, `filter`, `fold`, etc.
-  
-- [ ] Type conversion:
-  - [ ] `toStr` - convert any term to a string.
-- [ ] Introspection:
-  - [ ] `typeOf` - get the type of any term
-- [ ] Floating point numbers
-  - [ ] Add floating point numbers
-  - [ ] Make all arithmetic/comparison operators compatible with floats.
-  - [ ] Conversion functions between floats and integers
-    - [ ] `int2float`
-    - [ ] `floor`, `ceil`, `round`
+## TODO
+
+| #  | Item                                                                                    | Status            |
+|:--:|:----------------------------------------------------------------------------------------|:-----------------:|
+| 1  | **Add a prelude file for new operations! TOP!!!**                                       | In v0.1           |
+|    |                                                                                         |                   |
+| 2  | **Generalized stack operations**                                                        | Planned for 0.1.1 |
+| 3  | `ndrop` - Operate on a variable size of the stack.                                      | -""-              |
+| 4  | `ndup` -""-                                                                             | -""-              |
+| 5  | `nswap` -""-                                                                            | -""-              |
+| 6  | `nrot` -""-                                                                             | -""-              |
+|    |                                                                                         |                   |
+| 7  | **List/string operations**                                                              |                   |
+| 8  | `toList`, `fromList`                                                                    |                   |
+| 9  | `cons` - Add an element/character to the beginning of a list/string                     |                   |
+| 1  | `head` - Get the first element from a list/string                                       |                   |
+| 11 | `tail` - Remove the first element from a list/string                                    |                   |
+| 12 | `init` - Get a list/string with all but the last element                                |                   |
+| 13 | `last` - Get the last element of a list/string                                          |                   |
+| 14 | `size` - Get the number of elements/characters in a list/string                         |                   |
+| 15 | `reverse` - Reverse the order of the list/string                                        |                   |
+|    |                                                                                         |                   |
+| 16 | **List combinators:** `map`, `filter`, `fold`, etc.                                     |                   |
+|    |                                                                                         |                   |
+| 17 | **Type conversion:** `toStr` - convert any term to a string.                            |                   |
+|    |                                                                                         |                   |
+| 18 | **Introspection:** `typeOf` - get the type of any term                                  |                   |
+|    |                                                                                         |                   |
+| 19 | **Floating point numbers**                                                              |                   |
+| 20 | Add floating point numbers                                                              |                   |
+| 21 | Make all arithmetic/comparison operators compatible with floats.                        |                   |
+| 22 | Conversion functions between floats and integers: `int2float`, `floor`, `ceil`, `round` |                   |
+|    |                                                                                         |                   |
 
 
-# DONE
+## DONE
