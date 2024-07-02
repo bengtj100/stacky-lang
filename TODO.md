@@ -15,7 +15,7 @@
 | 7  | **List/string operations**                                                              |                   |
 | 8  | `toList`, `fromList`                                                                    |                   |
 | 9  | `cons` - Add an element/character to the beginning of a list/string                     |                   |
-| 1  | `head` - Get the first element from a list/string                                       |                   |
+| 10 | `head` - Get the first element from a list/string                                       |                   |
 | 11 | `tail` - Remove the first element from a list/string                                    |                   |
 | 12 | `init` - Get a list/string with all but the last element                                |                   |
 | 13 | `last` - Get the last element of a list/string                                          |                   |
