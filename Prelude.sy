@@ -2,8 +2,18 @@
 
 *Copyright (c) 2024 Bengt Johansson - All Rights Reserved*
 
-## List operations
+## Prelude book-keeping operations
 ```
-"Loading the Prelude" putLn
+[ [isInteractive] [@] [drop] ? ] 'ifInteractive;
 
+["Loading the Prelude" putLn] ifInteractive
+
+```
+
+## List operations
+
+### `nil` - The empty list
+
+```
+[ [] ] 'nil;
 ```

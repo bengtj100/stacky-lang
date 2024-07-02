@@ -23,13 +23,14 @@ import InputOutput
 import CoreTypes
 import Interpreter
 import BuiltIns
+import CommandLine
 
 -- ====================================================================================================
 
-runPrelude :: [Value] -> String -> IO (Maybe Cxt)
-runPrelude cmds pFile=
+runPrelude :: CmdRes -> IO (Maybe Cxt)
+runPrelude opts =
     do let cxt =  initCxt builtIns
-       prl     <- makePrelude pFile cmds
+       prl     <- makePrelude opts
        result  <- interpreter cxt prl
        case result of
            Left  err  -> do printError err
@@ -59,14 +60,20 @@ handleError cxt err =
     do printError err
        loop cxt
             
-makePrelude :: String -> [Value] -> IO [Value]
-makePrelude pFile cmds =
-    do path <- if pFile == ""
-               then do exePath <- getExecutableDir
-                       return $ exePath ++ "/../lib/Prelude.sy"
-               else return pFile
-       return $ [ValString noPos path, ValAtom noPos "import"] ++ cmds
+makePrelude :: CmdRes -> IO [Value]
+makePrelude opts =
+    do
+        exePath  <- getExecutableDir
+        let path = if (preludeFile opts) == "" then
+                       exePath ++ "/../lib/Prelude.sy"
+                   else
+                       preludeFile opts
+        let isInteractive =
+                setDef "isInteractive" $ ValInt noPos (if interactive opts then 1 else 0)
+        return $ isInteractive ++ [ValString noPos path, ValAtom noPos "import"] ++ prelude opts
 
+setDef :: String -> Value -> [Value]
+setDef name val = [val, ValAtom noPos "'", ValAtom noPos name, ValAtom noPos ";"]
 
 getExecutableDir :: IO String
 getExecutableDir =

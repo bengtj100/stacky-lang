@@ -1,27 +1,56 @@
+-- ====================================================================================================
+--
+-- Copyright (c) 2024 Bengt Johansson <bengtj100 at gmail dot com>.
+-- All rights reserved.
+--
+-- This software is part of the stacky project and its use is
+-- regulated by the conditions stipulated in the file named 'LICENCE',
+-- located in the top directory of said project.
+--
+-- ====================================================================================================
+
+{-# LANGUAGE QuasiQuotes #-}
 
 module CommandLine(
-                   CmdArgs(..),
-                   parseArguments
+                   CmdRes(..),
+                   parseArguments,
+                   printGreeting
                    ) where
 
+import Text.RawString.QQ
+import System.Exit
+import System.Environment
+
+import Version
 import CoreTypes
     
 -- ====================================================================================================
 
-data CmdArgs = CmdArg { interactive :: Bool,
-                        prelude     :: [Value],
-                        preludeFile :: String }
+data CmdRes = CmdRes{ interactive :: Bool,
+                      prelude     :: [Value],
+                      preludeFile :: String }
+            
+data CmdArgs = CmdArg CmdRes
              | CmdError String
              | CmdUsage
              | CmdVersion
 
 newCmdArgs :: CmdArgs
-newCmdArgs = CmdArg{interactive = True, prelude = [], preludeFile = ""}
+newCmdArgs = CmdArg CmdRes{interactive = True, prelude = [], preludeFile = ""}
 
 -- ====================================================================================================
 
-parseArguments :: [String] -> CmdArgs
-parseArguments args = parseArgs args newCmdArgs
+parseArguments :: [String] -> IO CmdRes
+parseArguments args =
+    case carg of
+        CmdError errMsg -> printCmdError errMsg
+        CmdVersion      -> printVersion
+        CmdUsage        -> printUsage
+        CmdArg res      -> return res
+    where
+        carg = parseArgs args newCmdArgs
+
+-- ----------------------------------------------------------------------------------------------------
 
 parseArgs :: [String] -> CmdArgs -> CmdArgs
 parseArgs (opt : code : args) cargs
@@ -37,30 +66,83 @@ parseArgs (opt : args) cargs
 parseArgs (err@('-':_) : _   ) _          = unknownOptError err
 parseArgs (fName       : args) cargs      = parseArgs args $ makeImport cargs fName
 parseArgs []                   cargs      = cargs
-                                           
+
+-- ----------------------------------------------------------------------------------------------------
+
+printUsage :: IO a
+printUsage =
+    do pName <- getProgName
+       putStrLn $ usageStr pName
+       exitWith ExitSuccess
+
+-- ----------------------------------------------------------------------------------------------------
+
+usageStr :: String -> String
+usageStr pName =
+    [r|
+Usage: |] ++ pName ++ [r| ( <option> | <module-name> )*
+
+Where option is one of:
+
+--eval, -e <stacky-code>    Evaluate <stacky-code>
+--interactive, -i           Run in interactive mode, i.e., run the REPL after Prelude and
+                            all modules are loaded.
+--batch, -b                 Run in batch mode, i.e., terminate once all modules are loaded.
+--version                   Print the current version and terminate.
+--help, -h                  Print this message and then terminate.
+
+The interpreter will load all modules and execute the '--eval' options in the
+order they appear on the command line. If in interactive mode, the REPL will
+run after all loading is complete and in batch mode, the interpreter will
+terminate once all is loaded and executed.
+
+|]
+
+-- ----------------------------------------------------------------------------------------------------
+
+printCmdError :: String -> IO a
+printCmdError errMsg =
+    do printErrorWithProgname (noPos, errMsg)
+       exitWith (ExitFailure 2)
+                
+-- ----------------------------------------------------------------------------------------------------
+
+printVersion :: IO a
+printVersion =
+    do printGreeting
+       exitWith ExitSuccess
+
+printGreeting :: IO ()
+printGreeting =
+    do putStrLn $ "STACKY version: " ++ version ++", build: " ++ build
+       putStrLn "Copyright (c) 2024 Bengt Johansson -- All rights reserved"
+       putStrLn ""
+
 -- ====================================================================================================
 
 makeEval :: CmdArgs -> String -> CmdArgs
-makeEval ca@CmdArg{prelude = p} code =
-    ca{prelude = p ++ [ValString noPos code, ValAtom noPos "eval"]}
+makeEval (CmdArg res@(CmdRes{prelude = p})) code =
+    CmdArg res{prelude = p ++ [ValString noPos code, ValAtom noPos "eval"]}
 makeEval _ _ =
     error "INTERNAL ERROR in CommandLine.makeEval"
 
 makePrelude :: CmdArgs -> String -> CmdArgs
-makePrelude ca@CmdArg{} fName =
-    ca{preludeFile = fName}
+makePrelude (CmdArg res) fName =
+    CmdArg res{preludeFile = fName}
 makePrelude _ _ =
     error "INTERNAL ERROR in CommandLine.makePrelude"
 
 makeImport :: CmdArgs -> String -> CmdArgs
-makeImport ca@CmdArg{prelude = p} fName
-    = ca{prelude = p ++ [ValString noPos fName, ValAtom noPos "import"]}
+makeImport (CmdArg (res@CmdRes{prelude = p})) fName
+    = CmdArg res{prelude = p ++ [ValString noPos fName, ValAtom noPos "import"]}
 makeImport _ _ =
     error "INTERNAL ERROR in CommandLine.makeImport"
     
 makeInteractive :: CmdArgs -> Bool -> CmdArgs
-makeInteractive ca@CmdArg{} i = ca{interactive = i}
-makeInteractive _           _ = error "INTERNAL ERROR in CommandLine.makeInteractive"
+makeInteractive (CmdArg res) i =
+    CmdArg res{interactive = i}
+makeInteractive _ _ =
+    error "INTERNAL ERROR in CommandLine.makeInteractive"
 
 -- ====================================================================================================
 
