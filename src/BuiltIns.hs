@@ -52,8 +52,8 @@ builtIns =
                defStash, defCond,
 
                -- Stack operations
-               defDrop, defSwap, defRot, defOver, defDup, defClear, defDepth,
-               defNDrop,
+               defDrop,  defSwap,  defRot,  defLRot,  defOver,  defDup, defClear, defDepth,
+               defNDrop, defNSwap, defNRot, defNLRot, defNOver, defNDup,
 
                -- String/sub-stack operations
                defAppend,
@@ -161,6 +161,12 @@ defRot = defOp "rot" $ \cxt@Cxt{stack = s0} ->
                  x : y : z : s1 -> Right cxt{stack = z : x : y : s1}
                  _              -> stackUnderflowError ValNoop "rot"
 
+defLRot :: Value
+defLRot = defOp "lrot" $ \cxt@Cxt{stack = s0} ->
+             case s0 of
+                 x : y : z : s1 -> Right cxt{stack = y : z : x : s1}
+                 _              -> stackUnderflowError ValNoop "rot"
+
 defOver :: Value
 defOver = defOp "over" $ \cxt@Cxt{stack = s0} ->
               case s0 of
@@ -184,19 +190,52 @@ defDepth = defOp "depth" $ \cxt@Cxt{stack = s} ->
                    Right cxt{stack = depth : s}                         
 
 defNDrop :: Value
-defNDrop = defOp "ndrop" $ \cxt@Cxt{stack = s0} ->
+defNDrop = nStackOp "ndrop" $ \_ st -> st
+    
+defNSwap :: Value
+defNSwap = nStackOp "nswap" $ \pfix st -> reverse pfix ++ st
+
+defNRot :: Value
+defNRot = nStackOp "nrot" $ \pfix st ->
+          if null pfix
+             then st
+             else (last pfix) : (init pfix) ++ st
+
+defNLRot :: Value
+defNLRot = nStackOp "nlrot" $ \pfix st ->
+           if null pfix
+              then st
+              else (tail pfix) ++ (head pfix : st)
+
+defNOver :: Value
+defNOver = nStackOp "nover" $ \pfix st ->
+           if null pfix
+              then st
+              else (last pfix) : pfix ++ st
+
+defNDup :: Value
+defNDup = nStackOp "ndup" $ \pfix st -> pfix ++ pfix ++ st
+
+nStackOp :: String -> ([Value] -> [Value] -> [Value]) -> Value
+nStackOp name handler =
+    defOp name $ \cxt@Cxt{stack = s0} ->
            case s0 of
-               ValInt _ n : s1 ->
-                   if toInteger length s1 >= n then @@@@@@@@@@@@@@@@@@@@@@@@@@
-                      let s2 = drop n s1
-                      in Right cxt{stack = s2}
-                   else
-                       stackUnderflowError ValNoop "ndrop"
+               ValInt _ n : s1 | n >= 0 ->
+                   let
+                       nInt = fromIntegral n
+                   in
+                       if length s1 >= nInt then
+                           let (pfix, s2) = splitAt nInt s1
+                               s3         = handler pfix s2
+                           in Right cxt{stack = s3}
+                       else
+                           stackUnderflowError ValNoop name
                x : _ ->
-                   typeError1 x "ndrop" "an integer" x
+                   typeError1 x name "a non-negative integer" x
                [] ->
-                   stackUnderflowError ValNoop "ndrop"
-                   
+                   stackUnderflowError ValNoop name
+
+
 defStash :: Value
 defStash = defOp ";" $ \cxt@Cxt{stack = s0} ->
                        case s0 of
