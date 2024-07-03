@@ -53,6 +53,7 @@ builtIns =
 
                -- Stack operations
                defDrop, defSwap, defRot, defOver, defDup, defClear, defDepth,
+               defNDrop,
 
                -- String/sub-stack operations
                defAppend,
@@ -181,7 +182,21 @@ defDepth = defOp "depth" $ \cxt@Cxt{stack = s} ->
                    depth = (ValInt noPos $ toInteger $ length s)
                in
                    Right cxt{stack = depth : s}                         
-                                
+
+defNDrop :: Value
+defNDrop = defOp "ndrop" $ \cxt@Cxt{stack = s0} ->
+           case s0 of
+               ValInt _ n : s1 ->
+                   if toInteger length s1 >= n then @@@@@@@@@@@@@@@@@@@@@@@@@@
+                      let s2 = drop n s1
+                      in Right cxt{stack = s2}
+                   else
+                       stackUnderflowError ValNoop "ndrop"
+               x : _ ->
+                   typeError1 x "ndrop" "an integer" x
+               [] ->
+                   stackUnderflowError ValNoop "ndrop"
+                   
 defStash :: Value
 defStash = defOp ";" $ \cxt@Cxt{stack = s0} ->
                        case s0 of
