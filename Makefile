@@ -66,7 +66,7 @@ test: build
 clean:
 	@echo ">>>>>>>>>>>>    Taking out the trash ..."
 	$(CABAL) clean
-	rm -f TAGS $(VERSION_FILE)
+	rm -rf TAGS $(VERSION_FILE) $(RELEASES)/
 
 ## ----------------------------------------------------------------------------------------------------
 

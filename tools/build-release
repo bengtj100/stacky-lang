@@ -12,6 +12,7 @@
 
 readonly PNAME=$(basename "$0")
 readonly PHOME=$(dirname "$0")
+readonly COLS=$(( $(tput cols) - 1 ))
 
 ## ----------------------------------------------------------------------------------------------------
 
@@ -29,13 +30,13 @@ readonly KERNEL=$(uname -s)
 
 function line
 {
-    echo "================================================================================"
+    awk -v "COLS=$COLS" 'BEGIN {for(i=0;i<COLS;i++)printf"%s","=";print}'
 }
 
 function message
 {
     echo "$*"
-    echo "================================================================================"
+    line
 }
 
 ## ====================================================================================================
@@ -58,6 +59,7 @@ function loadVersionInfo
     echo "VERSION : $VERSION"
     echo "BUILD   : $BUILD"
     echo "GIT_TAG : $GIT_TAG"
+    line
 }
 
 ## ----------------------------------------------------------------------------------------------------
@@ -69,6 +71,7 @@ function setUpReleaseDirs
     echo "THIS_RELEASE : $THIS_RELEASE"
     rm -rf "$THIS_RELEASE"
     mkdir -p "$THIS_RELEASE"
+    line
 }
 
 ## ----------------------------------------------------------------------------------------------------
@@ -106,7 +109,7 @@ function makeDocumentation
         echo "Building: '$pdfFile'"
         pandoc "${docFile}" -f markdown -t pdf -o "${pdfFile}"
     done
-
+    line
 }
 
 ## ----------------------------------------------------------------------------------------------------
@@ -124,6 +127,7 @@ function makeTarBall
         rm -rf "${tarBall}"
         tar zcf "${tarBall}" "${relName}"
     )
+    line
 }
 
 ## ----------------------------------------------------------------------------------------------------
