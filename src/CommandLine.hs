@@ -109,13 +109,17 @@ printCmdError errMsg =
 
 printVersion :: IO a
 printVersion =
-    do printGreeting
+    do putStrLn $ "## Stacky - Copyright (c) 2024 Bengt Johansson -- All rights reserved"
+       putStrLn $ "VERSION=" ++ version
+       putStrLn $ "BUILD="   ++ build
+       putStrLn $ "GIT_TAG=" ++ gitTag
        exitWith ExitSuccess
 
 printGreeting :: IO ()
 printGreeting =
-    do putStrLn $ "STACKY version: " ++ version ++", build: " ++ build
-       putStrLn "Copyright (c) 2024 Bengt Johansson -- All rights reserved"
+    do putStrLn ""
+       putStrLn $ "Stacky, version: " ++ version ++", build: " ++ build
+       putStrLn $ "Copyright (c) 2024 Bengt Johansson -- All rights reserved"
        putStrLn ""
 
 -- ====================================================================================================

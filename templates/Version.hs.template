@@ -14,12 +14,15 @@ cat <<EOF
 
 -- ================    This is an auto-generated file. Do not edit!    ================
 
-module Version (version, build) where
+module Version (version, build, gitTag) where
 
 version :: String
 version = "$CABAL_VERSION"
 
 build :: String
 build = "$VERSION"
+
+gitTag :: String
+gitTag = "v${CABAL_VERSION}.${VERSION}"
 
 EOF

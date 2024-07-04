@@ -29,7 +29,9 @@ INST_LIB           = ~/lib/$(PROJECT)
 VERSION_FILE       = $(SRC)/Version.hs
 VERSION_TEMPLATE   = ./templates/Version.hs.template
 MAKE_VERSION_PATH  = ~/src/build-tools/bin/make-version-file
-MAKE_VERSION_ARGS  = --cabal $(CABAL_FILE)
+
+MAKE_VERSION_ARGS  = --format '%Y-%m-%d.%H-%M-%S'
+MAKE_VERSION_ARGS += --cabal $(CABAL_FILE)
 MAKE_VERSION_ARGS += --template $(VERSION_TEMPLATE)
 MAKE_VERSION_ARGS += --output $(VERSION_FILE)
 
