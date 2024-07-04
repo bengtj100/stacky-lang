@@ -11,6 +11,8 @@
 
 SRC                = ./src
 PRELUDE            = ./prelude
+RELEASES           = ./releases
+TOOLS              = ./tools
 
 CABAL              = cd $(SRC) && cabal
 
@@ -34,6 +36,8 @@ MAKE_VERSION_ARGS  = --format '%Y-%m-%d.%H-%M-%S'
 MAKE_VERSION_ARGS += --cabal $(CABAL_FILE)
 MAKE_VERSION_ARGS += --template $(VERSION_TEMPLATE)
 MAKE_VERSION_ARGS += --output $(VERSION_FILE)
+
+BUILD_RELEASE      = $(TOOLS)/build-release
 
 ## ====================================================================================================
 
@@ -71,6 +75,13 @@ install: version test
 	mkdir -p $(INST_BIN) $(INST_LIB)
 	cp $(EXECUTABLE) $(INST_BIN)/
 	cp $(PRELUDE)/Prelude.sy $(INST_LIB)/
+
+## ----------------------------------------------------------------------------------------------------
+
+.PHONY: build-release
+build-release: version test
+	@echo ">>>>>>>>>>>>    Building release tar-ball ..."
+	$(BUILD_RELEASE)
 
 ## ----------------------------------------------------------------------------------------------------
 

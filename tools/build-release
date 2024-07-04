@@ -1,0 +1,158 @@
+#!/bin/bash
+## ====================================================================================================
+##
+## Copyright (c) 2024 Bengt Johansson <bengtj100 at gmail dot com>.
+## All rights reserved.
+##
+## This software is part of the stacky project and its use is
+## regulated by the conditions stipulated in the file named 'LICENCE',
+## located in the top directory of said project.
+##
+## ====================================================================================================
+
+readonly PNAME=$(basename "$0")
+readonly PHOME=$(dirname "$0")
+
+## ----------------------------------------------------------------------------------------------------
+
+readonly PROJECT='stacky'
+
+readonly SRC_DIR="${PHOME}/../src"
+readonly DOC_DIR="${PHOME}/../doc"
+readonly PRELUDE="${PHOME}/../prelude"
+readonly RELEASES="${PHOME}/../releases"
+
+readonly CPU_ARCH=$(uname -m)
+readonly KERNEL=$(uname -s)
+
+## ====================================================================================================
+
+function line
+{
+    echo "================================================================================"
+}
+
+function message
+{
+    echo "$*"
+    echo "================================================================================"
+}
+
+## ====================================================================================================
+
+function getExecutable
+{
+    (
+        cd "$SRC_DIR";
+        cabal list-bin "$PROJECT";
+    )
+}
+
+## ----------------------------------------------------------------------------------------------------
+
+function loadVersionInfo
+{
+    message "Loading version information"
+    local executable=$(getExecutable)
+    eval "$("$executable" --version)"
+    echo "VERSION : $VERSION"
+    echo "BUILD   : $BUILD"
+    echo "GIT_TAG : $GIT_TAG"
+}
+
+## ----------------------------------------------------------------------------------------------------
+
+function setUpReleaseDirs
+{
+    message "Setting up the release directory"
+    readonly THIS_RELEASE="${RELEASES}/${PROJECT}.${GIT_TAG}.${KERNEL}.${CPU_ARCH}"
+    echo "THIS_RELEASE : $THIS_RELEASE"
+    rm -rf "$THIS_RELEASE"
+    mkdir -p "$THIS_RELEASE"
+}
+
+## ----------------------------------------------------------------------------------------------------
+
+function copyExecutable
+{
+    message "Copying executable to release"
+    local executable=$(getExecutable)
+    local binDir="$THIS_RELEASE/bin"
+    mkdir -p "${binDir}"
+    cp -p "${executable}" "${binDir}/"
+}
+
+## ----------------------------------------------------------------------------------------------------
+
+function copyLibFiles
+{
+    message "Copying lib files to release"
+    local libDir="$THIS_RELEASE/lib/${PROJECT}"
+    local preludeFile="${PRELUDE}/Prelude.sy"
+    mkdir -p "${libDir}"
+    cp -p "${preludeFile}" "${libDir}/"
+}
+
+## ----------------------------------------------------------------------------------------------------
+
+function makeDocumentation
+{
+    message "Creating documentation files for release"
+    local docDir="$THIS_RELEASE/doc"
+    mkdir -p "$docDir"
+    local docFile
+    for docFile in "${DOC_DIR}/"*.md ; do
+        local pdfFile="${docDir}/$(basename "${docFile}" '.md').pdf"
+        echo "Building: '$pdfFile'"
+        pandoc "${docFile}" -f markdown -t pdf -o "${pdfFile}"
+    done
+
+}
+
+## ----------------------------------------------------------------------------------------------------
+
+function makeTarBall
+{
+    message "Creating tar-ball"
+    (
+        cd "${RELEASES}"
+        local relName="$(basename "${THIS_RELEASE}")"
+        local tarBall="${relName}.tar.gz"
+        echo "CWD      : $(pwd)"
+        echo "REL-NAME : $relName"
+        echo "TAR-BALL : $tarBall"
+        rm -rf "${tarBall}"
+        tar zcf "${tarBall}" "${relName}"
+    )
+}
+
+## ----------------------------------------------------------------------------------------------------
+
+function cleanUp
+{
+    message "Cleaning up debris"
+    rm -rf "${THIS_RELEASE}"
+}
+
+## ====================================================================================================
+
+function main
+{
+    line
+
+    loadVersionInfo
+    setUpReleaseDirs
+    copyExecutable
+    copyLibFiles
+    makeDocumentation
+    makeTarBall
+    cleanUp
+
+    message "Contents of the release dir"
+    ls -1 "${RELEASES}"
+    line
+
+    message "THAT'S ALL FOLKS!"
+}
+
+main "$0"
