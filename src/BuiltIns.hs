@@ -55,8 +55,9 @@ builtIns =
                defDrop,  defSwap,  defRot,  defLRot,  defOver,  defDup, defClear, defDepth,
                defNDrop, defNSwap, defNRot, defNLRot, defNOver, defNDup,
 
-               -- String/sub-stack operations
-               defAppend,
+               -- String/list operations
+               defAppend, defToList, defFromList,
+               defToString, defFromString,
 
                -- Input/output operations
                defPrint, defPut, defPutLn, defInput, defPrompt, defReadFile,
@@ -259,6 +260,44 @@ defAppend  =
             _ ->
                 stackUnderflowError ValNoop "++"
 
+defToList :: Value
+defToList =
+    nStackOp "toList" $ \pfix st -> ValList noPos (reverse pfix) : st
+
+defToString :: Value
+defToString =
+    nStackOp "toString" $ \pfix st ->
+        ValString noPos (concat $ map toString $ reverse pfix) : st
+
+toString :: Value -> String
+toString (ValString _ str) = str
+toString val               = show val
+                             
+defFromList :: Value
+defFromList  =
+    defOp "fromList" $ \cxt@Cxt{stack = s0} ->
+        case s0 of
+            ValList _ xs : s1 ->
+                let len = ValInt noPos $ toInteger $ length xs
+                in  Right cxt{stack = len : reverse xs ++ s1}
+            v1 : _ ->
+                typeError1 v1 "fromList" "a list" v1
+            _ ->
+                stackUnderflowError ValNoop "fromList"
+                             
+defFromString :: Value
+defFromString  =
+    defOp "fromString" $ \cxt@Cxt{stack = s0} ->
+        case s0 of
+            ValString _ str : s1 ->
+                let len = ValInt noPos $ toInteger $ length str
+                    strs = [ ValString noPos [c] | c <- reverse str ]
+                in  Right cxt{stack = len : strs ++ s1}
+            v1 : _ ->
+                typeError1 v1 "fromString" "a string" v1
+            _ ->
+                stackUnderflowError ValNoop "fromString"
+
 defPrint :: Value
 defPrint = ValOp noPos "print" $ \cxt@Cxt{stack = s0} ->
            case s0 of
@@ -275,11 +314,8 @@ defPutLn = putVal putStrLn "putLn"
 putVal :: (String -> IO ()) -> Name -> Value
 putVal f n = ValOp noPos n $ \cxt@Cxt{stack = s0} ->
              case s0 of
-                 ValString _ val : s1 ->
-                     do f val
-                        return $ Right cxt{stack = s1}
                  val : s1 ->
-                     do f $ show val
+                     do f $ toString val
                         return $  Right cxt{stack = s1}
                  _  ->
                      return $ stackUnderflowError ValNoop "put"

@@ -677,9 +677,13 @@ Stacky had two sequence data-types: *lists* and *strings*. With some exceptions,
 
 Stacky implements the following common list and string operations:
 
-| Operation              | Comment                                        |
-|:-----------------------|:-----------------------------------------------|
-| [`++`](#concatenation) | Concatenate two sequences on the stack to one. |
+| Operation                                 | Comment                                              |
+|:------------------------------------------|:-----------------------------------------------------|
+| [`++`](#concatenation)                    | Concatenate two sequences on the stack to one.       |
+| [`fromList`](#the-fromlist-operation)     | Break up a list and put its elements on the stack.   |
+| [`fromString`](#the-fromstring-operation) | Break up a string and put its elements on the stack. |
+| [`toList`](#the-fromlist-operation)       | Build a list from elements on the stack.             |
+| [`toString`](#the-fromstring-operation)   | Build a list from elements on the stack.             |
 
 #### Concatenation
 
@@ -704,6 +708,47 @@ Examples:
 [1 2 3] [4 5 6] ++
 [ [1 2 3 4 5 6] <]
 ```
+
+#### The `fromList` operation
+
+This operation takes a list on the top of the stack and pushes its elements, as well as the length of the list, to the stack.
+
+```
+fromList : [ [x_1 ... x_n] <] ---> [ x1 ... x_n n <]
+```
+
+Examples:
+
+```
+> [100 200 400 800]
+[ [100 200 400 800] <]
+> fromList
+[ 100 200 400 800 4 <]
+> clear
+[  <]
+> [] fromList
+[ 0 <]
+```
+
+#### The `fromString` operation
+
+
+This operation takes a string on the top of the stack and pushes its elements, as well as the length of the string, to the stack.
+
+```
+fromString : [ s:string(of lenght n) <] ---> [ s1 ... s_n n <] where s_i is a one character string
+```
+
+Examples:
+
+```
+> "HELLO WORLD" fromString
+[ "H" "E" "L" "L" "O" " " "W" "O" "R" "L" "D" 11 <]
+```
+
+#### The `toList` operation
+
+#### The `toString` operation
 
 ### Input/Output operations
 

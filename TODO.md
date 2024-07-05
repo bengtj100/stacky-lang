@@ -13,8 +13,9 @@
 | 6   | `nrot` -""-                                                         | -""-             |
 |     |                                                                     |                  |
 | 7   | **List/string operations**                                          | Planned for v0.1 |
-| 8   | `toList`, `fromList`                                                | -""-             |
-| 9   | `cons` - Add an element/character to the beginning of a list/string | -""-             |
+| 8a  | `toList`, `fromList`                                                | In v0.1          |
+| 8b  | `toString`, `fromString`                                            | -""-             |
+| 9   | `cons` - Add an element/character to the beginning of a list/string | Planned for v0.1 |
 | 10  | `head` - Get the first element from a list/string                   | -""-             |
 | 11  | `tail` - Remove the first element from a list/string                | -""-             |
 | 12  | `init` - Get a list/string with all but the last element            | -""-             |
