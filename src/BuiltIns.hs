@@ -56,14 +56,14 @@ builtIns =
                defNDrop, defNSwap, defNRot, defNLRot, defNOver, defNDup,
 
                -- String/list operations
-               defAppend, defToList, defFromList,
+               defAppend, defLength, defToList, defFromList,
                defToString, defFromString,
 
                -- Input/output operations
                defPrint, defPut, defPutLn, defInput, defPrompt, defReadFile,
 
                -- Reflection/introspection operations
-               defApply, defEval, defImport, defEnv
+               defApply, defEval, defImport, defEnv, defTypeOf, defTypeInfo, defExpectType
               ]
 
 defBI :: Value -> (Name, Value)
@@ -260,6 +260,19 @@ defAppend  =
             _ ->
                 stackUnderflowError ValNoop "++"
 
+defLength :: Value
+defLength  =
+    defOp "length" $ \cxt@Cxt{stack = s0} ->
+        case s0 of
+            ValList p xs : s3 ->
+                Right cxt{stack = ValInt p (toInteger $ length xs) : s3}
+            ValString p str : s3 ->
+                Right cxt{stack = ValInt p (toInteger $ length str) : s3}
+            v1 : _ ->
+                typeError1 v1 "length" "either a list or string" v1
+            _ ->
+                stackUnderflowError ValNoop "length"
+
 defToList :: Value
 defToList =
     nStackOp "toList" $ \pfix st -> ValList noPos (reverse pfix) : st
@@ -277,8 +290,8 @@ defFromList :: Value
 defFromList  =
     defOp "fromList" $ \cxt@Cxt{stack = s0} ->
         case s0 of
-            ValList _ xs : s1 ->
-                let len = ValInt noPos $ toInteger $ length xs
+            ValList p xs : s1 ->
+                let len = ValInt p $ toInteger $ length xs
                 in  Right cxt{stack = len : reverse xs ++ s1}
             v1 : _ ->
                 typeError1 v1 "fromList" "a list" v1
@@ -289,9 +302,9 @@ defFromString :: Value
 defFromString  =
     defOp "fromString" $ \cxt@Cxt{stack = s0} ->
         case s0 of
-            ValString _ str : s1 ->
-                let len = ValInt noPos $ toInteger $ length str
-                    strs = [ ValString noPos [c] | c <- reverse str ]
+            ValString p str : s1 ->
+                let len = ValInt p $ toInteger $ length str
+                    strs = [ ValString p [c] | c <- reverse str ]
                 in  Right cxt{stack = len : strs ++ s1}
             v1 : _ ->
                 typeError1 v1 "fromString" "a string" v1
@@ -386,6 +399,47 @@ defEnv :: Value
 defEnv = ValOp noPos "env" $ \cxt@Cxt{envs = e0} ->
          do putStrLn $ unlines $ map (\(k,v) -> show k ++ " : " ++ show v) $ concat e0
             return $ Right cxt
+
+defTypeOf :: Value
+defTypeOf = ValOp noPos "typeOf" $ \cxt@Cxt{stack = s0} ->
+            case s0 of
+                val : s1 ->
+                    return $ Right cxt{stack = ValString noPos (valueType val) : s1}
+                _ ->
+                    return $ stackUnderflowError ValNoop "typeOf"
+
+defTypeInfo :: Value
+defTypeInfo =
+    ValOp noPos "typeInfo" $ \cxt@Cxt{stack = s0} ->
+        case s0 of
+            val : s1 ->
+                let (t, s) = valueTypeSize val
+                in  return $ Right cxt{stack = ValInt noPos (toInteger s) : ValString noPos t : s1}
+            _ ->
+                return $ stackUnderflowError ValNoop "typeInfo"
+
+defExpectType :: Value
+defExpectType =
+    ValOp noPos "expectType" $ \cxt@Cxt{stack = s0} ->
+        case s0 of
+            (ValList _ [ValString _ expType, ValInt _ expMin, ValInt _ expMax]) : val : s1 ->
+                let (actType, actSize) = valueTypeSize val
+                    desc = ("a value of type '" ++ fmtTypeDesc expType expMin expMax ++ "'")
+                in  if typesMatch actType (toInteger actSize) expType expMin expMax
+                    then return $ Right cxt{stack = val : s1}
+                    else return $ typeError1 val "expectType" desc val
+            other : _ ->
+                return $ typeError1 other "expectType" "a type and size description" other
+            _ ->
+                return $ stackUnderflowError ValNoop "expectType"
+
+fmtTypeDesc :: String -> Integer -> Integer -> String
+fmtTypeDesc t sMin sMax = t ++ "(" ++ show sMin ++ "," ++ show sMax ++ ")"
+                          
+typesMatch :: String -> Integer -> String -> Integer -> Integer -> Bool
+typesMatch aType aSize eType eMin (-1) | aType == eType && eMin <= aSize                 = True
+typesMatch aType aSize eType eMin eMax | aType == eType && eMin <= aSize && aSize < eMax = True
+typesMatch _     _     _     _    _                                                      = False
 
 -- ====================================================================================================
 

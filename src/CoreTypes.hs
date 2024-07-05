@@ -15,6 +15,7 @@ module CoreTypes (
                   Operation,
 
                   Value(..),
+                  valueType, valueTypeSize,
                   getValInt,
                   isComparable,
                   getValPos,
@@ -110,6 +111,14 @@ valueType (ValString _ _) = "string"
 valueType (ValList _ _)   = "list"
 valueType (ValOp _ _ _)   = "atom"
 valueType (ValNoop)       = "noop"
+
+valueTypeSize :: Value -> (String, Int)
+valueTypeSize (ValInt _ _)      = ("integer", 1)
+valueTypeSize (ValAtom _ _)     = ("atom", 1)
+valueTypeSize (ValString _ str) = ("string", length str)
+valueTypeSize (ValList _ xs)    = ("list", length xs)
+valueTypeSize (ValOp _ _ _)     = ("atom", 1)
+valueTypeSize (ValNoop)         = ("noop", 0)
                           
 getValPos :: Value -> Position
 getValPos (ValInt pos _)    = pos
@@ -177,7 +186,8 @@ typeError2 val name comment x y =
                   ++ ", got '" ++ valWType x ++ "' and '" ++ valWType y ++ "'")
 
 valWType :: Value -> String
-valWType x = show x ++ " : " ++ valueType x
+valWType x = show x ++ " : " ++ t ++ "(" ++ show s ++ ")"
+             where (t, s) = valueTypeSize x
 
 ifOk :: Result a -> (a -> IO (Result b)) -> IO (Result b)
 ifOk (Left err) _    = return $ Left err

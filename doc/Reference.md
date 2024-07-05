@@ -37,11 +37,40 @@ depth  : [ x_n ... x_1 <]   ---> [ x_n ... x_1 n <]
 
 **NOTE:** When a number of variables are shown on the stack, it denotes that *at least* that number of elements are present on the stack at that time. There may be more, but no less! Attempting to apply an operation with less then necessary elements on the stack will lead to a run-time error!
 
+### Type notation
+
 When the type of the operation is important, and it is not clear from the context, the variables can be denoted with a type:
 
 ```
 + : [ (x:integer) (y:integer) <] ---> [ (x+y:integer) <]
 ```
+
+When the length of a variable type, such as a list or a string, is of importance, it is put in parenthesis after the type:
+
+```
+length [ xs:list(n) <] ---> [ n <]
+```
+
+This means that `xs` which is a list of *n* elements is replaced with the lenght.
+
+Two elements in the parenthesis denotes a range. `list(1,7)` is a list of at least one element but less than seven. These forms are available:
+
+| Form     | Meaning                                                        |
+|:---------|:---------------------------------------------------------------|
+| `T`      | Type *T* with any number of elements.                          |
+| `T(n)`   | Type *T* with exactly *n* elements.                            |
+| `T(m,n)` | Type *T* with at least *m* element and less than *n* elements. |
+| `T(,n)`  | Type *T* zero (0) or more elements and less than *n* elements. |
+| `T(m,)`  | Type *T* with at least *m* or more elements.                   |
+
+Examples:
+
+```
+++ : [ xs:list(m) ys:list(n) <] ---> [ zx:list(m+n)
+```
+
+
+
 
 ## Execution environment
 
@@ -213,9 +242,9 @@ Some unprintable characters are represented by *[escape sequences](https://en.wi
 
 The following operations mainly operate on strings:
 
-| Operation | Syntax | Stack                                                    |
-|:----------|:------:|:---------------------------------------------------------|
-| Append    | `++`   | `[ s1:string s2:string <] ---> [ "s1 followed by s2" <]` |
+| Operation | Syntax | Stack                                                         |
+|:----------|:------:|:--------------------------------------------------------------|
+| Append    | `++`   | `[ s1:string(m) s2:string(n) <] ---> [ "s1s2:string(m+n)" <]` |
 
 ### Lists
 
@@ -680,17 +709,18 @@ Stacky implements the following common list and string operations:
 | Operation                                 | Comment                                              |
 |:------------------------------------------|:-----------------------------------------------------|
 | [`++`](#concatenation)                    | Concatenate two sequences on the stack to one.       |
+| [`length`](#the-length-operation)         | Compute the length of a string or list.              |
 | [`fromList`](#the-fromlist-operation)     | Break up a list and put its elements on the stack.   |
 | [`fromString`](#the-fromstring-operation) | Break up a string and put its elements on the stack. |
-| [`toList`](#the-fromlist-operation)       | Build a list from elements on the stack.             |
-| [`toString`](#the-fromstring-operation)   | Build a list from elements on the stack.             |
+| [`toList`](#the-tolist-operation)         | Build a list from elements on the stack.             |
+| [`toString`](#the-tostring-operation)     | Build a list from elements on the stack.             |
 
 #### Concatenation
 
 This operation takes two similar sequences on the stack and returns the concatenated sequence
 
 ```
-++ :: [s2:T s1:T<] ---> [(s1 s2):T<]
+++ :: [s2:T(m) s1:T(n)<] ---> [(s1 s2):T(m+n) <]
 ```
 `T` here is either a list or a string. `s1` and `s2` must be the same type, i.e., it is not possible to concatenate a string and a list.
 
@@ -707,6 +737,14 @@ Examples:
 
 [1 2 3] [4 5 6] ++
 [ [1 2 3 4 5 6] <]
+```
+
+#### The `length` operation
+
+This operation takes a list or a string and returns the length in characters or elements.
+
+```
+length : [ xs:list(n) <] ---> [ n <]
 ```
 
 #### The `fromList` operation
@@ -736,7 +774,7 @@ Examples:
 This operation takes a string on the top of the stack and pushes its elements, as well as the length of the string, to the stack.
 
 ```
-fromString : [ s:string(of lenght n) <] ---> [ s1 ... s_n n <] where s_i is a one character string
+fromString : [ s:string(n) <] ---> [ s1:string(1) ... s_n:string(1) n <]
 ```
 
 Examples:
@@ -748,7 +786,59 @@ Examples:
 
 #### The `toList` operation
 
+This operation pops a number of values off the stack, puts them in a list and pushes that onto the stack.
+
+```
+toList :: [x_1 ... x_n n <] ---> [ [x_1 ... x_n] <]
+```
+
+**NOTE:** `toList` is the inverse of `fromList` so:
+
+```
+fromList toList : [ xs:list <]      ---> [ xs:list <]
+toList fomList  : [x_1 ... x_n n <] ---> [ [x_1 ... x_n] <]
+```
+
+Examples:
+
+```
+> 100 200 300 3 toList
+[ [100 200 300] <]
+> clear
+[  <]
+> 'put [1 2 3] "Hello" 3 toList
+[ [put [1 2 3] "Hello"] <]
+```
+
 #### The `toString` operation
+
+This operation pops a number of values off the stack, converts them to strings (if they aren't strings already), puts them in a string and pushes that onto the stack.
+
+```
+toString :: [x_1 ... x_n n <] ---> [ s:string <]
+```
+
+**NOTE:** `toList` is the inverse of `fromList`. so if the elements on the stack are one character strings, then:
+
+```
+fromList toList : [ s:string <]      ---> [ s:string <]
+toList fomList  : ["c_1" ... "c_n" n <] ---> [ "c_1 ... x_n" <]
+```
+
+Examples:
+
+```
+> "H" "e" "l" "l" "o" 5 toString
+[ "Hello" <]
+> clear
+[  <]
+> 'put [1 2 3] "Hello" 3 toString
+[ "put[1 2 3]Hello" <]
+> clear
+[  <]
+> 100 200 300 3 toString
+[ "100200300" <]
+```
 
 ### Input/Output operations
 
@@ -903,12 +993,15 @@ Stacky has some support for [reflection](https://en.wikipedia.org/wiki/Reflectiv
 
 As of now, there are no operations for *type introspection*, but such will be added in the near future.
 
-| Operation                         | Comment                                                         |
-|:----------------------------------|:----------------------------------------------------------------|
-| [`@`](#the-apply-operation)       | Evaluate a list or execute a defined name.                      |
-| [`eval`](#the-eval-operation)     | Evaluates a string as if it was code.                           |
-| [`import`](#the-import-operation) | Reads the contents of a file and executes its contents as code. |
-| [`env`](#the-env-operation)       | Prints a list of all defined names on stdout.                   |
+| Operation                                 | Comment                                                                     |
+|:------------------------------------------|:----------------------------------------------------------------------------|
+| [`@`](#the-apply-operation)               | Evaluate a list or execute a defined name.                                  |
+| [`eval`](#the-eval-operation)             | Evaluates a string as if it was code.                                       |
+| [`import`](#the-import-operation)         | Reads the contents of a file and executes its contents as code.             |
+| [`env`](#the-env-operation)               | Prints a list of all defined names on stdout.                               |
+| [`typeOf`](#the-typeof-operation)         | Returns a string representing the type of the value on the top of the stack |
+| [`typeInfo`](#the-typeinfo-operation)     | Returns information about the type of the top element.                      |
+| [`expectType`](#The-expecttype-operation) | Throws an error if the top element does not match a description                                                                            |
 
 #### The apply operation
 
@@ -1045,6 +1138,73 @@ Example (after loading the Collatz conjecture tester):
 
 **NOTE:** Items enclosed in brackets are built-in operations, that are treated somewhat differently by the Stacky interpreter.
 
+#### The `typeOf` operation
+
+This operation takes the top element of the stack and returns a string representing the type of the element. Currently one of: `"atom"`, `"integer"`, `"list"`, or `"string"`.
+
+```
+typeOf : [ val <] ---> [ type:string <]
+```
+
+Examples:
+
+```
+> 42 typeOf
+[ "integer" <]
+> clear
+[  <]
+> "Hello" typeOf
+[ "string" <]
+```
+
+#### The `typeInfo` operation
+
+This operation takes the top element of the stack and returns a string representing the type of the element and a size. The type string is the same as returned by [`typeOf](#the-typeof-operation). 
+
+The integer is one (1) for all types except lists and strings, for which it is the number of elements in the object.
+
+```
+typeInfo : [ val <] ---> [ type:string size:integer<]
+```
+
+Examples:
+
+```
+> 42 typeInfo
+[ "integer" 1 <]
+> clear
+[  <]
+> "The answer" typeInfo
+[ "string" 10 <]
+
+```
+
+#### The `expectType` operation
+
+This operation tests the top element against a type specification. If the type of the element matches, it keeps the element on the stack, but if there is a mismatch an error occurs.
+
+```
+expectType : [ val [type:string minSize:integer maxSize:integer] <] ---> [ val <]
+```
+
+**NOTE:** The size parameters must be present even if the type is size-less, like an integer. In such case any values *m* and *n*, such that *m <= 1 < n* will work. Furthermore an infinite upper range is denoted by *-1*, so `["list 5 -1]` means any list with five or more elements.
+
+Examples:
+
+```
+> "Hello" ["string" 0 -1] expectType
+[ "Hello" <]
+> ["string" 4 7] expectType
+[ "Hello" <]
+> ["string" 8 -1] expectType
+ERROR: Operation 'expectType' expects a value of type 'string(8,-1)', got '"Hello" : string(5)'
+> clear
+[  <]
+> 42 ["integer" 1 2] expectType
+[ 42 <]
+> ["atom" 1 2] expectType
+ERROR: Operation 'expectType' expects a value of type 'atom(1,2)', got '42 : integer(1)'
+```
 
 ## Syntax description
 
