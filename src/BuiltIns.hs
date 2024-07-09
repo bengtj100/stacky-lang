@@ -57,8 +57,9 @@ builtIns =
 
                -- String/list operations
                defAppend, defLength, defToList, defFromList,
-               defToString, defFromString,
-
+               defToString, defFromString, defReverse,
+               defToStr,
+                       
                -- Input/output operations
                defPrint, defPut, defPutLn, defInput, defPrompt, defReadFile,
 
@@ -273,6 +274,28 @@ defLength  =
                 typeError1 v1 "length" "either a list or string" v1
             _ ->
                 stackUnderflowError ValNoop "length"
+
+defReverse :: Value
+defReverse  =
+    defOp "reverse" $ \cxt@Cxt{stack = s0} ->
+        case s0 of
+            ValList p xs : s3 ->
+                Right cxt{stack = ValList p (reverse xs) : s3}
+            ValString p str : s3 ->
+                Right cxt{stack = ValString p (reverse str) : s3}
+            v1 : _ ->
+                typeError1 v1 "reverse" "either a list or string" v1
+            _ ->
+                stackUnderflowError ValNoop "reverse"
+
+defToStr :: Value
+defToStr  =
+    defOp "toStr" $ \cxt@Cxt{stack = s0} ->
+        case s0 of
+            val : s3 ->
+                Right cxt{stack = ValString (getValPos val) (show val) : s3}
+            _ ->
+                stackUnderflowError ValNoop "toStr"
 
 defToList :: Value
 defToList =

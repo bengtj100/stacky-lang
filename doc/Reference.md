@@ -714,6 +714,8 @@ Stacky implements the following common list and string operations:
 | [`fromString`](#the-fromstring-operation) | Break up a string and put its elements on the stack. |
 | [`toList`](#the-tolist-operation)         | Build a list from elements on the stack.             |
 | [`toString`](#the-tostring-operation)     | Build a list from elements on the stack.             |
+| [`toStr`](#the-tostr-operation)           | Convert a list to string.                            |
+| [`reverse`](#the-reverse-operation)       | Reverse the elements of a string or list.            |
 
 #### Concatenation
 
@@ -810,6 +812,30 @@ Examples:
 [ [put [1 2 3] "Hello"] <]
 ```
 
+#### The `toStr` operation
+
+This operation converts any element to a string in a representation that will convert back to the element if the `eval` operation is performed. This means that the quotation marks of a string is retained in the result.
+
+```
+toStr : [ elem <] ---> [ s:string <]
+```
+
+Examples:
+
+```
+> 43 toStr
+[ "43" <]
+
+> "APA" toStr
+[ "\"APA\"" <]
+
+> [1 "apa" 222] toStr
+[ "[1 \"apa\" 222]" <]
+
+> [ 12 "apa" 444] toStr eval
+[ [12 "apa" 444] <]
+```
+
 #### The `toString` operation
 
 This operation pops a number of values off the stack, converts them to strings (if they aren't strings already), puts them in a string and pushes that onto the stack.
@@ -838,6 +864,25 @@ Examples:
 [  <]
 > 100 200 300 3 toString
 [ "100200300" <]
+```
+
+#### The `reverse` operation
+
+This operation takes a list or string and reverses the order of the elements.
+
+```
+reverse : [ [x_1 x_2 ... x_(n-1) x_n] <] ---> [ [x_n x_(n-1) ... x_2 x_1] <]
+```
+
+Examples:
+
+```
+> "HELLO" reverse
+[ "OLLEH" <]
+
+> [1 2 3 4] reverse
+[ [4 3 2 1] <]
+
 ```
 
 ### Input/Output operations
