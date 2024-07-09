@@ -989,19 +989,21 @@ HELLORLD
 
 Stacky has some support for [reflection](https://en.wikipedia.org/wiki/Reflective_programming) and [type introspection](https://en.wikipedia.org/wiki/Type_introspection).
 
-*Reflection* comes from the fact that, much like the[Lisp programming language](https://en.wikipedia.org/wiki/Lisp_(programming_language)), Stacky can treat data as code, and vice versa. This is due to the fact that [lists](#lists) can be executed using the [apply](#the-apply-operation).
+*Reflection* comes from the fact that, much like the [Lisp programming language](https://en.wikipedia.org/wiki/Lisp_(programming_language)), Stacky can treat data as code, and vice versa. This is due to the fact that [lists](#lists) can be executed using the [apply](#the-apply-operation).
 
 As of now, there are no operations for *type introspection*, but such will be added in the near future.
 
-| Operation                                 | Comment                                                                     |
-|:------------------------------------------|:----------------------------------------------------------------------------|
-| [`@`](#the-apply-operation)               | Evaluate a list or execute a defined name.                                  |
-| [`eval`](#the-eval-operation)             | Evaluates a string as if it was code.                                       |
-| [`import`](#the-import-operation)         | Reads the contents of a file and executes its contents as code.             |
-| [`env`](#the-env-operation)               | Prints a list of all defined names on stdout.                               |
-| [`typeOf`](#the-typeof-operation)         | Returns a string representing the type of the value on the top of the stack |
-| [`typeInfo`](#the-typeinfo-operation)     | Returns information about the type of the top element.                      |
-| [`expectType`](#The-expecttype-operation) | Throws an error if the top element does not match a description                                                                            |
+| Operation                                   | Comment                                                                     |
+|:--------------------------------------------|:----------------------------------------------------------------------------|
+| [`@`](#the-apply-operation)                 | Evaluate a list or execute a defined name.                                  |
+| [`eval`](#the-eval-operation)               | Evaluates a string as if it was code.                                       |
+| [`import`](#the-import-operation)           | Reads the contents of a file and executes its contents as code.             |
+| [`env`](#the-env-operation)                 | Prints a list of all defined names on stdout.                               |
+| [`typeOf`](#the-typeof-operation)           | Returns a string representing the type of the value on the top of the stack |
+| [`typeInfo`](#the-typeinfo-operation)       | Returns information about the type of the top element.                      |
+| [`expectType`](#The-expecttype-operation)   | Throws an error if the top element does not match a description.            |
+| [`expectDepth`](#The-expectdepth-operation) | Throws an error if the depth of the stack is insufficient.                  |
+| [`throw`](#The-throw-operation)             | Unconditionally throws an error with supplied message.                      |
 
 #### The apply operation
 
@@ -1184,10 +1186,14 @@ Examples:
 This operation tests the top element against a type specification. If the type of the element matches, it keeps the element on the stack, but if there is a mismatch an error occurs.
 
 ```
-expectType : [ val [type:string minSize:integer maxSize:integer] <] ---> [ val <]
+             [ val [type:string minSize:integer maxSize:integer] <] ---> [ val <]
+expectType : or
+             [ val [type:string minSize:integer maxSize:integer name:string] <] ---> [ val <]
 ```
 
 **NOTE:** The size parameters must be present even if the type is size-less, like an integer. In such case any values *m* and *n*, such that *m <= 1 < n* will work. Furthermore an infinite upper range is denoted by *-1*, so `["list 5 -1]` means any list with five or more elements.
+
+If the *name* parameter is provided, the error message will contain the name which is useful when debugging error messages.
 
 Examples:
 
@@ -1204,6 +1210,58 @@ ERROR: Operation 'expectType' expects a value of type 'string(8,-1)', got '"Hell
 [ 42 <]
 > ["atom" 1 2] expectType
 ERROR: Operation 'expectType' expects a value of type 'atom(1,2)', got '42 : integer(1)'
+> 42 ["atom" 1 2 "foo"] expectType
+ERROR: Operation 'foo' expects a value of type 'atom(1,2)', got '42 : integer(1)'
+```
+
+#### The `expectDepth` operation
+
+This operation tests the top element against a type specification. If the type of the element matches, it keeps the element on the stack, but if there is a mismatch an error occurs.
+
+```
+             [ val [type:string minSize:integer maxSize:integer] <] ---> [ val <]
+expectType : or
+             [ val [type:string minSize:integer maxSize:integer name:string] <] ---> [ val <]
+```
+
+**NOTE:** The size parameters must be present even if the type is size-less, like an integer. In such case any values *m* and *n*, such that *m <= 1 < n* will work. Furthermore an infinite upper range is denoted by *-1*, so `["list 5 -1]` means any list with five or more elements.
+
+If the *name* parameter is provided, the error message will contain the name which is useful when debugging error messages.
+
+Examples:
+
+```
+> "Hello" ["string" 0 -1] expectType
+[ "Hello" <]
+> ["string" 4 7] expectType
+[ "Hello" <]
+> ["string" 8 -1] expectType
+ERROR: Operation 'expectType' expects a value of type 'string(8,-1)', got '"Hello" : string(5)'
+> clear
+[  <]
+> 42 ["integer" 1 2] expectType
+[ 42 <]
+> ["atom" 1 2] expectType
+ERROR: Operation 'expectType' expects a value of type 'atom(1,2)', got '42 : integer(1)'
+> 42 ["atom" 1 2 "foo"] expectType
+ERROR: Operation 'foo' expects a value of type 'atom(1,2)', got '42 : integer(1)'
+
+```
+
+## The `throw` operation
+
+This operating throws an error, given a message and an operation's name.
+
+```
+throw : [ [message:string name:string] <] ---> ERROR
+```
+
+Example:
+
+```
+> ["This is an error" "foo"] throw
+ERROR: In 'foo': This is an error
+> 
 ```
 
 ## Syntax description

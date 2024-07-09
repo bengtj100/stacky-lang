@@ -63,7 +63,8 @@ builtIns =
                defPrint, defPut, defPutLn, defInput, defPrompt, defReadFile,
 
                -- Reflection/introspection operations
-               defApply, defEval, defImport, defEnv, defTypeOf, defTypeInfo, defExpectType
+               defApply, defEval, defImport, defEnv, defTypeOf, defTypeInfo, defExpectType,
+               defExpectDepth, defThrow
               ]
 
 defBI :: Value -> (Name, Value)
@@ -422,17 +423,23 @@ defExpectType :: Value
 defExpectType =
     ValOp noPos "expectType" $ \cxt@Cxt{stack = s0} ->
         case s0 of
-            (ValList _ [ValString _ expType, ValInt _ expMin, ValInt _ expMax]) : val : s1 ->
-                let (actType, actSize) = valueTypeSize val
-                    desc = ("a value of type '" ++ fmtTypeDesc expType expMin expMax ++ "'")
-                in  if typesMatch actType (toInteger actSize) expType expMin expMax
-                    then return $ Right cxt{stack = val : s1}
-                    else return $ typeError1 val "expectType" desc val
+            (ValList _ [ValString _ eType, ValInt _ eMin, ValInt _ eMax, ValString _ n]) : val : s1 ->
+                expectType cxt eType eMin eMax n val s1
+            (ValList _ [ValString _ eType, ValInt _ eMin, ValInt _ eMax]) : val : s1 ->
+                expectType cxt eType eMin eMax "expectType" val s1
             other : _ ->
                 return $ typeError1 other "expectType" "a type and size description" other
             _ ->
                 return $ stackUnderflowError ValNoop "expectType"
-
+                       
+expectType :: Cxt -> [Char] -> Integer -> Integer -> Name -> Value -> [Value] -> IO (Result Cxt)
+expectType cxt eType eMin eMax name val s1 =
+    let (aType, aSize) = valueTypeSize val
+        desc = ("a value of type '" ++ fmtTypeDesc eType eMin eMax ++ "'")
+    in if typesMatch aType (toInteger aSize) eType eMin eMax
+       then return $ Right cxt{stack = val : s1}
+       else return $ typeError1 val name desc val
+    
 fmtTypeDesc :: String -> Integer -> Integer -> String
 fmtTypeDesc t sMin sMax = t ++ "(" ++ show sMin ++ "," ++ show sMax ++ ")"
                           
@@ -440,6 +447,37 @@ typesMatch :: String -> Integer -> String -> Integer -> Integer -> Bool
 typesMatch aType aSize eType eMin (-1) | aType == eType && eMin <= aSize                 = True
 typesMatch aType aSize eType eMin eMax | aType == eType && eMin <= aSize && aSize < eMax = True
 typesMatch _     _     _     _    _                                                      = False
+
+defExpectDepth :: Value
+defExpectDepth =
+    ValOp noPos "expectDepth" $ \cxt@Cxt{stack = s0} ->
+        case s0 of
+            (ValList _ [ValInt _ minDepth, ValString _ n]) : s1 ->
+                expectDepth cxt minDepth n s1
+            (ValList _ [ValInt _ minDepth]) : s1 ->
+                expectDepth cxt minDepth "expectDepth" s1
+            other : _ ->
+                return $ typeError1 other "expectDepth" "a type and size description" other
+            _ ->
+                return $ stackUnderflowError ValNoop "expectDepth"
+
+expectDepth :: Cxt -> Integer -> Name -> [Value] -> IO (Result Cxt)
+expectDepth cxt minDepth name s1 =
+    if toInteger (length s1) >= minDepth
+    then return $ Right cxt{stack = s1}
+    else return $ stackUnderflowError ValNoop name
+
+
+defThrow :: Value
+defThrow =
+    ValOp noPos "throw" $ \Cxt{stack = s0} ->
+        case s0 of
+            (ValList pos [ValString _ msg, ValString _ name]) : _ ->
+                return $ newErrPos pos ("In '" ++ name ++ "': " ++ msg)
+            other : _ ->
+                return $ typeError1 other "throw" "a type and size description" other
+            _ ->
+                return $ stackUnderflowError ValNoop "throw"
 
 -- ====================================================================================================
 
