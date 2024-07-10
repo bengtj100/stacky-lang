@@ -327,9 +327,9 @@ defSlice =
                 stackUnderflowError ValNoop "slice"
 
 doSlice :: Integer -> Integer -> [a] -> Position -> ([a] -> Result b) -> Result b
-doSlice from (-1) xs _ cont
-    | checkSlice from (-1) xs =
-        cont $ drop (fromInteger from) xs
+doSlice from to xs pos cont
+    | to < 0 = let to' = toInteger (length xs) + to + 1
+               in  doSlice from to' xs pos cont
 doSlice from to xs _ cont
     | checkSlice from to xs =
         cont $ take (fromInteger (to - from)) $ drop (fromInteger from) xs
@@ -337,8 +337,8 @@ doSlice _ _ _ pos _ =
     newErrPos pos "'slice' expects '0 <= from <= to <= length'"
     
 checkSlice :: Integer -> Integer -> [a] -> Bool
-checkSlice from (-1) xs = 0 <= from && fromInteger from <= length xs
-checkSlice from to   xs = 0 <= from && from <= to && fromInteger to <= length xs
+checkSlice from to xs =
+    0 <= from && from <= to && fromInteger to <= length xs
                    
 defFromList :: Value
 defFromList  =

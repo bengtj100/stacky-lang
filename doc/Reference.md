@@ -899,7 +899,7 @@ If *n* is the length of the sequence, then *i* is the first element to include (
 
 If *i = k*, an empty sequence is returned.
 
-If *k = -1*, the slice extends to the last element.
+If *k = -1*, the slice extends to the last element, *-2* to the second last element, and so on.
 
 Examples: 
 
