@@ -1,6 +1,7 @@
 
 [comment]: # (-*-Markdown-*-  First line intentionally left blank!)
 
+
 # Stacky Prelude
 
 ## *Copyright (c) 2024 Bengt Johansson <bengtj100 at gmail dot com> - All rights reserved.*
@@ -10,6 +11,7 @@ regulated by the conditions stipulated in the file named 'LICENCE',
 located in the top directory of said project.
 
 ## Prelude book-keeping operations
+
 ```
 [ [isInteractive] [@] [drop] ? ] 'ifInteractive;
 

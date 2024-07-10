@@ -13,6 +13,13 @@ SRC                = ./src
 PRELUDE            = ./prelude
 RELEASES           = ./releases
 TOOLS              = ./tools
+DOC                = ./doc
+PDF		   = ./pdf
+
+DOC_FILES          = $(wildcard $(DOC)/*.md)
+
+PDF_FILES	   = $(DOC_FILES:.md=.pdf)
+PDF_FILES	  += $(DOC)/Prelude.pdf
 
 CABAL              = cd $(SRC) && cabal
 
@@ -59,18 +66,20 @@ run: build
 
 test: build
 	@echo ">>>>>>>>>>>>    Running unit tests ..."
+	stacky -b -e '[depth 0 =][][["Stack not empty after loading prelude!" "prelude"] throw]?'
 	$(CABAL) test
 
 ## ----------------------------------------------------------------------------------------------------
 
+.PHONY: clean
 clean:
 	@echo ">>>>>>>>>>>>    Taking out the trash ..."
 	$(CABAL) clean
-	rm -rf TAGS $(VERSION_FILE) $(RELEASES)/
+	rm -rf TAGS $(VERSION_FILE) $(RELEASES)/ $(PDF_FILES)
 
 ## ----------------------------------------------------------------------------------------------------
 
-install: version test
+install: version all test doc
 	@echo ">>>>>>>>>>>>    Installing to: $(INST_BIN) ..."
 	mkdir -p $(INST_BIN) $(INST_LIB)
 	cp $(EXECUTABLE) $(INST_BIN)/
@@ -78,8 +87,8 @@ install: version test
 
 ## ----------------------------------------------------------------------------------------------------
 
-.PHONY: build-release
-build-release: version test
+.PHONY: release
+release: version test doc
 	@echo ">>>>>>>>>>>>    Building release tar-ball ..."
 	$(BUILD_RELEASE)
 
@@ -88,6 +97,18 @@ build-release: version test
 tags:
 	@echo ">>>>>>>>>>>>    (Re)generating TAGS file ..."
 	$(HASKTAGS) $(HASKTAGS_ARGS)
+
+## ----------------------------------------------------------------------------------------------------
+
+doc: doc_print $(PDF_FILES)
+
+doc_print:
+	@echo ">>>>>>>>>>>>    Generating documentation files ..."
+
+%.pdf: %.md
+	pandoc -f markdown -t pdf -o $@ $<
+$(DOC)/%.pdf: $(PRELUDE)/%.sy
+	pandoc -f markdown -t pdf -o $@ $<
 
 ## ----------------------------------------------------------------------------------------------------
 

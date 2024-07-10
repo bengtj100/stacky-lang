@@ -100,15 +100,10 @@ function copyLibFiles
 
 function makeDocumentation
 {
-    message "Creating documentation files for release"
+    message "Copying documentation files for release"
     local docDir="$THIS_RELEASE/doc"
     mkdir -p "$docDir"
-    local docFile
-    for docFile in "${DOC_DIR}/"*.md ; do
-        local pdfFile="${docDir}/$(basename "${docFile}" '.md').pdf"
-        echo "Building: '$pdfFile'"
-        pandoc "${docFile}" -f markdown -t pdf -o "${pdfFile}"
-    done
+    cp -pPv "${DOC_DIR}/"*.pdf "${docDir}"
     line
 }
 
