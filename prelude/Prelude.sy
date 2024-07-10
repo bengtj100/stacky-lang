@@ -1,3 +1,6 @@
+
+[comment]: # (-*-Markdown-*-  First line intentionally left blank!)
+
 # Stacky Prelude
 
 ## *Copyright (c) 2024 Bengt Johansson <bengtj100 at gmail dot com> - All rights reserved.*
@@ -18,11 +21,15 @@ located in the top directory of said project.
 
 ### `nil` - The empty list
 
+Implementation:
+
 ```
 [ [] ] 'nil;
 ```
 
 ### `fromSeq` - Break a sequence (string or list) and place it on the stack
+
+Implementation:
 
 ```
 [
@@ -31,6 +38,8 @@ located in the top directory of said project.
 ```
 
 ### `toSeq` - Make a specified sequence (string or list) from values on the stack
+
+Implementation:
 
 ```
 [
@@ -57,6 +66,8 @@ Examples:
 > "H" "ELLO" cons
 [ "HELLO" <]
 ~~~
+
+Implementation:
 
 ```
 [
@@ -89,6 +100,8 @@ Examples:
 ./prelude/Prelude.sy:60:19: ERROR: Operation 'expectType' expects a value of type 'sequence(1,-1)', got '[] : list(0)'
 ~~~
 
+Implementation:
+
 ```
 [
     [ 1 "head"] expectDepth
@@ -115,6 +128,8 @@ Examples:
 > [] tail
 ./prelude/Prelude.sy:91:25: ERROR: Operation 'tail' expects a value of type 'sequence(1,-1)', got '[] : list(0)'
 ~~~
+
+Implementation:
 
 ```
 [
@@ -146,6 +161,8 @@ Examples:
 ./prelude/Prelude.sy:110:25: ERROR: Operation 'init' expects a value of type 'sequence(1,-1)', got '[] : list(0)'
 ~~~
 
+Implementation:
+
 ```
 [
     [ 1 "init"] expectDepth
@@ -169,6 +186,8 @@ Examples:
 > [1 2 3 4] last
 [ 4 <]
 ~~~
+
+Implementation:
 
 ```
 [
@@ -207,6 +226,8 @@ Examples:
 [ "DLROLLEH" <]
 ~~~
 
+Implementation:
+
 ```
 [
     [ 1 "explode"] expectDepth
@@ -224,6 +245,7 @@ Examples:
 
 ] 'implode;
 ```
+
 # THAT'S ALL FOLKS!!
 
 ```
