@@ -22,12 +22,30 @@ located in the top directory of said project.
 [ [] ] 'nil;
 ```
 
-### `cons` - Add an element to the beginning of a list
+### `fromSeq` - Break a sequence (string or list) and place it on the stack
+
+```
+[
+    [dup typeOf "list" =] [fromList "list"] [fromString "string"] ?
+] 'fromSeq;
+```
+
+### `toSeq` - Make a specified sequence (string or list) from values on the stack
+
+```
+[
+   ["list" =] [toList] [toString] ?
+] 'toSeq;
+```
+
+### `cons` - Add an element to the beginning of a sequence (string or list)
 
 This operation takes an element and a list and prepends the element to the beginning of the list.
 
 ~~~
-cons : [x_0 [x_1 ... x_n] <] ---> [ [x_0 x_1 ... x_n] <]
+       [x_0 [x_1 ... x_n] <] ---> [ [x_0 x_1 ... x_n] <]
+cons : or
+       [c_0 "c_1 ... c_n" <] ---> [ "c_0 c_1 ... c_n" <]
 ~~~
 
 Examples:
@@ -35,21 +53,24 @@ Examples:
 ~~~
 > 999 [100 200 300] cons
 [ [999 100 200 300] <]
+
+> "H" "ELLO" cons
+[ "HELLO" <]
 ~~~
 
 ```
 [
     [ 2 "cons"] expectDepth
-    [ "list" 0 -1 "cons" ] expectType
+    [ "sequence" 0 -1 "cons" ] expectType
     
-    fromList 1 + toList
+    fromSeq swap 1 + swap toSeq
 
 ] 'cons;
 ```
 
-### `head` - Get the first element of a list
+### `head` - Get the first element of a sequence (string or list)
 
-This operation takes a non-empty list an returns the first element.
+This operation takes a non-empty sequence and returns the first element.
 
 ~~~
 head : [ [x_1 x_2 ... x_n] <] ---> [ x_1 <]
@@ -60,15 +81,20 @@ Examples:
 ~~~
 > [1 2 3 4] head
 [ 1 <]
+
+> "FOO" head
+[ "F" <]
+
 > [] head
-./prelude/Prelude.sy:60:19: ERROR: Operation 'expectType' expects a value of type 'list(1,-1)', got '[] : list(0)'
+./prelude/Prelude.sy:60:19: ERROR: Operation 'expectType' expects a value of type 'sequence(1,-1)', got '[] : list(0)'
 ~~~
 
 ```
 [
-    [ "list" 1 -1 "head" ] expectType
+    [ 1 "head"] expectDepth
+    [ "sequence" 1 -1 "head" ] expectType
     
-    fromList 1 - ndrop
+    0 1 slice fromSeq 2 ndrop
 
 ] 'head;
 ```
@@ -87,17 +113,15 @@ Examples:
 > [1 2 3 4] tail
 [ [2 3 4] <]
 > [] tail
-./prelude/Prelude.sy:91:25: ERROR: Operation 'tail' expects a value of type 'list(1,-1)', got '[] : list(0)'
+./prelude/Prelude.sy:91:25: ERROR: Operation 'tail' expects a value of type 'sequence(1,-1)', got '[] : list(0)'
 ~~~
 
 ```
 [
-    [ "list" 1 -1 "tail" ] expectType
+    [ 1 "tail"] expectDepth
+    [ "sequence" 1 -1 "tail" ] expectType
 
-    fromList
-    dup 1 + nrot
-    drop
-    1 - toList
+    1 over length slice
     
 ] 'tail;
         
@@ -119,14 +143,15 @@ Examples:
 [ [] <]
 
 > [] init
-./prelude/Prelude.sy:110:25: ERROR: Operation 'init' expects a value of type 'list(1,-1)', got '[] : list(0)'
+./prelude/Prelude.sy:110:25: ERROR: Operation 'init' expects a value of type 'sequence(1,-1)', got '[] : list(0)'
 ~~~
 
 ```
 [
-    [ "list" 1 -1 "init" ] expectType
+    [ 1 "init"] expectDepth
+    [ "sequence" 1 -1 "init" ] expectType
 
-    fromList swap drop 1 - toList
+    0 over length 1 - slice
 
 ] 'init;
 
@@ -147,27 +172,60 @@ Examples:
 
 ```
 [
-    [ "list" 1 -1 "last" ] expectType
+    [ 1 "last"] expectDepth
+    [ "sequence" 1 -1 "last" ] expectType
 
-    fromList
-    swap              `Get hold of the last element
-    over 1 + nlrot    `Move it to the bottom of the stack
-    1 - ndrop         `Remove all elems except the last
+    dup length dup 1 - swap slice
 
 ] 'last;
 ```
 
+## String operations
 
+### The `explode` and `implode` operations
 
+The `explode` operation converts strings into lists of one-character strings for easy processing by list operations.
 
+The `implode` operation is the inverse of `explode`, it takes a list of strings and concatenates it to a string again.
 
+~~~
+explode : [ s:string(n) <] ---> [ cs:list(n,string(1)) <]
 
+implode : [ cs::list(n,string(1)) <] ---> [ s:string(n) <]
+~~~
 
+Examples:
 
+~~~
+> "HELLORLD"
+[ "HELLORLD" <]
+> explode
+[ ["H" "E" "L" "L" "O" "R" "L" "D"] <]
+> reverse
+[ ["D" "L" "R" "O" "L" "L" "E" "H"] <]
+> implode
+[ "DLROLLEH" <]
+~~~
 
+```
+[
+    [ 1 "explode"] expectDepth
+    [ "string" 0 -1 "explode" ] expectType
+        
+    fromString toList
 
+] 'explode;
 
+[
+    [ 1 "implode"] expectDepth
+    [ "list" 0 -1 "implode" ] expectType
+        
+    fromList toString
+
+] 'implode;
+```
+# THAT'S ALL FOLKS!!
 
 ```
 [ "DONE\n\n" put] ifInteractive
-``
+```

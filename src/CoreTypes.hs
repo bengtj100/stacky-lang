@@ -17,7 +17,7 @@ module CoreTypes (
                   Value(..),
                   valueType, valueTypeSize,
                   getValInt,
-                  isComparable,
+                  isComparable, isSequence,
                   getValPos,
 
                   Error,
@@ -103,6 +103,11 @@ isComparable (ValOp _ _ _)   (ValAtom _ _)   = True
 isComparable (ValAtom _ _)   (ValOp _ _ _)   = True
 isComparable (ValOp _ _ _)   (ValOp _ _ _)   = True
 isComparable _             _             = False
+
+isSequence :: Value -> Bool
+isSequence (ValList _ _)   = True
+isSequence (ValString _ _) = True
+isSequence _               = False
 
 valueType :: Value -> String
 valueType (ValInt _ _)    = "integer"

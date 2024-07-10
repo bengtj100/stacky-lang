@@ -56,9 +56,10 @@ builtIns =
                defNDrop, defNSwap, defNRot, defNLRot, defNOver, defNDup,
 
                -- String/list operations
-               defAppend, defLength, defToList, defFromList,
-               defToString, defFromString, defReverse,
-               defToStr,
+               defAppend, defLength,
+               defToList, defFromList,
+               defToString, defFromString,
+               defReverse, defToStr, defSlice,
                        
                -- Input/output operations
                defPrint, defPut, defPutLn, defInput, defPrompt, defReadFile,
@@ -309,7 +310,36 @@ defToString =
 toString :: Value -> String
 toString (ValString _ str) = str
 toString val               = show val
-                             
+
+defSlice :: Value
+defSlice =
+    defOp "slice" $ \cxt@Cxt{stack = s0} ->
+        case s0 of
+            ValInt _ to : ValInt _ from  : ValString pos str : s3 ->
+                doSlice from to str pos $ \res -> Right cxt{stack = ValString pos res : s3}
+            ValInt _ to : ValInt _ from : ValList pos xs : s3 ->
+                doSlice from to xs pos $ \res -> Right cxt{stack = ValList pos res : s3}
+            other1 : other2  : val : _  ->
+                if isSequence val
+                then typeError2 other2 "slice" "two integers as indices" other2 other1
+                else typeError1 val "slice" "a string/list to operate on" val
+            _ ->
+                stackUnderflowError ValNoop "slice"
+
+doSlice :: Integer -> Integer -> [a] -> Position -> ([a] -> Result b) -> Result b
+doSlice from (-1) xs _ cont
+    | checkSlice from (-1) xs =
+        cont $ drop (fromInteger from) xs
+doSlice from to xs _ cont
+    | checkSlice from to xs =
+        cont $ take (fromInteger (to - from)) $ drop (fromInteger from) xs
+doSlice _ _ _ pos _ =
+    newErrPos pos "'slice' expects '0 <= from <= to <= length'"
+    
+checkSlice :: Integer -> Integer -> [a] -> Bool
+checkSlice from (-1) xs = 0 <= from && fromInteger from <= length xs
+checkSlice from to   xs = 0 <= from && from <= to && fromInteger to <= length xs
+                   
 defFromList :: Value
 defFromList  =
     defOp "fromList" $ \cxt@Cxt{stack = s0} ->
@@ -458,18 +488,23 @@ defExpectType =
 expectType :: Cxt -> [Char] -> Integer -> Integer -> Name -> Value -> [Value] -> IO (Result Cxt)
 expectType cxt eType eMin eMax name val s1 =
     let (aType, aSize) = valueTypeSize val
+        eTypes = typeSet eType
         desc = ("a value of type '" ++ fmtTypeDesc eType eMin eMax ++ "'")
-    in if typesMatch aType (toInteger aSize) eType eMin eMax
+    in if typesMatch aType (toInteger aSize) eTypes eMin eMax
        then return $ Right cxt{stack = val : s1}
        else return $ typeError1 val name desc val
     
 fmtTypeDesc :: String -> Integer -> Integer -> String
 fmtTypeDesc t sMin sMax = t ++ "(" ++ show sMin ++ "," ++ show sMax ++ ")"
-                          
-typesMatch :: String -> Integer -> String -> Integer -> Integer -> Bool
-typesMatch aType aSize eType eMin (-1) | aType == eType && eMin <= aSize                 = True
-typesMatch aType aSize eType eMin eMax | aType == eType && eMin <= aSize && aSize < eMax = True
-typesMatch _     _     _     _    _                                                      = False
+
+typeSet :: String -> [String]
+typeSet "sequence" = ["list", "string"]
+typeSet t          = [t]
+                     
+typesMatch :: String -> Integer -> [String] -> Integer -> Integer -> Bool
+typesMatch aType aSize eTypes eMin (-1) | aType `elem` eTypes && eMin <= aSize                 = True
+typesMatch aType aSize eTypes eMin eMax | aType `elem` eTypes && eMin <= aSize && aSize < eMax = True
+typesMatch _     _     _      _    _                                                           = False
 
 defExpectDepth :: Value
 defExpectDepth =

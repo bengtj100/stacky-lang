@@ -716,6 +716,8 @@ Stacky implements the following common list and string operations:
 | [`toString`](#the-tostring-operation)     | Build a list from elements on the stack.             |
 | [`toStr`](#the-tostr-operation)           | Convert a list to string.                            |
 | [`reverse`](#the-reverse-operation)       | Reverse the elements of a string or list.            |
+| [`slice`](#the-slice-operation)           | Cut slices from a list or string.                    |
+
 
 #### Concatenation
 
@@ -883,6 +885,30 @@ Examples:
 > [1 2 3 4] reverse
 [ [4 3 2 1] <]
 
+```
+
+#### The `reverse` operation
+
+This operation cuts a slice out of a string or list. 
+
+```
+slice : [ seq:sequence(n) i:integer k:integer <] ---> [ seq:sequence(k-i) <]
+```
+
+If *n* is the length of the sequence, then *i* is the first element to include (counting from zero (0)) and *k* one after the lst element to include. The following must hold: *0 <= i <= k <= n*.
+
+If *i = k*, an empty sequence is returned.
+
+If *k = -1*, the slice extends to the last element.
+
+Examples: 
+
+```
+> "HELLO" 2 5 slice
+[ "LLO" <]
+
+> "HELLO" 2 -1 slice
+[ "LLO" <]
 ```
 
 ### Input/Output operations
@@ -1235,6 +1261,8 @@ This operation tests the top element against a type specification. If the type o
 expectType : or
              [ val [type:string minSize:integer maxSize:integer name:string] <] ---> [ val <]
 ```
+
+The type name is one of the names returned by [the `typeOf` operation](#the-typeof-operation), as well as "sequence" that is used if both lists and strings are allowed.
 
 **NOTE:** The size parameters must be present even if the type is size-less, like an integer. In such case any values *m* and *n*, such that *m <= 1 < n* will work. Furthermore an infinite upper range is denoted by *-1*, so `["list 5 -1]` means any list with five or more elements.
 
