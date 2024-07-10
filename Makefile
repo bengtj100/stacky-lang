@@ -88,7 +88,7 @@ install: version all test doc
 ## ----------------------------------------------------------------------------------------------------
 
 .PHONY: release
-release: version test doc
+release: version all test doc
 	@echo ">>>>>>>>>>>>    Building release tar-ball ..."
 	$(BUILD_RELEASE)
 
