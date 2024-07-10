@@ -372,6 +372,7 @@ Examples:
 
 theAnswer square             ' Compute 42 * 42 = 1764
 ```
+
 #### The `cond` operation
 
 The *cond* operation (`?`) is the way one controls the execution flow in Stacky. It is basically the same as the *if-then-else* construct found in many languages. Its syntax and semantics are as follows:
@@ -1321,7 +1322,7 @@ ERROR: Operation 'foo' expects a value of type 'atom(1,2)', got '42 : integer(1)
 
 ```
 
-## The `throw` operation
+#### The `throw` operation
 
 This operating throws an error, given a message and an operation's name.
 
