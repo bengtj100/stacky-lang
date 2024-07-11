@@ -138,14 +138,21 @@ defCond =
            elsePart : thenPart : predicate : s1 ->
                do result <- runValues cxt{stack = s1} [predicate, defApply]
                   ifOk result $ \cxt1@Cxt{stack = s2} ->
-                      ifOk (getValInt $ head s2) $ \predInt ->
-                          runValues cxt1{stack = tail s2} $
-                              if predInt /= 0
-                                  then [thenPart, defApply]
-                                  else [elsePart, defApply]
+                      runValues cxt1{stack = safeTail s2} $
+                                if   truth2Bool (safeHead s2)
+                                then [thenPart, defApply]
+                                else [elsePart, defApply]
            _ ->
                return $ stackUnderflowError ValNoop "?"
 
+safeHead :: [Value] -> Value
+safeHead []    = ValInt noPos 0
+safeHead (x:_) = x
+
+safeTail :: [Value] -> [Value]
+safeTail []     = []
+safeTail (_:xs) = xs
+                  
 defDrop :: Value
 defDrop = defOp "drop" $ \cxt@Cxt{stack = s0} ->
               case s0 of
