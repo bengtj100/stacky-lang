@@ -33,6 +33,9 @@ parseCmds bIns (ValAtom pos "[" : cmds) =
 parseCmds bIns (inhibitor@(ValAtom _ "'") : atom@(ValAtom _ _) : cmds) =
     do cmds' <- parseCmds bIns cmds
        return $ inhibitor : atom : cmds'
+parseCmds bIns (inhibitor@(ValAtom _ "^") : atom@(ValAtom _ _) : cmds) =
+    do cmds' <- parseCmds bIns cmds
+       return $ inhibitor : atom : cmds'
 parseCmds bIns (cmd : cmds) =
     do cmd'  <- parseCmd bIns cmd
        cmds' <- parseCmds bIns cmds

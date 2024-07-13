@@ -12,7 +12,7 @@
 | 5   | `nswap` -""-                                                        | -""-             |
 | 6   | `nrot` -""-                                                         | -""-             |
 |     |                                                                     |                  |
-| 7   | **List/string operations**                                          | Planned for v0.1 |
+| 7   | **List/string operations**                                          | In v0.1          |
 | 8a  | `toList`, `fromList`                                                | In v0.1          |
 | 8b  | `toString`, `fromString`                                            | -""-             |
 | 9   | `cons` - Add an element/character to the beginning of a list/string | In v0.1          |

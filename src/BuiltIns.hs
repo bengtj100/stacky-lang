@@ -560,7 +560,7 @@ parseCont pos l str =
        else parser builtIns cmds
 
 ops1 :: [Char]
-ops1 = ['\'', '[', ']'] ++ [ c | ([c], _) <- builtIns, not $ isAlphaNum c ]
+ops1 = ['^', '\'', '[', ']'] ++ [ c | ([c], _) <- builtIns, not $ isAlphaNum c ]
 
 ops2 :: [String]
 ops2 = [ [c,d] | ([c,d], _) <- builtIns, not $ isAlphaNum c ]

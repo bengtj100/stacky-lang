@@ -51,7 +51,7 @@ When the length of a variable type, such as a list or a string, is of importance
 length [ xs:list(n) <] ---> [ n <]
 ```
 
-This means that `xs` which is a list of *n* elements is replaced with the lenght.
+This means that `xs` which is a list of *n* elements is replaced with the length.
 
 Two elements in the parenthesis denotes a range. `list(1,7)` is a list of at least one element but less than seven. These forms are available:
 
@@ -114,10 +114,27 @@ The first error arises from the fact that `theAnswer` is bound, so it will be re
 
 Putting a single quote (`'`) in front of an atom, will inhibit its evaluation. This is actually useful, when writing complex programs. 
 
+Another kind of inhibitor is the top (`^`) operation which, when placed just before an atom, will retrieve the stored value (if one exists) but will ensure that what is retrieved from storage is not immediately evaluated. This is useful since terms retrieved from the store will be evaluated by default.
+
 **NOTE:** It is considered best practice to *always* prefix a name with the quote when storing it in the environment. Thus, the correct code for storing `theAnswer` is:
 
 ```
 42 'theAnswer;
+```
+
+Examples:
+
+```
+> [1 2 3 4 5] 'foo;
+[  <]
+> clear 'foo
+[ foo <]
+> clear ^foo
+[ [1 2 3 4 5] <]
+> clear foo
+[ 1 2 3 4 5 <]
+> clear 'foo @
+[ 1 2 3 4 5 <]
 ```
 
 ## Comments
@@ -201,30 +218,43 @@ An atom always starts with a letter, either upper or lower case. It then continu
 
 The name atom in programming languages originated with [Prolog](https://en.wikipedia.org/wiki/Prolog) and Stacky uses them more or less as they are used in the [Erlang](https://en.wikipedia.org/wiki/Erlang_(programming_language)) programming language.
 
-The most important operations that use atom are, inhibitor (`'`), stash (`;`) and evaluation.
+The most important operations that use atoms are, inhibitors (`'`, `^`), stash (`;`) and evaluation (`@`).
 
-When an atom is encountered during evaluation, one of two things can happen. If the previous operation was the inhibitor (`'`), then the atom will be pushed onto the stack. Without the inhibitor, the atom will be pushed onto the stack, unless it has been previously stored. If that is the case, the contents that was stored away will be evaluated.
+When an atom is encountered during evaluation, one of two things can happen. If the previous operation was the inhibitor (`'`), then the atom will be pushed onto the stack. On the other hand, if the "top" (`^`) inhibitor is used, the value will be pushed onto the stack, but not evaluated. Without the inhibitor, the atom will be pushed onto the stack, unless it has been previously stored. If that is the case, the contents that was stored away will be evaluated.
 
 Example:
 
 ```
-19700101 epoch;      `First year of the UNIX epoch is stored.
+19700101 epoch;                       `First year of the UNIX epoch is stored.
 
-epoch                'Since epoch is defined, 19700101 is pushed onto
-                     `the stack.
+epoch                                 'Since epoch is defined, 19700101 is pushed onto
+                                      `the stack.
 
-'epoch               `The inhibitor ensures that the atom is pushed onto
-                     `the stack.
+'epoch                                `The inhibitor ensures that the atom is pushed onto
+                                      `the stack.
+                     
+[1970 01 01 00 00 00] 'fullEpoch;     `Lets include the time as well.
+
+fullEpoch                             `The stack becomes [ 1970 1 1 0 0 0 <]
+
+'fullEpoch                            'The stack becomes [ fullEpoch <]
+
+^fullEpoch                            `The stack becomes [ [1970 1 1 0 0 0] <]
 ```
 
 **NOTE:** Best practice is to always inhibit an atom if it is going to be used as a value. Even if it isn't defined for the moment, it might become so in the future of the program's execution.
 
-| Operation  | Syntax | Stack                            | Comment            |
-|:-----------|:------:|:---------------------------------|--------------------|
-| Inhibitor  | `'`    | `[ ' a:atom <] ---> [ a <]`      |                    |
-| Stash      | `;`    | `[ y a:atom ; <] ---> [  <]`     |                    |
-| Evaluation | n/a    | `[ a:atom <]   ---> [ env(a) <]` | if `a` is defined. |
-|            |        | `[ a:atom <]   ---> [  <]`       | otherwise.         |
+| Operation  | Syntax | Stack                              | Comment            |
+|:-----------|:------:|:-----------------------------------|--------------------|
+| Stash      | `;`    | `[ y a:atom ; <] ---> [  <]`       |                    |
+|            |        |                                    |                    |
+| Evaluation | n/a    | `[ a:atom <]   ---> [ env(a) @ <]` | if *a* is defined. |
+|            |        | `[ a:atom <]   ---> [ a <]`        | Otherwise.         |
+|            |        |                                    |                    |
+| Inhibitor  | `'`    | `[ ' a:atom <] ---> [ a <]`        |                    |
+|            |        |                                    |                    |
+|            | `^`    | `[ ^ a:atom <] ---> [ env(a) <]`   | if *a* is defined. |
+|            |        | `[ ^ a:atom <]   ---> [ a <]`      | Otherwise.         |
 
 ### Strings
 
@@ -234,11 +264,11 @@ Some unprintable characters are represented by *[escape sequences](https://en.wi
 
 | Escape sequence | Character                                                    |
 |:---------------:|:-------------------------------------------------------------|
-| \\"             | A quotation mark (`"`) to prevent a end-of-string detection. |
-| \\n             | Newline                                                      |
-| \\r             | Carriage return                                              |
-| \\t             | Horizontal tab                                               |
-| \\\\            | A backslash {`\`)                                            |
+| `\"`            | A quotation mark (`"`) to prevent a end-of-string detection. |
+| `\n`            | Newline                                                      |
+| `\r`            | Carriage return                                              |
+| `\t`            | Horizontal tab                                               |
+| `\\`            | A backslash {`\`)                                            |
 
 The following operations mainly operate on strings:
 
@@ -443,9 +473,6 @@ Stacky implements the following stack operations:
 | [`over`](#the-over-operation)   | Copy the second topmost element to the top of the stack.                            |
 | [`rot`](#the-rot-operation)     | Rotate the three topmost elements by moving the third element to the top.           |
 | [`swap`](#the-swap-operation)   | Swap the two topmost elements                                                       |
-
-
-
 
 #### The `clear` operation
 
@@ -896,7 +923,7 @@ This operation cuts a slice out of a string or list.
 slice : [ seq:sequence(n) i:integer k:integer <] ---> [ seq:sequence(k-i) <]
 ```
 
-If *n* is the length of the sequence, then *i* is the first element to include (counting from zero (0)) and *k* one after the lst element to include. The following must hold: *0 <= i <= k <= n*.
+If *n* is the length of the sequence, then *i* is the first element to include (counting from zero (0)) and *k* one after the first element to include. The following must hold: *0 <= i <= k <= n*.
 
 If *i = k*, an empty sequence is returned.
 
@@ -944,7 +971,7 @@ Example:
 
 #### The `print` operation
 
-This operation is used to print a term as it is written in stacky on stdout. A newline is added after the printout. This means that strings are printed with double quotes (`"`) and visible escape sequences.
+This operation is used to print a term as it is written in Stacky on stdout. A newline is added after the printout. This means that strings are printed with double quotes (`"`) and visible escape sequences.
 
 ```
 print :: [ x <] ---> [ <]

@@ -35,22 +35,26 @@ runValues cxt (v : vs) =
 runValue :: Cxt -> Value -> IO (Result Cxt)
 runValue cxt (ValAtom _ atom)   = runAtom cxt atom
 runValue cxt (ValOp pos _ op)   = injectPos pos $ op cxt
-runValue cxt@Cxt{stack = s} val = return $ Right cxt{stack = val : s}
+runValue cxt@Cxt{stack = s} val = leaveVal cxt val s
                     
 runAtom :: Cxt -> Name -> IO (Result Cxt)
 runAtom cxt@Cxt{stack = s} atom =
     case s of
-           (ValAtom pos "'") : s1 ->
-               return $ Right cxt{stack = ValAtom pos atom : s1}
-           _ ->
-               case lookupEnv cxt atom of
-                   Nothing ->
-                       return $ Right cxt{stack = ValAtom noPos atom : s}
-                   Just (ValOp pos _ op) ->
-                       injectPos pos $ op cxt
-                   Just val ->
-                       runValue cxt{stack = val : s} defApply
+           (ValAtom pos "'") : s1 -> leaveVal cxt (ValAtom pos atom) s1
+           (ValAtom pos "^") : s1 -> lookupAtom cxt atom pos s1  $ \val -> leaveVal cxt val s1
+           _                      -> lookupAtom cxt atom noPos s $ \val -> runValue cxt{stack = val : s} defApply
 
+leaveVal :: Cxt -> Value -> [Value] -> IO (Either a Cxt)
+leaveVal cxt val newStack =
+    return $ Right cxt{stack = val : newStack}
+                            
+lookupAtom :: Cxt -> Name -> Position -> [Value] -> (Value -> IO (Either Error Cxt)) -> IO (Either Error Cxt)
+lookupAtom cxt atom pos s cont = 
+    case lookupEnv cxt atom of
+        Nothing                -> leaveVal cxt (ValAtom pos atom) s
+        Just (ValOp pos' _ op) -> injectPos pos' $ op cxt
+        Just val               -> cont val
+                            
 
 injectPos :: Position -> IO (Result a) -> IO (Result a)
 injectPos pos iop =
