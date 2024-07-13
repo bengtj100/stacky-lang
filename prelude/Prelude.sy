@@ -201,6 +201,72 @@ Implementation:
 ] 'last;
 ```
 
+### The `left`, `mid`, and `right` operations
+
+These operations mimic the well known BASIC string functions `LEFT$`, `MID$`, and `RIGHT$`.
+
+* `left` takes a sequence and returns the *n* first elements of the sequence.
+* `mid` takes a sequence and returns the *n* first elements starting at element *m*.
+* `right` takes a sequence and returns the *n* last elements of the sequence.
+
+~~~
+left  : [ s:sequence(l) n:integer[n<=l] <]               ---> [ s':sequence(n) <]
+right : [ s:sequence(l) n:integer[n<=l] <]               ---> [ s':sequence(n) <]
+mid   : [ s:sequence(l) m:integer[n<=l] n:integer[m+n<l] ---> [ s':sequence(n) <]
+~~~
+
+Examples:
+
+~~~
+> "HELLORLD" 5 left
+[ "HELLO" <]
+
+> "HELLORLD" 3 right
+[ "RLD" <]
+
+> "HELLORLD"
+[ "HELLORLD" <]
+> dup 5 left
+[ "HELLORLD" "HELLO" <]
+> " W" 
+[ "HELLORLD" "HELLO" " W" <]
+> 3 nover 4 right
+[ "HELLORLD" "HELLO" " W" "ORLD" <]
+> 3 toString
+[ "HELLORLD" "HELLO WORLD" <]
+~~~
+
+Implementation:
+
+```
+[
+    [ 2 "left"] expectDepth
+    over [ "sequence" 1 -1 "left" ] expectType drop
+    [ "integer" 1 2 "left" ] expectType
+
+    0 swap slice
+] 'left;
+
+[
+    [ 2 "right"] expectDepth
+    over [ "sequence" 1 -1 "right" ] expectType drop
+    [ "integer" 1 2 "right" ] expectType
+
+    over length
+    dup rot -
+    swap slice
+] 'right;
+
+[
+    [ 3 "mid"] expectDepth
+    3 nover [ "sequence" 1 -1 "mid" ] expectType drop
+    over [ "integer" 1 2 "mid" ] expectType drop
+    [ "integer" 1 2 "mid" ] expectType
+
+    over + slice
+] 'mid;
+```
+
 ## String operations
 
 ### The `explode` and `implode` operations
