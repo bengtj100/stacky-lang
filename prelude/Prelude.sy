@@ -267,6 +267,32 @@ Implementation:
 ] 'mid;
 ```
 
+### The `map`, `filter`, and `fold` operations
+
+Implementation:
+
+```
+[
+    'f; 'xs;
+    [^xs] [ ^xs head f
+            ^xs tail ^f map
+            cons ]
+          [ [] ] ?
+] 'map;
+
+[
+    'pred; 'xs;
+    [^xs]
+    [
+        ^xs head              'hd;
+        ^xs tail ^pred filter 'tl;
+        [^hd pred] [^hd ^tl cons] [^tl] ?
+    ]
+    [ [] ]
+    ?
+]'filter;
+```
+
 ## String operations
 
 ### The `explode` and `implode` operations
