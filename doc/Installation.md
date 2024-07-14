@@ -29,7 +29,7 @@ sudo cp -r lib/stacky /usr/local/lib/
 Now it should be possible to run the Stacky interpreter:
 
 ```
-stacky
+$ stacky
 
 Stacky, version: 0.1, build: 2024-07-14.13-10-48
 Copyright (c) 2024 Bengt Johansson -- All rights reserved
@@ -46,17 +46,11 @@ Loading the Prelude ... DONE
 
 This describes how to set up the tool-chain and build stacky on a Ubuntu 22.04 machine.
 
-### Install GHC and build tool-chain
-
-```
-apt update
-
-apt upgrade -y
-
-apt install -y ghc ghc-prof ghc-doc cabal-install git sudo zlib1g-dev pkg-config build-essential pandoc texlive curl vim
-```
+The description is intended for a build server to build releases, but this can be used if you are just intending to build locally as well. In the latter case, the two first sections are often superfluous.
 
 ### Create the builder user
+
+**Only for setting up a build server**
 
 ```
 useradd -m -G sudo -s /bin/bash bob
@@ -70,29 +64,50 @@ cd
 
 ### Create SSH credentials
 
+**Only for setting up a build server**
+
 As user `bob` do:
 
 ```
 ssh-keygen -t ed25519
 ```
 
+
+### Install GHC and build tool-chain
+
+As a non-root user do:
+
+```
+sudo apt update
+
+sudo apt upgrade -y
+
+sudo apt install -y ghc ghc-prof ghc-doc cabal-install git sudo \
+                    zlib1g-dev pkg-config build-essential \
+                    pandoc texlive curl vim
+```
+
 Don't forget to upload this to [Bitbucket](https://bitbucket.org).
 
 ### Clone the Stacky repo
+
+As a non-root user do:
 
 ```
 mkdir src
 
 cd src
 
-git config --global user.email "bengtj100@gmail.com"
+git config --global user.email "your.email@example.com"
 
-git config --global user.name "Bengt Johansson"
+git config --global user.name "You R. Name"
 
 git clone git@bitbucket.org:bengtj100/stacky.git
 ```
 
 ### Set up the build system
+
+As a non-root user do:
 
 ```
 
@@ -105,17 +120,18 @@ cabal install cabal-install
 
 ### Build a release
 
+**This is only for building on a build server.**
+
 ```
 cd stacky
 
-make release
+make clean release
 ```
 
 ### Install locally on the build machine
 
 ```
-make clean all test
-sudo make install
+make clean install
 ```
 
 This installs to `/usr/local/bin` by default

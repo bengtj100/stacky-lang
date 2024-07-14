@@ -39,8 +39,6 @@
 |     |                                                                       |                  |
 | 23  | **Implement a system for building releases**                          | Planned for v0.1 |
 | 23a | Script and build functiontinality to genreated release tar-balls      | In v0.1          |
-| 23b | Build server/container to build using Ubuntu 22.04 for compatibility. | Planned for v0.1 |
-
-
+| 23b | Build server/container to build using Ubuntu 22.04 for compatibility. | In v0.1          |
 
 ## DONE
