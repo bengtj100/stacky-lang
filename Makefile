@@ -21,7 +21,7 @@ DOC_FILES          = $(wildcard $(DOC)/*.md)
 PDF_FILES	   = $(DOC_FILES:.md=.pdf)
 PDF_FILES	  += $(DOC)/Prelude.pdf
 
-CABAL              = cd $(SRC) && cabal
+CABAL              = cd $(SRC) && ~/.cabal/bin/cabal
 
 PROJECT            = stacky
 CABAL_FILE         = $(SRC)/$(PROJECT).cabal
@@ -62,7 +62,7 @@ run: build
 
 test: build
 	@echo ">>>>>>>>>>>>    Running unit tests ..."
-	stacky -b -e '[depth 0 =][][["Stack not empty after loading prelude!" "prelude"] throw]?'
+	$(EXECUTABLE) --prelude $(PRELUDE)/Prelude.sy -b -e '[depth 0 =][][["Stack not empty after loading prelude!" "prelude"] throw]?'
 	$(CABAL) test
 
 ## ----------------------------------------------------------------------------------------------------

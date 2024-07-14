@@ -78,7 +78,7 @@ executable stacky
 
     -- Other library packages from which modules are imported.
     build-depends:
-        base ^>=4.17.1.0,
+        base ^>=4.13.0.0,
         split ^>=0.2.5,
         raw-strings-qq ^>=1.1,
         MissingH ^>=1.6.0.1

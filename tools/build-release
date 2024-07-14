@@ -26,6 +26,8 @@ readonly RELEASES="${PHOME}/../releases"
 readonly CPU_ARCH=$(uname -m)
 readonly KERNEL=$(uname -s)
 
+readonly CABAL=~/.cabal/bin/cabal
+
 ## ====================================================================================================
 
 function line
@@ -45,7 +47,7 @@ function getExecutable
 {
     (
         cd "$SRC_DIR";
-        cabal list-bin "$PROJECT";
+	${CABAL} list-bin "$PROJECT";
     )
 }
 
