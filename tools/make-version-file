@@ -1,0 +1,113 @@
+#!/bin/bash -eu
+## ====================================================================================================
+##
+## Copyright (c) 2024 Bengt Johansson <bengtj100 at gmail dot com>.
+## All rights reserved.
+##
+## This software is part of the stacky project and its use is
+## regulated by the conditions stipulated in the file named 'LICENCE',
+## located in the top directory of said project.
+##
+## ====================================================================================================
+
+readonly PNAME=$(basename "$0")
+readonly PHOME=$(dirname  "$0")
+
+## ====================================================================================================
+##     CONFIG SECTION
+## ====================================================================================================
+
+readonly VERSION_FORMAT='%Y-%m-%d.%H-%M-%S'
+
+function template
+{
+    cat <<EOF_vFile
+
+-- ================    This is an auto-generated file. Do not edit!    ================
+
+module Version (version, build, gitTag) where
+
+version :: String
+version = "$CABAL_VERSION"
+
+build :: String
+build = "$VERSION"
+
+gitTag :: String
+gitTag = "v${CABAL_VERSION}.${VERSION}"
+
+EOF_vFile
+}
+
+## ====================================================================================================
+##     CODE SECTION
+## ====================================================================================================
+
+function errorExit
+{
+    echo "${PNAME}: $*" 1>&2
+    exit 1
+}
+
+## ====================================================================================================
+
+function getCabalVersion
+{
+    [[ -r "$CABAL_FILE" ]] || errorExit "Could not read the Cabal file: '$TEMPLATE'"
+
+    awk '/^version:/ {print $2}' "$CABAL_FILE"
+}
+
+## ----------------------------------------------------------------------------------------------------
+
+function setupTemplateVars
+{
+    readonly CABAL_VERSION=$(getCabalVersion)
+    readonly VERSION="$(date +"${VERSION_FORMAT}")"
+}
+
+## ----------------------------------------------------------------------------------------------------
+
+function makeVersionFile
+{
+    setupTemplateVars
+    template > "${OUTPUT_FILE}"
+}
+
+## ====================================================================================================
+
+function usage
+{
+    cat <<EOF_usage
+
+Usage: ${PNAME} <CABAL-FILE> <OUTPUT-FILE>
+
+This program takes input from the Cabal-file on program version and
+creates a Haskell module with this information for inclusion into the
+main program.
+
+EOF_usage
+}
+
+## ----------------------------------------------------------------------------------------------------
+
+function parseArgs
+{
+    if (( $# < 2 )) ; then
+        usage
+        exit 1
+    fi
+
+    readonly CABAL_FILE="$1"
+    readonly OUTPUT_FILE="$2"
+}
+
+## ----------------------------------------------------------------------------------------------------
+
+function main
+{
+    parseArgs "$@"
+    makeVersionFile
+}
+
+main "$@"
