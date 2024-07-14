@@ -32,8 +32,8 @@ EXE_ARGS           = --prelude $(PRELUDE)/Prelude.sy
 HASKTAGS           = cd $(SRC) && ~/.cabal/bin/hasktags
 HASKTAGS_ARGS      = -e .
 
-INST_BIN           = ~/bin
-INST_LIB           = ~/lib/$(PROJECT)
+INST_BIN           = /usr/local/bin
+INST_LIB           = /usr/local/lib/$(PROJECT)
 
 VERSION_FILE       = $(SRC)/Version.hs
 MAKE_VERSION_PATH  = ./tools/make-version-file
@@ -78,8 +78,8 @@ clean:
 install: version all test doc
 	@echo ">>>>>>>>>>>>    Installing to: $(INST_BIN) ..."
 	mkdir -p $(INST_BIN) $(INST_LIB)
-	cp $(EXECUTABLE) $(INST_BIN)/
-	cp $(PRELUDE)/Prelude.sy $(INST_LIB)/
+	sudo cp $(EXECUTABLE) $(INST_BIN)/
+	sudo cp $(PRELUDE)/Prelude.sy $(INST_LIB)/
 
 ## ----------------------------------------------------------------------------------------------------
 
