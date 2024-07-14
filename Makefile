@@ -48,7 +48,7 @@ all: build
 
 ## ----------------------------------------------------------------------------------------------------
 
-build: tags $(VERSION_FILE)
+build:  tags $(VERSION_FILE)
 	@echo ">>>>>>>>>>>>    Building executable ..."
 	$(CABAL) build
 
