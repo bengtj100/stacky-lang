@@ -137,6 +137,62 @@ Examples:
 [ 1 2 3 4 5 <]
 ```
 
+### Local variables
+
+When variables are created inside function bodies, i.e. lists that can be executed, they are local and not accessible from the outside. 
+
+Variables defined in an outer scope is visible in an inner scope, but shadowing them will not lead to an error.
+
+Example:
+
+```
+>  100 'a; 200 'b;
+[  <]
+> a print b print
+100
+200
+[  <]
+> [300 'b; a print b print]@
+100
+300
+[  <]
+> a print b print
+100
+200
+[  <]
+```
+
+### Dynamic binding
+
+Stacky uses [late binding](https://en.wikipedia.org/wiki/Late_binding), also known as dynamic binding. This means that a variable is bound to its *latest* binding, not to the lexically closest one like most Languages. Late binding is more common in highly dynamic languages, such as Lisp and Bash, than in languages like Haskell or Go.
+
+Example:
+
+```
+> [a print b print] 'pr;
+[  <]
+> pr
+a
+b
+[  <]
+> 100 'a; 200 'b; pr
+100
+200
+[  <]
+> [ 300 'b; bar]'foo;
+[  <]
+> [400 'a; pr] 'bar;
+[  <]
+> foo
+400
+300
+[  <]
+> pr
+100
+200
+[  <]
+```
+
 ## Comments
 
 Stacky has two kinds of comments. *Short comments* encompass everything between a back-tick (`) and the end of the line.
@@ -153,7 +209,6 @@ Below is the code.
 ```
 "This is the code" 'And this is a short comment.
 ~~~
-
     
 ## Data-types
 
