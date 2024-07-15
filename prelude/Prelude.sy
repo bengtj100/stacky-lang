@@ -269,28 +269,91 @@ Implementation:
 
 ### The `map`, `filter`, and `fold` operations
 
+These operations implement the common list combinators `map`, `filter`, and `fold` which are well-known in functional programming.
+
+The `map` operation takes a list (or string) and applies a function to each of the elements of that list.
+
+~~~
+map    : [ [x_1 ... x_n] f <] ---> [ [f(x_1) ... f(x_n) ] <]
+~~~
+
+Example. Take the square of all elements:
+
+~~~
+> [1 2 3 4 5] [dup *] map
+[ [1 4 9 16 25] <]
+~~~
+
+The `filter` operation applies a predicate to each of the elements in a sequence (string or list) and keeps only those that satisfies the predicate.
+
+~~~
+filter : [ [x_1 ... x_n] pred <] ---> [ x_k_1 ... x_k_m ] <]
+         where x_k_1 ... x_k_m are all elements that satisfies the predicate
+~~~
+
+Example. Keep the even numbers in the list:
+
+~~~
+> [1 2 3 4 5 6 7 8 9 10] [2 % 0 =] filter
+[ [2 4 6 8 10] <]
+~~~
+
+The `fold` operation takes a list, an operation and its zero element and applies the operation on all elements, effectively *folding* the list to a single value.
+
+~~~
+fold   : [ [x_1 ... x_n] zero op <] ---> [ (zero op (x_1 op (x_2 op (... op x_n)...) <]
+~~~
+
+Example. Sum all elements in a list.
+
+~~~
+> [1 2 3 4 5 6 7 8 9 10] 0 [+] fold
+[ 55 <]
+~~~
+
 Implementation:
 
 ```
 [
     'f; 'xs;
-    [^xs] [ ^xs head f
+    [^xs]
+        [
+            ^xs head f
             ^xs tail ^f map
-            cons ]
-          [ [] ] ?
+            cons
+        ]
+        [
+            []
+        ] ?
 ] 'map;
 
 [
     'pred; 'xs;
     [^xs]
-    [
-        ^xs head              'hd;
-        ^xs tail ^pred filter 'tl;
-        [^hd pred] [^hd ^tl cons] [^tl] ?
-    ]
-    [ [] ]
-    ?
+        [
+            ^xs head              'hd;
+            ^xs tail ^pred filter 'tl;
+            [^hd pred] [^hd ^tl cons] [^tl] ?
+        ]
+        [
+            []
+        ] ?
 ]'filter;
+
+[
+    'op; 'acc; 'xs;
+    
+    [^xs]
+        [
+            ^xs tail
+            ^acc ^xs head op
+            ^op
+            fold
+        ]
+        [
+            ^acc
+        ] ?
+] 'fold;
 ```
 
 ## String operations
