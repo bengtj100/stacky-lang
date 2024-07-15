@@ -85,10 +85,16 @@ Usage: |] ++ pName ++ [r| ( <option> | <module-name> )*
 Where option is one of:
 
 --eval, -e <stacky-code>    Evaluate <stacky-code>
+
 --interactive, -i           Run in interactive mode, i.e., run the REPL after Prelude and
                             all modules are loaded.
+
 --batch, -b                 Run in batch mode, i.e., terminate once all modules are loaded.
+
+--prelude <path>            Load the prelude from <path> instead of the default location.
+
 --version                   Print the current version and terminate.
+
 --help, -h                  Print this message and then terminate.
 
 The interpreter will load all modules and execute the '--eval' options in the
