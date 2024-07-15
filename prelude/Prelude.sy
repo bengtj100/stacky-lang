@@ -307,7 +307,7 @@ fold   : [ [x_1 ... x_n] zero op <] ---> [ (zero op (x_1 op (x_2 op (... op x_n)
 Example. Sum all elements in a list.
 
 ~~~
-> [1 2 3 4 5 6 7 8 9 10] 0 [+] fold
+> [1 2 3 4 5 6 7 8 9 10] 0 '+ fold
 [ 55 <]
 ~~~
 
@@ -342,7 +342,6 @@ Implementation:
 
 [
     'op; 'acc; 'xs;
-    
     [^xs]
         [
             ^xs tail
