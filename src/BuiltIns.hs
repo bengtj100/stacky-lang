@@ -65,8 +65,8 @@ builtIns =
                defPrint, defPut, defPutLn, defInput, defPrompt, defReadFile,
 
                -- Reflection/introspection operations
-               defApply, defEval, defImport, defEnv, defTypeOf, defTypeInfo, defExpectType,
-               defExpectDepth, defThrow
+               defApply, defApplyList, defEval, defImport, defEnv, defTypeOf,
+               defTypeInfo, defExpectType, defExpectDepth, defThrow
               ]
 
 defBI :: Value -> (Name, Value)
@@ -392,7 +392,7 @@ putVal f n = ValOp noPos n $ \cxt@Cxt{stack = s0} ->
                      do f $ toString val
                         return $  Right cxt{stack = s1}
                  _  ->
-                     return $ stackUnderflowError ValNoop "put"
+                     return $ stackUnderflowError ValNoop n
 
 defInput :: Value
 defInput = ValOp noPos "input" $ \cxt@Cxt{stack = s0} ->
@@ -420,6 +420,21 @@ defEval = ValOp noPos "eval" $ \cxt@Cxt{stack = s0} ->
                   return $ typeError1 other "eval" "a string to be evaluated" other
               _ ->
                   return $ stackUnderflowError ValNoop "eval"
+
+defApplyList :: Value
+defApplyList =
+    ValOp noPos "$" $ \cxt@Cxt{stack = s0} ->
+           case s0 of
+              list@(ValList pos _) : s1 ->
+                  runLocalValues cxt{stack = s1}
+                                     [list,
+                                      ValAtom pos "'",
+                                      ValAtom pos "@",
+                                      ValAtom pos "map"]
+              _ : _ ->
+                  return $ Right cxt
+              _ ->
+                  return $ stackUnderflowError ValNoop "$"
 
 defReadFile :: Value
 defReadFile = ValOp noPos "readFile" $ \cxt@Cxt{stack = s0} ->

@@ -1195,6 +1195,44 @@ Examples:
 [ 6 <]
 ```
 
+#### The `applyList` operation
+
+The applyList (`$`) operation is used to to apply (`@`) to each individual element in a list.
+
+```
+$ : [ xs:list(n) <] ---> [ xs:list(n) <]
+```
+
+When a list is constructed, none of the elements are evaluated to prevent premature evaluation of an operation being defined. Sometimes though, one wants to build a list using a number of expressions or variables. So trying to build the list below will result in an unevaluated list:
+
+Given we have variables a=1, b=4, c=9, and d=16:
+
+```
+> [ [a b +] [b c +] [c d +] ]
+[ [[a b {+}] [b c {+}] [c d {+}]] <]
+```
+
+We essentially get a body of an operation. The apply function isn't really helpful either. It just puts the internal lists onto the stack.
+
+```
+> [ [a b +] [b c +] [c d +] ]@
+[ [a b {+}] [b c {+}] [c d {+}] <]
+```
+
+One way is to use `toList` to build the list:
+
+```
+> a b + b c + c d + 3 toList
+[ [5 13 25] <]
+```
+
+Another way is using the applyList (`$`) operation. This is equivalent to `'@ map` and applies each individual element in the list:
+
+```
+> [ [a b +] [b c +] [c d +] ] $
+[ [5 13 25] <]
+```
+
 #### The `eval` operation
 
 The `eval` operation takes a string from the top of the stack and executes it as Stacky code.
