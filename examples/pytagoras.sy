@@ -54,12 +54,39 @@ pyt3 : [ a:integer b:integer c:integer <] ---> [ <]
 ] 'pyt3;
 ```
 
+# Interactive version
+
+```
+[
+    "" putLn
+    "=====================================" putLn
+    "Test the Pytagorean equation"          putLn
+    "=====================================" putLn
+    "" putLn
+    "Enter first side:     " prompt eval
+    "Enter second side:    " prompt eval
+    "Enter the hypotenuse: " prompt eval
+    "" putLn
+    pyt3
+    
+    "" putLn
+    "Do one more? (Y/n)" prompt
+    ["n" <>]
+        [pyt4]
+        ["Bye-bye" putLn]
+        ?
+] 'pyt4;
+```
+
 # Some test printouts
 
 ```
-  3   4   5 pyt3
-  3   4   6 pyt3
-111 148 185 pyt3
+[
+      3   4   5 pyt3
+      3   4   6 pyt3
+    111 148 185 pyt3
+] 'test1;
 ```
+
 
 # That's all folks!

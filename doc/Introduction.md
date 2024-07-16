@@ -289,7 +289,6 @@ Stacky doesn't have a boolean type for truth values. It uses a few values in dif
 
 As we got a one here, we know that the comparison held. Boolean operations only return `0` for false and `1` for true.
 
-
 ### Programmers are lazy (and so is Stacky sometimes)
 
 In the above example, we repeated a number of operations more than once. In fact the entire computatio became:
@@ -386,12 +385,95 @@ To make the test even easier to use, we kan output the result on stdout. That wa
 
 The file `examples/pytagoras.sy` contains a program with all these definitions. Try running it:
 ```
-$ stacky -b examples/pytagoras.sy 
+$ stacky -b examples/pytagoras.sy -e test
 [3 4 5] is GOOD
 [3 4 6] is BAD
 [111 148 185] is GOOD
 $ 
 ```
+
+The `-e` (or `--eval`) is used to evaluate a Stacky expression. In this case to execute an operation called `test`.
+
+### Let's get interactive
+
+We know that it is possible to print information from Stacky programs, we will now show how to input data to programs.
+
+The most versatile operation to enter data into Stacky is the `prompt` operation. It takes a string which it uses as a prompt. It then reads data from stdin. It reads until a newline occurs.
+
+It is possible to enter long inputs by putting a backslash at the end of the line, much like in the interpeter.
+
+```
+> "Data:" prompt
+Data:foo
+[ "foo" <]
+> "Hello: " prompt
+Hello: abc\
+ ... Hello: def\
+ ... Hello: ghi\
+ ... Hello: jkl
+[ "foo" "abc\ndef\nghi\njkl" <]
+```
+
+In the `examples/pytagoras.sy` file there is an operation called `pyt4` that tests the equation interactivly:
+
+```
+[
+    "" putLn
+    "=====================================" putLn
+    "Test the Pytagorean equation"          putLn
+    "=====================================" putLn
+    "" putLn
+    "Enter first side:     " prompt eval
+    "Enter second side:    " prompt eval
+    "Enter the hypotenuse: " prompt eval
+    "" putLn
+    pyt3
+    
+    "" putLn
+    "Do one more? (Y/n)" prompt
+    ["n" <>]
+        [pyt4]
+        ["Bye-bye" putLn]
+        ?
+] 'pyt4;
+```
+
+`eval` is used to evaluate a string as a Stacky expression. Here it is used to convert a string to an integer.
+
+Note the lack of loop operations. Currently there are no such in the language. Therefore, we use recursion in `pyt4`.
+
+Let's try it out!
+
+```
+ $ stacky -b examples/pytagoras.sy -e pyt4
+
+=====================================
+Test the Pytagorean equation
+=====================================
+
+Enter first side:     3
+Enter second side:    4
+Enter the hypotenuse: 5
+
+[3 4 5] is GOOD
+
+Do one more? (Y/n)
+
+=====================================
+Test the Pytagorean equation
+=====================================
+
+Enter first side:     5
+Enter second side:    67
+Enter the hypotenuse: 6
+
+[5 67 6] is BAD
+
+Do one more? (Y/n)n
+Bye-bye
+$ 
+```
+
 
 
 
