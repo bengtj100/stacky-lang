@@ -1,4 +1,4 @@
-# Stacky - A simple stack language
+c# Stacky - A simple stack language
 ## Language Introduction
 ### Version 0.1
 
@@ -88,6 +88,7 @@ Loading the Prelude ... DONE
 ```
 
 This consists of four parts:
+
 1. The greeting and copyright to show that the correct version of stacky has started.
 2. A message showing that the prelude, (a library of often used operations), has been successfully loaded into the system.
 3. A representation of the stack. Everyting between `[` and `<]` are the elements on the stack, on which the operations operate. When Stacky is started, the stack is normally empty.
@@ -177,12 +178,221 @@ Issuing `stacky --help` will list the available options.
 
 After this tutorial, you should have a working understanding of most concepts in Stacky. It should be possible to read the reference manual and the prelude for more information.
 
-### Datatypes
+### Let's get stackin'
 
-### Variables
+Since Stacky is a stack oriented language, let's start by looking at the stack. We know how to compute simple expressions like *1 + 2*. Now we will tackle a a slightly trickier one: *2 + 3 \* 4*.
 
-### Functions
+Using Stacky, we won't have to worry about [PEMDAS](https://en.wikipedia.org/wiki/Order_of_operations) too much. But as we all know multiplication has higher priority than addition, so that is evaluated first. We evaluate this expression as follows:
 
-### I/O
+```
+1 + 2 * 3 ---> 1 + 6 ---> 7
+```
 
-### Control flow and recursion
+Using the stack we can decide when an operation is to be performed. Lets start pushing the numbers:
+
+```
+> 1 2
+[ 1 2 <]
+```
+
+Since we need to evaluate the multiplication first, let's push the *3* as well. 
+
+```
+> 3
+[ 1 2 3 <]
+```
+
+Now we can apply the multiplication and additon:
+
+```
+[ 1 2 3 <]
+> *
+[ 1 6 <]
+> +
+[ 7 <]
+```
+
+Of course, we could have entered the expression directly:
+
+```
+[  <]
+> 1 2 3 * +
+[ 7 <]
+```
+
+So far, all values have been conveniently placed on the stack for our operations to consume. Let's take a little more complex problem: The [Pytagorean theorem](https://en.wikipedia.org/wiki/Pythagorean_theorem) states that *"... the area of the square whose side is the hypotenuse (the side opposite the right angle) is equal to the sum of the areas of the squares on the other two sides." [*[Wikipedia]*](https://en.wikipedia.org/wiki/Pythagorean_theorem)
+
+If the sides are *a*, *b* and the hypotenuse is *c*, we get the following equation.
+
+$a^2 + b^2 = c^2$
+
+So if the sides are 3 and 4, the hypotenuse is 5. Let's use Stacky to compute the equation.
+
+Let's put the values onto the stack:
+
+```
+> 3 4 5
+[ 3 4 5 <]
+```
+
+Now we need to figure out a way to compute the square of a number. Stacky has an operation called `dup` that duplicates whats on top of the stack. Once we have two of the same we can use multiplication to get the square:
+
+```
+[ 3 4 5 <]
+> dup
+[ 3 4 5 5 <]
+> *
+[ 3 4 25 <]
+```
+
+There we have one square. Now we have to square the sides. The `rot` operation rotates the top three elements on the stack:
+
+```
+[ 3 4 25 <]
+> rot
+[ 4 25 3 <]
+```
+
+Now that we have one of sides available, we can repeat the squaring operation:
+
+```
+[ 4 25 3 <]
+> dup *
+[ 4 25 9 <]
+```
+
+Let's do the same for the last side:
+
+```
+[ 4 25 9 <]
+> rot dup *
+[ 25 9 16 <]
+```
+
+Now we can add the sides together:
+
+```
+[ 25 9 16 <]
+> + 
+[ 25 25 <]
+```
+
+While it's obvious for us that the equation holds, we use the equality operation to compare them, so that Stacky knows that too:
+
+```
+[ 25 25 <]
+> =
+[ 1 <]
+```
+
+Stacky doesn't have a boolean type for truth values. It uses a few values in different types to denote *false*. These are : `0` (zero integer), `[]` (the empty list), and `""` (the empty string). All other values denote *true*
+
+As we got a one here, we know that the comparison held. Boolean operations only return `0` for false and `1` for true.
+
+
+### Programmers are lazy (and so is Stacky sometimes)
+
+In the above example, we repeated a number of operations more than once. In fact the entire computatio became:
+
+```
+[  <]
+> 3 4 5 dup * rot dup * rot dup * + =
+[ 1 <]
+```
+
+That's a lot of repeated work. Stacky allows us to define new operations by storing code snippets in lists. Stacky will automatically execute the code when the variable is retieved.
+
+We can start with the squaring operation:
+
+```
+[dup *] 'square;
+```
+
+The `[dup *]` is the body of the operation. `'square` pushes the name "square" onto the stack. (The `'` tells Stacky not to try to retrieve the name, should it exist in an outer scope. This isn't strictly neccessary in the top scope, but is good practice. Finally `;` stores the operation. 
+
+We kan now square integers:
+
+```
+[  <]
+> 5 square
+[ 25 <]
+> 40 square
+[ 25 1600 <]
+> square
+[ 25 2560000 <]
+```
+
+The test now becomes:
+
+```
+> 3 4 5 square rot square rot square + =
+[ 1 <]
+```
+
+We can store the entire test in a function, so that we can test other sets of values:
+
+```
+> [square rot square rot square + =] 'pyt;
+[  <]
+
+> 3 4 5 pyt
+[ 1 <]
+
+> 3 4 6 pyt
+[ 0 <]
+```
+
+Ones and zeros might not be the nicest result for humans. We would like to get "GOOD" or "BAD" as result. Stacky has the conditional operation `?` for that purpose:
+
+```
+[  <]
+> [3 4 5 pyt] "GOOD" "BAD" ?
+[ "GOOD" <]
+
+[  <]
+> [3 4 6 pyt] "GOOD" "BAD" ?
+[ "BAD" <]
+```
+
+The conditional operation takes three values from the stack. First it evaluates the third element down. If it is true, it evaluates the second, otherwise the first element is evaluated. This is the if - then - else construct found in other languages.
+
+Lets make a function out of this:
+
+```
+> [ [pyt] "GOOD" "BAD" ? ] 'pyt2;
+
+[  <]
+> 3 4 5 pyt2
+[ "GOOD" <]
+
+> 4 7 9 pyt2
+[ "BAD" <]
+```
+
+To make the test even easier to use, we kan output the result on stdout. That way we can write a program that tests a number of combinations. We will use the `put` and `putLn` operations.
+
+```
+> [3 ndup 3 toList put pyt2 " is " put putLn]'pyt3;
+[  <]
+> 3 4 5 pyt3
+[3 4 5] is GOOD
+[  <]
+> 3 4 6 pyt3
+[3 4 6] is BAD
+[  <]
+```
+
+`ndup` works like `dup`, but can work on more than one element. `3 ndup` duplicates the three topmost element on the stack.
+
+The file `examples/pytagoras.sy` contains a program with all these definitions. Try running it:
+```
+$ stacky -b examples/pytagoras.sy 
+[3 4 5] is GOOD
+[3 4 6] is BAD
+[111 148 185] is GOOD
+$ 
+```
+
+
+
+# MORE TO COME

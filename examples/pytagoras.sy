@@ -1,0 +1,65 @@
+# Pytagoras
+
+A number of operations defined in the introduction tutorial.
+
+## `square`
+
+This function squares an integer
+
+~~~
+square : [ n:integer <] ---> [ (n*n):integer <]
+~~~
+
+```
+[ dup * ] 'square;
+```
+
+## `pyt`
+
+Test if the tree topmost integers satisfies the Pytagorean equation
+
+~~~
+pyt : [ a:integer b:integer c:integer <] ---> [ t:truth-value <]
+~~~
+
+```
+[
+    square            ` Square the hypotenuse
+    rot square        ` Rotate in the first side and square
+    rot square        ` Rotate in the second side and square
+    +                 ` Add the sides
+    =                 ` Compare the sum and the hypotenuse
+] 'pyt;
+```
+
+## `pyt2` and `pyt3`
+
+`pyt2` replaces the truth-value with the strings "GOOD" or "BAD",
+while `pyt3` prints the results on stdout.
+
+~~~
+pyt2 : [ a:integer b:integer c:integer <] ---> [ t:string <]
+pyt3 : [ a:integer b:integer c:integer <] ---> [ <]
+~~~
+
+```
+[ [pyt] "GOOD" "BAD" ? ] 'pyt2;
+
+[
+    3 ndup             ` Duplicate the input so that we can present it
+    3 toList put       ` Print the input on stdout
+    pyt2               ` Check the input
+    " is " put         ` Print a divider
+    putLn              ` Print the result of pyt2
+] 'pyt3;
+```
+
+# Some test printouts
+
+```
+  3   4   5 pyt3
+  3   4   6 pyt3
+111 148 185 pyt3
+```
+
+# That's all folks!
