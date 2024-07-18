@@ -60,6 +60,7 @@ builtIns =
                defToList, defFromList,
                defToString, defFromString,
                defReverse, defToStr, defSlice,
+               defChr, defOrd,
                        
                -- Input/output operations
                defPrint, defPut, defPutLn, defInput, defPrompt, defReadFile,
@@ -333,6 +334,32 @@ defSlice =
             _ ->
                 stackUnderflowError ValNoop "slice"
 
+defOrd :: Value
+defOrd =
+    defOp "ord" $ \cxt@Cxt{stack = s0} ->
+        case s0 of
+            ValString pos [c] : s1 ->
+                Right cxt{stack = ValInt pos (toInteger $ ord c) : s1}
+            ValString pos str : _ ->
+                newErrPos pos ("ord expects a single-character string, got " ++ show str)
+            other : _ ->
+                typeError1 other "ord" "a single-character string" other
+            _ ->
+                stackUnderflowError ValNoop "ord"
+
+defChr :: Value
+defChr =
+    defOp "chr" $ \cxt@Cxt{stack = s0} ->
+        case s0 of
+            ValInt pos x : s1 ->
+                if x >=0 &&x < 0x110000
+                then Right cxt{stack = ValString pos [chr (fromInteger x)] : s1}
+                else newErrPos pos ("chr expects an integer in the Unicode interval, got " ++ show x)
+            other : _ ->
+                typeError1 other "chr" "an integer" other
+            _ ->
+                stackUnderflowError ValNoop "chr"
+                               
 doSlice :: Integer -> Integer -> [a] -> Position -> ([a] -> Result b) -> Result b
 doSlice from to xs pos cont
     | to < 0 = let to' = toInteger (length xs) + to + 1

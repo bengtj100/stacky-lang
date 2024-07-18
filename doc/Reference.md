@@ -800,6 +800,8 @@ Stacky implements the following common list and string operations:
 | [`toStr`](#the-tostr-operation)           | Convert a list to string.                            |
 | [`reverse`](#the-reverse-operation)       | Reverse the elements of a string or list.            |
 | [`slice`](#the-slice-operation)           | Cut slices from a list or string.                    |
+| [`chr`](#the-chr-operation)               | Convert an integer character value to a character.   |
+| [`ord`](#the-ord-operation)               | Convert a character to its integer value.            |
 
 
 #### Concatenation
@@ -970,7 +972,7 @@ Examples:
 
 ```
 
-#### The `reverse` operation
+#### The `slice` operation
 
 This operation cuts a slice out of a string or list. 
 
@@ -992,6 +994,49 @@ Examples:
 
 > "HELLO" 2 -1 slice
 [ "LLO" <]
+```
+
+#### The `chr` operation
+
+This operation converts a an integer in the Unicode interval to the corresponding single-character string.
+
+```
+chr : [ c:integer <] ---> [ x:string(1) <]
+```
+
+Examples:
+
+```
+> 42 chr
+[ "*" <]
+
+> 36 chr 
+[ "$" <]
+
+[ [72 69 76 76 79 82 76 68] <]
+> 'chr map
+[ ["H" "E" "L" "L" "O" "R" "L" "D"] <]
+```
+
+#### The `ord` operation
+
+This operation converts a single character string on the top of the stack to its character value.
+
+```
+ord : [ c:string(1) <] ---> [ x:integer <]
+```
+
+Examples:
+
+```
+> "%" ord
+[ 37 <]
+
+> "A" ord
+[ 65 <]
+
+> "HELLORLD" explode 'ord map
+[ [72 69 76 76 79 82 76 68] <]
 ```
 
 ### Input/Output operations
