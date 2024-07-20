@@ -1,0 +1,68 @@
+# Sieve of Eratosthenes
+
+This example shows how to implement the [Sieve of Eratosthenes](https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes)  algorithm.
+
+# Code
+
+```
+
+[
+    [
+        [ 2 ndup >=]
+            [
+                dup lrot
+                2 + initList_
+            ]
+            []
+            ?
+    ] 'initList_;
+
+    3 initList_ drop 1 - 2 / toList
+
+] 'initList;
+
+[
+    [
+        [dup]
+        [
+            dup head swap over [% 0 <>] cons filter
+            sieve_ cons
+        ]
+        [
+        ]
+        ?
+    ] 'sieve_;
+
+   2 swap initList sieve_ cons
+] 'sieve;
+
+[
+    [
+        [dup head dup * n <=]
+        [
+            dup head swap over [% 0 <>] cons filter
+            fastSieve_ cons
+        ]
+        [
+        ]
+        ?
+    ] 'fastSieve_;
+
+    dup 'n;
+    2 swap initList fastSieve_ cons
+] 'fastSieve;
+```
+
+# Test
+
+```
+[
+    [ 2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 ] 'actual;
+    [ dup print ^actual = "PASS" "FAIL" ? print ] 'check;
+
+    ^actual print "ACTUAL" print
+    100 fastSieve check
+    100 sieve check
+] 'sieve_test;
+
+```
