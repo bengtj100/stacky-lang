@@ -474,7 +474,171 @@ Bye-bye
 $ 
 ```
 
+### Lists are useful
 
+A list is simply a sequence of Stacky values. They are printed enclosed in square brackets (`[` and `]`). The simplest way to construct a list is to enter it with the brackets. This creates a simple list:
+
+```
+> [1 2 3 4]
+[ [1 2 3 4] <]
+```
+
+The `length` operation is used to find out how many elements are in a list:
+
+```
+> [1 4 9 16 25] length
+[ 5 <]
+```
+
+Another way to create a list is using the `toList` operation. It takes an integer *n* and then puts the *n* next elements on the stack into a list:
+
+```
+> 1 9 2 8 3 7 4 6 5
+[ 1 9 2 8 3 7 4 6 5 <]
+> 9 toList
+[ [1 9 2 8 3 7 4 6 5] <]
+```
+
+There are a number ow ways to take a list apart to get at the individual elements. The easiest is probably the `fromList` operation that takes a list and pushes the elements onto the stack. It also puts the length of the list on the stack.
+
+```
+> [ 100 220 333 400 ] fromList
+[ 100 220 333 400 4 <]
+```
+
+Examples of other operations that work on lists are listed in the Reference manual, but also in the Prelude.
+
+```
+> [1 4 9 16 25 36 49 64 81 100] 'squares;
+[  <]
+
+> ^squares head
+[ 1 <]
+
+> ^squares tail
+[ [4 9 16 25 36 49 64 81 100] <]
+
+> ^squares init
+[ [1 4 9 16 25 36 49 64 81] <]
+
+> ^squares last
+[ 100 <]
+```
+
+In the prelude you will also find operations that mimic some of the functions like `map` and `filter` that operate on lists. Take map for instance. It takes a list and then applies an operation on each of the lists. If we want to take the squares of all elements in a list, we can use `map`.
+
+```
+> [1 2 3 4 5 6 7 8 9 10] [dup *] map
+[ [1 4 9 16 25 36 49 64 81 100] <]
+```
+
+The first component `[1 2 3 4 5 6 7 8 9 10]` is our input list. The list `[dup *]` will duplicate the element on top of the stack and then multipy it with it self, thus giving us the square. This is done for all elements by the `map` operation.
+
+### Lists as code
+
+The last example in the previous section showed us another use of lists; to hold snippets of code! If you think of it, we have seen it before. We have defined our own operations, like the `square` operation:
+
+```
+[dup *] 'square;
+```
+
+We have also seen lists as code in the conditional operation:
+
+```
+[x 0 >=] ["X is positive" putLn] ["X is negative" putLn] ?
+```
+
+Though, we haven't really gone into how this works. In fact, it all has to do with the apply operation (`@`). It works like this: If it finds a list it will treat each of the elements as if it is code. This even works with lists of integers. Each element will be pushed onto the stack in the order they appear in the list:
+
+```
+> [1 2 3 4 5] @
+[ 1 2 3 4 5 <]
+```
+
+But how come we can create new operations with list without having the contents to execute while we define them? 
+
+```
+> dup *
+ERROR: Stack underflow in operation: 'dup'
+```
+
+This is because when you create a list using the square brackets, the contents go into the list directly without being executed:
+
+```
+> [dup *]
+[ [{dup} {*}] <]
+```
+
+The curly brackets just denote that `dup` and `*` are built-in operations. This will go away in future versions. 
+
+We now have a list fo code on the stack. So if we put an integer below it on the stack using `swap` and then uses `@`, it will be evaluated:
+
+```
+> [dup *]
+[ [{dup} {*}] <]
+> 256 swap
+[ 256 [{dup} {*}] <]
+> @
+[ 65536 <]
+```
+
+However, most of the time, we just store the code snippet in a variable for later use:
+
+```
+> [dup *]
+[ [{dup} {*}] <]
+> 'square;
+[  <]
+> 5 square
+[ 25 <]
+> 100 square
+[ 25 10000 <]
+```
+
+It is worth noting that when a list is retrieved from a variable, it is automatically executed! This means that lists that store data will have its data splashed onto the stack immediatelly:
+
+```
+> [10 20 30 40 50 60] 'myList;
+[  <]
+> myList
+[ 10 20 30 40 50 60 <]
+```
+
+That's why we have the caret (`^`) operation that will retrieve the list to the stack:
+
+```
+> ^myList
+[ [10 20 30 40 50 60] <]
+```
+
+This makes Stacky [homoiconic](https://en.wikipedia.org/wiki/Homoiconicity), i.e. data and code use the same representation. This is a property that it shares with languages in the LISP family.
+
+Suppose we want to create an operation named `double` that doubles an integer value. We can of course create it directly as `[dup +]'double;`. However let's take the `square` operation and use it as a template. We will retrieve the code. Put it onto the stack and replace `*` with `+` and then store it.
+
+```
+> [dup *]'square;
+[  <]
+> 5 square
+[ 25 <]
+> ^square
+[ 25 [{dup} {*}] <]
+> fromList
+[ 25 {dup} {*} 2 <]
+> drop drop
+[ 25 {dup} <]
+> '+
+[ 25 {dup} + <]
+> 2 toList
+[ 25 [{dup} +] <]
+> 'double;
+[ 25 <]
+> 5 double
+[ 25 10 <]
+> 5 square
+[ 25 10 25 <]
+```
+
+In the `examples` directory, you will find more examples of lists as code.
 
 
 # MORE TO COME

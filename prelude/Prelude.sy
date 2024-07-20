@@ -196,7 +196,7 @@ Implementation:
     [ 1 "last"] expectDepth
     [ "sequence" 1 -1 "last" ] expectType
 
-    dup length dup 1 - swap slice
+    dup length dup 1 - swap slice head
 
 ] 'last;
 ```
