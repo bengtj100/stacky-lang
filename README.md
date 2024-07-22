@@ -12,9 +12,9 @@ The reference implementation is an interpeter, but there should be nothing that 
 
 ## Documentation
 
-Installation and building instructions are available in the [installation guide](https://github.com/bengtj100/stacky-lang/blob/main/doc/Installation.md)
+Installation and building instructions are available in the [installation guide](https://github.com/bengtj100/stacky-lang/blob/main/doc/Installation.md).
 
-An introduction to using the Stacky interpreter, as well as a short tutorial is available in the [introductory guide](https://github.com/bengtj100/stacky-lang/blob/main/doc/Introduction.md)
+An introduction to using the Stacky interpreter, as well as a short tutorial is available in the [introductory guide](https://github.com/bengtj100/stacky-lang/blob/main/doc/Introduction.md).
 
 There is also a [reference manual](https://github.com/bengtj100/stacky-lang/blob/main/doc/Reference.md) as well as a documented [prelude](https://github.com/bengtj100/stacky-lang/blob/main/prelude/Prelude.sy) (a a library of standard operations written in Stacky it self.
 
