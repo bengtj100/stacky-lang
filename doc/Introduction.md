@@ -1,4 +1,4 @@
-c# Stacky - A simple stack language
+# Stacky - A simple stack language
 ## Language Introduction
 ### Version 0.1
 

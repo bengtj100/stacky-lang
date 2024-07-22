@@ -1,37 +1,26 @@
 # Stacky - A simple stack language
 
+**Welcome to the home of the *Stacky* programming language!**
+
+## Introduction
+
+*Stacky* is a small, but quite expressive stack-based programming language that also incorporates some of the features of the Lisp family of languages.
+
+It is intended to be small and simple to implement and write code in, and should be suitable as a high-level programming language for small computer systems, such as single-board computers and microcontrollers.
+
+The reference implementation is an interpeter, but there should be nothing that stops prevents a compiler to be implemented in the future.
+
+## Documentation
+
+Installation and building instructions are available in the [installation guide](https://github.com/bengtj100/stacky-lang/blob/main/doc/Installation.md)
+
+An introduction to using the Stacky interpreter, as well as a short tutorial is available in the [introductory guide](https://github.com/bengtj100/stacky-lang/blob/main/doc/Introduction.md)
+
+There is also a [reference manual](https://github.com/bengtj100/stacky-lang/blob/main/doc/Reference.md) as well as a documented [prelude](https://github.com/bengtj100/stacky-lang/blob/main/prelude/Prelude.sy) (a a library of standard operations written in Stacky it self.
+
+There is also a list of known build and run-time [dependencies](https://github.com/bengtj100/stacky-lang/blob/main/DEPENDENCIES.md) to this project.
+
 ## Downloads
 
-* [Releases](https://www.dropbox.com/scl/fo/w3r8zo3och43dybheyspl/AHpmO0q0heWiFuOWt2gSwCE?rlkey=pwz1f8j1yuqd00grj88re745o&st=xx54wmnf&dl=0)
+Binary downloads and releases are available from the [Stacky GitHub page](https://github.com/bengtj100/stacky-lang).
 
-## Links
-* [Introduction](Introduction.md)
-* [Language Reference](Reference.md)
-
-
-## Dependencies
-
-### Build Dependencies
-
-| Type  | Package        | Version                 | Repo Name               | Comments                 |
-|:-----:|:--------------:|:-----------------------:|:------------------------|:-------------------------|
-| DNF   | GHC            | 9.4.5                   | `ghc`                   |                          |
-| DNF   | Cabal          | 3.8.1.0                 | `cabal-install`         |                          |
-| Cabal | base           | 4.17.1.0                | n/a                     | Comes with cabal package |
-| Cabal | split          | 0.2.5                   | `split`                 |                          |
-| Cabal | raw-strings-qq | 1.1                     | `raw-strings-qq`        |                          |
-| Cabal | MissingH       | 1.6.0.1                 | `MissingH`              |                          |
-| DNF   | Pandoc         | 3.1.3                   | `pandoc`                |                          |
-| DNF   | PdfLaTeX       | 3.141592653-2.6-1.40.25 | `texlive texlive-latex` |                          |
-|       |                |                         |                         |                          |
-
-### Run-time dependencies
-
-```
-linux-vdso.so.1 (0x00007fbf8c44c000)
-libm.so.6 => /lib64/libm.so.6 (0x00007fbf8c34f000)
-libgmp.so.10 => /lib64/libgmp.so.10 (0x00007fbf8c2ab000)
-libc.so.6 => /lib64/libc.so.6 (0x00007fbf8c0be000)
-libffi.so.8 => /lib64/libffi.so.8 (0x00007fbf8c0ae000)
-/lib64/ld-linux-x86-64.so.2 (0x00007fbf8c44e000)
-```
