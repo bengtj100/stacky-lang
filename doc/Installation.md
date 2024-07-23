@@ -48,27 +48,24 @@ This describes how to set up the tool-chain and build stacky on a Ubuntu 22.04 m
 
 The description is intended for a build server to build releases, but this can be used if you are just intending to build locally as well. In the latter case, the two first sections are often superfluous.
 
-### Create the builder user
+### Create the builder user and set SSH credentials
 
 **Only for setting up a build server**
+
+Either paste the below commands into a shell on your server or run the build-server setup script directly:
+
+As root on the build server do:
+```
+curl ..... | sh
+```
+
+or paste as follows:
 
 ```
 useradd -m -G sudo -s /bin/bash bob
-
 passwd bob
-
 su bob
-
 cd
-```
-
-### Create SSH credentials
-
-**Only for setting up a build server**
-
-As user `bob` do:
-
-```
 ssh-keygen -t ed25519
 ```
 
