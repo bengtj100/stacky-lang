@@ -26,3 +26,8 @@ There is also a list of known build and run-time [dependencies](https://github.c
 
 Binary downloads and releases are available from the [Stacky GitHub page](https://github.com/bengtj100/stacky-lang).
 
+## Copyright
+
+The *Stacky* project and all its parts are Copyright (c) 2024 Bengt Johansson <bengtj100 at gmail dot com> - All Rights Reserved.
+
+For licensing details, see the [license file](https://github.com/bengtj100/stacky-lang/blob/main/LICENSE).
