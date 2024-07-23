@@ -6,7 +6,7 @@ The pre-compiled deliverables are built on a Ubuntu 22.04 machine and should be 
 
 ### Downloading a TAR-ball
 
-Go to [the releases page](https://github.com/bengtj100/stacky-lang) and fetch the latest build.
+Go to [the releases page](https://github.com/bengtj100/stacky-lang/releases) and fetch the latest build.
 
 ### Unpacking the TAR-ball
 
@@ -86,9 +86,9 @@ Either paste the below commands into a shell on your server or run the build-ser
 
 As root on the build server do:
 ```
-curl ..... > /tmp/make-build-server
-chmode +x /tmp/make-build-server
-/tmp/make-build-server
+curl -O https://raw.githubusercontent.com/bengtj100/stacky-lang/main/tools/make-build-server.sh
+chmode +x ./make-build-server
+./make-build-server
 ```
 
 or paste as follows:
@@ -111,9 +111,9 @@ This step requires some human interaction, e.g., when entering the password for 
 This will install the Haskell and pandoc tool-chains needed to build the application and documentation.
 
 ```
-curl ..... > /tmp/setup-toolchain.sh
-chmode +x /tmp/setup-toolchain.sh
-/tmp/setup-toolchain.sh
+curl -O https://raw.githubusercontent.com/bengtj100/stacky-lang/main/tools/setup-toolchain.sh
+chmode +x ./setup-toolchain.sh
+./setup-toolchain.sh
 ```
 
 **NOTE:** This may take some time. On our build server, this step takes about 15 minutes!
