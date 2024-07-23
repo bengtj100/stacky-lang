@@ -4,11 +4,13 @@
 
 ## Introduction
 
+**NOTE:** This is very much in alpha state! Things will change and may break compatibility before v1.0! **Do not use in production environments!""
+
 *Stacky* is a small, but quite expressive stack-based programming language that also incorporates some of the features of the Lisp family of languages.
 
-It is intended to be small and simple to implement and write code in, and should be suitable as a high-level programming language for small computer systems, such as single-board computers and microcontrollers.
+It is intended to be small and simple to implement and write code in, and should be suitable as a high-level programming language for small computer systems, such as single-board computers and micro-controllers.
 
-The reference implementation is an interpeter, but there should be nothing that prevents a compiler to be implemented in the future.
+The reference implementation is an interpreter, but there should be nothing that prevents a compiler to be implemented in the future.
 
 ## Documentation
 

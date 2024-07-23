@@ -6,7 +6,7 @@ The pre-compiled deliverables are built on a Ubuntu 22.04 machine and should be 
 
 ### Downloading a TAR-ball
 
-Go to [the releases page]((https://www.dropbox.com/scl/fo/w3r8zo3och43dybheyspl/AHpmO0q0heWiFuOWt2gSwCE?rlkey=pwz1f8j1yuqd00grj88re745o&st=xx54wmnf&dl=0)) and fetch the latest build
+Go to [the releases page](https://github.com/bengtj100/stacky-lang) and fetch the latest build.
 
 ### Unpacking the TAR-ball
 
@@ -24,6 +24,28 @@ Example:
 cd stacky.<VERSION>/
 sudo cp -p bin/stacky /usr/local/bin/
 sudo cp -r lib/stacky /usr/local/lib/
+```
+
+**NOTE:** The interpreter expects to find its Prelude file(s) at a `lib` location corresponding to the `bin` location, just like in the example above.
+
+```
+....+--- bin
+    |    |
+    |    +--- stacky
+    |
+    +--- lib
+         |
+         +--- stacky
+              |
+              +--- Prelude.sy
+              |
+              +--- ...
+```
+
+If, for some reason, it is not possible to install in this way, the `stacky` binary must be started using the `--prelude` option to point to the  Prelude file:
+
+```
+$ stacky --prelude /path/to/Prelude.sy
 ```
 
 Now it should be possible to run the Stacky interpreter:
@@ -46,17 +68,27 @@ Loading the Prelude ... DONE
 
 This describes how to set up the tool-chain and build stacky on a Ubuntu 22.04 machine.
 
-The description is intended for a build server to build releases, but this can be used if you are just intending to build locally as well. In the latter case, the two first sections are often superfluous.
+The description is intended for a build server to build releases, but this can be used if you are just intending to build locally as well. In the latter case, the first section is often superfluous.
 
-### Create the builder user and set SSH credentials
+### Setting up a build server
 
 **Only for setting up a build server**
 
-Either paste the below commands into a shell on your server or run the build-server setup script directly:
+**NOTE:** This description is tested on Ubuntu 22.04 LTS Server, but should work on most newer Debian based distros, like Debian it self and Linux Mint.
+
+You need to have `curl` installed to run this by pasting. If `curl` is not installed; as a non-root user do:
+
+```
+sudo apt install -y curl
+```
+
+Either paste the below commands into a shell on your server or run the build-server set-up script directly:
 
 As root on the build server do:
 ```
-curl ..... | sh
+curl ..... > /tmp/make-build-server
+chmode +x /tmp/make-build-server
+/tmp/make-build-server
 ```
 
 or paste as follows:
@@ -67,12 +99,28 @@ passwd bob
 su bob
 cd
 ssh-keygen -t ed25519
+
 ```
 
+Assuming the username is `bob`. Replace with whatever name that is suitable.
 
-### Install GHC and build tool-chain
+This step requires some human interaction, e.g., when entering the password for the new user.
 
-As a non-root user do:
+### Install GHC and build tool-chain using the set-up script.
+
+This will install the Haskell and pandoc tool-chains needed to build the application and documentation.
+
+```
+curl ..... > /tmp/setup-toolchain.sh
+chmode +x /tmp/setup-toolchain.sh
+/tmp/setup-toolchain.sh
+```
+
+**NOTE:** This may take some time. On our build server, this step takes about 15 minutes!
+
+### Install GHC and build tool-chain manually from the command-line.
+
+If you want to run the steps manually do the following as a non-root user:
 
 ```
 sudo apt update
@@ -82,24 +130,12 @@ sudo apt upgrade -y
 sudo apt install -y ghc ghc-prof ghc-doc cabal-install git sudo \
                     zlib1g-dev pkg-config build-essential \
                     pandoc texlive curl vim
-```
 
-Don't forget to upload this to [Bitbucket](https://bitbucket.org).
-
-### Clone the Stacky repo
-
-As a non-root user do:
-
-```
 mkdir src
 
 cd src
 
-git config --global user.email "your.email@example.com"
-
-git config --global user.name "You R. Name"
-
-git clone git@bitbucket.org:bengtj100/stacky.git
+git clone https://github.com/bengtj100/stacky-lang.git
 ```
 
 ### Set up the build system

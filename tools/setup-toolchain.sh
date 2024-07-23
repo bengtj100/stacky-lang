@@ -1,15 +1,20 @@
 #!/bin/bash
 readonly PNAME=$(basename "$0")
 
-readonly BUILD_USER=bob
+readonly SOURCE_DIR=~/src
+readonly PROJECT='stacky-lang'
+readonly REPO="git@github.com:bengtj100/${PROJECT}.git"
 
-
-function message
+message()
 {
-    echo "********  $*"
+    echo
+    echo '================================================================================'
+    echo "==  $*"
+    echo '================================================================================'
+    echo
 }
 
-function run
+run()
 {
     echo "Executing: $*"
     "$@"; local ret=$?
@@ -33,9 +38,9 @@ run sudo apt install -y ghc ghc-prof ghc-doc cabal-install git sudo \
                         pandoc texlive curl vim
 
 message "Clone the Stacky repo"
-run mkdir ~/src
-run cd ~/src
-run git clone git@bitbucket.org:bengtj100/stacky.git
+run mkdir "${SOURCE_DIR}"
+run cd "${SOURCE_DIR}"
+run git clone "${REPO}"
 
 message "Set up the build system"
 run cabal update
