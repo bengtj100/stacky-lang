@@ -24,7 +24,7 @@ There is also a list of known build and run-time [dependencies](https://github.c
 
 ## Downloads
 
-Binary downloads and releases are available from the [Stacky GitHub page](https://github.com/bengtj100/stacky-lang).
+Binary downloads and releases are available from the [Stacky GitHub release page](https://github.com/bengtj100/stacky-lang/releases).
 
 ## Copyright
 
