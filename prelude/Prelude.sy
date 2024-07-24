@@ -29,6 +29,14 @@ Implementation:
 [ [] ] 'nil;
 ```
 
+### `index` - Get the n:th element of a sequence
+
+Implementation:
+
+```
+[ dup 1 + slice head ] 'index;
+```
+
 ### `fromSeq` - Break a sequence (string or list) and place it on the stack
 
 Implementation:
