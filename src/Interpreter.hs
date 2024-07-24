@@ -27,11 +27,9 @@ interpreter = runValues
 
 
 runValues :: Cxt -> [Value] -> IO (Result Cxt)
-runValues cxt [] =
-    return $ Right cxt
-runValues cxt (v : vs) =
-    do res <- runValue cxt v
-       ifOk res $ flip runValues vs
+runValues cxt []       = return $ Right cxt
+runValues cxt (v : vs) = do res <- runValue cxt v
+                            ifOk res $ flip runValues vs
 
 runValue :: Cxt -> Value -> IO (Result Cxt)
 runValue cxt (ValAtom _ atom)   = runAtom cxt atom
@@ -52,9 +50,8 @@ leaveVal cxt val newStack =
 lookupAtom :: Cxt -> Name -> Position -> [Value] -> (Value -> IO (Either Error Cxt)) -> IO (Either Error Cxt)
 lookupAtom cxt atom pos s cont = 
     case lookupEnv cxt atom of
-        Nothing                -> leaveVal cxt (ValAtom pos atom) s
-        Just (ValOp pos' _ op) -> injectPos pos' $ op cxt
-        Just val               -> cont val
+        Nothing  -> leaveVal cxt (ValAtom pos atom) s
+        Just val -> cont val
                             
 
 injectPos :: Position -> IO (Result a) -> IO (Result a)
@@ -72,14 +69,11 @@ defApply :: Value
 defApply =
     ValOp noPos "@" $ \cxt@Cxt{stack = s0} ->
            case s0 of
-              ValList _ cmds : s1 ->
-                  runLocalValues cxt{stack = s1} cmds
-              ValAtom _ atom : s1 ->
-                  runAtom cxt{stack = s1} atom
-              _ : _ ->
-                  return $ Right cxt
-              _ ->
-                  return $ stackUnderflowError ValNoop "@"
+              ValList _ cmds : s1 -> runLocalValues cxt{stack = s1} cmds
+              ValAtom _ atom : s1 -> runAtom cxt{stack = s1} atom
+              ValOp pos _ op : s1 -> injectPos pos $ op cxt{stack = s1}
+              _              : _  -> return $ Right cxt
+              _                   -> return $ stackUnderflowError ValNoop "@"
 
 runLocalValues :: Cxt -> [Value] -> IO (Result Cxt)
 runLocalValues cxt@Cxt{envs = es} vs =
