@@ -39,8 +39,8 @@ lexerDirect ops pos str =
                             Right $ (t:ts, rest, pos2)
 
 token :: OpsData -> Position -> String -> Result(Value, String, Position)
-token _   pos str@('-' : c :_) | isDigit c = intToken pos str
-token _   pos str@(c : _)      | isDigit c = intToken pos str
+token _   pos str@('-' : c :_) | isDigit c = numToken pos str
+token _   pos str@(c : _)      | isDigit c = numToken pos str
 token _   pos ('"' : str)                  = strToken pos str
 token _   pos ('@':'@':'@':str)            = posToken pos str                 
 token ops pos str                          = atomToken ops pos str
@@ -73,12 +73,19 @@ strToken pos str =
           tok pos0 (c : str')            = let (val', rest', pos2) = tok (nextPos pos0 c) str'
                                            in (c    : val', rest', pos2)
 
-intToken :: Position -> String -> Result(Value, String, Position)
-intToken pos str =
-    Right (ValInt pos x, rest, pos1)
-    where (x, rest) = head $ reads str
-          pos1      = incPosChar pos $ length $ show x
-                      
+numToken :: Position -> String -> Result(Value, String, Position)
+numToken pos str =
+    case reads str of
+        [(ix, rest)] -> let
+                            pos1 = incPosChar pos $ length $ show ix
+                        in
+                            Right (ValInt pos ix, rest, pos1)
+        _            -> let
+                            (fx, rest) = head $ reads str
+                            pos1       = incPosChar pos $ length $ show fx
+                        in
+                            Right (ValFloat pos fx, rest, pos1)
+
 atomToken :: OpsData -> Position -> String -> Result(Value, String, Position)
 atomToken (_, ops2) pos (c:d:rest)
     | [c,d] `elem` ops2 =

@@ -29,12 +29,32 @@ builtIns :: Env
 builtIns =
     map defBI [
                -- Arithmetic operations
-               defBinIntOp "+" (+),
-               defBinIntOp "-" (-),
-               defBinIntOp "*" (*),
-               defBinIntOp "/" div,
-               defBinIntOp "%" rem,
-
+               defBinOp "+" valAdd,
+               defBinOp "-" valSub,
+               defBinOp "*" valMult,
+               defBinOp "/" valDiv,
+               defBinOp "%" valRem,
+               defBinOp "pow" valPow,
+               defUnOp  "floor" valFloor,
+               defUnOp  "float" valFloat,
+               defMath "exp" exp,
+               defMath "sqrt" sqrt,
+               defMath "log" log,
+               defMath "log2" (logBase 2),
+               defMath "log10" (logBase 10),
+               defMath "sin" sin,
+               defMath "tan" tan,
+               defMath "cos" cos,
+               defMath "asin" asin,
+               defMath "atan" atan,
+               defMath "acos" acos,
+               defMath "sinh" sinh,
+               defMath "tanh" tanh,
+               defMath "cosh" cosh,
+               defMath "asinh" asinh,
+               defMath "atanh" atanh,
+               defMath "acosh" acosh,
+               
                -- Comparison operations
                defBinCmpOp "=" (==),
                defBinCmpOp "<>" (/=),
@@ -70,13 +90,13 @@ builtIns =
                defTypeInfo, defExpectType, defExpectDepth, defThrow
               ]
 
+defMath :: Name -> (Double -> Double) -> Value
+defMath name f = defUnOp  name $ valFloatFun name f
+
 defBI :: Value -> (Name, Value)
 defBI op@(ValOp _ name _) = (name, op)
 defBI op                  = error $ "INTERNAL ERROR: A builtin is not a ValOp: '" ++ show op ++ "'"
 
-
-defBinIntOp :: Name -> (Integer -> Integer -> Integer) -> Value
-defBinIntOp name f = defBinOp name $ numBinOp name f
 
 defBinCmpOp :: Name -> (Value -> Value -> Bool) -> Value
 defBinCmpOp name f = defBinOp name $ cmpBinOp name f
@@ -100,10 +120,6 @@ defUnOp name f =
         case cxt of
             cxt1@Cxt{stack = x : s} -> do { val <- f x; return cxt1{stack = val : s}; }
             _                       -> stackUnderflowError ValNoop name
-
-numBinOp :: Name -> (Integer -> Integer -> Integer) -> Value -> Value -> Result Value
-numBinOp _    f (ValInt p v1) (ValInt _ v2) = Right $ ValInt p $ f v1 v2
-numBinOp name _ x             y             = typeError2 x name "numerical arguments" x y
 
 cmpBinOp :: Name -> (Value -> Value -> Bool) -> Value -> Value -> Result Value
 cmpBinOp name f x y | isComparable x y = Right $ bool2Truth (getValPos x) $ f x y
