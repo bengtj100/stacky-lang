@@ -1,0 +1,19 @@
+```
+
+[ dup 'n;
+  [ [dup 1 >] [over swap 1 - duplicate_] [] ? ] 'duplicate_;
+  duplicate_ drop
+  n toList implode] 'duplicate;
+
+[ " " swap duplicate ] 'spaces;
+
+[ [dup 0 >] [over sin 30.0 * 40.0 + floor spaces "*" ++ putLn
+             swap 0.1 + swap
+             1 - sinus]
+            []
+            ?
+] 'sinus;
+
+[ 0.0 swap sinus 2 ndrop ]'run;
+
+200 run
