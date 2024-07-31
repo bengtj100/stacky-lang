@@ -245,7 +245,7 @@ The following operations are defined on integers:
 
 * [Comparison](#comparison-operations): `=`, `<>`, `<`, `>`, `<=`, `>=`
 
-* [Mathematical](#mathematical-operations): `pi`, `euler`, `pow`, `floor`, `float`, `exp`, `sqrt`, `log`, `log2`, `log10`, `sin`, `tan`, `cos`, `asin`, `atan`, `acos`, `sinh`, `tanh`, `cosh`, `asinh`, `atanh`, `acosh`
+* [Mathematical](#mathematical-operations): `pi`, `euler`, `pow`, `floor`, `ceil`, `round`, `float`, `exp`, `sqrt`, `log`, `log2`, `log10`, `sin`, `tan`, `cos`, `asin`, `atan`, `acos`, `sinh`, `tanh`, `cosh`, `asinh`, `atanh`, `acosh`
 
 ### Boolean values
 
@@ -448,7 +448,9 @@ Stacky defines the following mathematical operations. They operate on floating p
 | `atanh`   | atanh ${x}$                                          |
 | `acosh`   | acosh ${x}$                                          |
 | `pow`     | `x n pow` is $x$ to the power of $n$, i.e, $x^n$     |
-| `floor`   | Return the closest integer                           |
+| `floor`   | Return the closest smaller integer                   |
+| `ceil`    | Return the closest larger integer                    |
+| `round`   | Return the closest integer                           |
 | `float`   | Convert an integer or string to float                |
 
 

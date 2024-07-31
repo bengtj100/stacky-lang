@@ -29,7 +29,7 @@
 |     |                                                                       |                  |
 | 18  | **Introspection:** `typeOf` - get the type of any term                | In  v0.1         |
 |     |                                                                       |                  |
-| 19  | **Floating point numbers**                                            | Planned for v0.2 |
+| 19  | **Floating point numbers**                                            | In v0.2          |
 | 20  | Add floating point numbers                                            | -""-             |
 | 21  | Make all arithmetic/comparison operators compatible with floats.      | -""-             |
 | 22a | `int2float` - Convert integers to floats.                             | -""-             |
@@ -37,7 +37,7 @@
 | 22c | `ceil` - Convert a float to the nearest larger integer.               | -""-             |
 | 22d | `round` - Round a float the nearest integer.                          | -""-             |
 |     |                                                                       |                  |
-| 23  | **Implement a system for building releases**                          | Planned for v0.1 |
+| 23  | **Implement a system for building releases**                          | In v0.1          |
 | 23a | Script and build functiontinality to genreated release tar-balls      | In v0.1          |
 | 23b | Build server/container to build using Ubuntu 22.04 for compatibility. | In v0.1          |
 |     |                                                                       |                  |
