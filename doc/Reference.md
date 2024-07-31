@@ -1,10 +1,10 @@
 # Stacky - A simple stack language
 ## Language Reference
-### Version 0.1
+### Version 0.2
 
 ## Disclaimer
 
-The Stacky language is still in beta version 0.1, so things are moving fast and all versions below 1.0 may break **backwards compatibility without notice**!
+The Stacky language is still in beta version 0.2, so things are moving fast and all versions below 1.0 may break **backwards compatibility without notice**!
 
 **USE THIS LANGUAGE AT YOUR OWN RISK!**
 
@@ -215,6 +215,7 @@ Below is the code.
 The Stacky language has the following data-types:
 
 * [Integers](#integers) of unbounded size
+* [Floating-point numbers](#floating-point-numbers) which are 64 bit IEEE floats
 * [Atoms](#atoms) (also called names when appropriate).
 * [Strings](#strings)
 * [Lists](#lists)
@@ -225,7 +226,7 @@ The Stacky language does not put any limitations to the maximum size of an integ
 
 The following operations are defined on integers:
 
-* [Arithmetic](#arithmetic-operations): `+`, `-`, `*`, `/`, `%`
+* [Arithmetic](#arithmetic-operations): `+`, `-`, `*`, `/`, `%`, `pow`
 
 * [Comparison](#comparison-operations): `=`, `<>`, `<`, `>`, `<=`, `>=`
 
@@ -234,6 +235,18 @@ All operations follow this pattern:
 [ x y <] ---> [ (x 'op' y) <]
 ```
 
+### Floating-point numbers
+
+The reference implementation of Stacky uses IEEE 64 bit floating-point numbers. Other implementations may vary in size.
+
+The following operations are defined on integers:
+
+* [Arithmetic](#arithmetic-operations): `+`, `-`, `*`, `/`, `%`, `pow`
+
+* [Comparison](#comparison-operations): `=`, `<>`, `<`, `>`, `<=`, `>=`
+
+* [Mathematical](#mathematical-operations): `pi`, `euler`, `pow`, `floor`, `float`, `exp`, `sqrt`, `log`, `log2`, `log10`, `sin`, `tan`, `cos`, `asin`, `atan`, `acos`, `sinh`, `tanh`, `cosh`, `asinh`, `atanh`, `acosh`
+
 ### Boolean values
 
 Stacky does not define a *boolean* type, but uses the concept of "truthiness", i.e., it uses some values as false, and all other as true:
@@ -241,6 +254,7 @@ Stacky does not define a *boolean* type, but uses the concept of "truthiness", i
 | Value | Comment                  |
 |:-----:|:-------------------------|
 | `0`   | The integer zero (0).    |
+| `0.0` | The float zero (0.0).    |
 | `""`  | The empty string.        |
 | `[]`  | The empty [list](#lists) |
 
@@ -396,15 +410,49 @@ Finally, append (`++`) also works on lists:
 
 ### Arithmetic operations
 
-Arithmetic operators are only defined for *integers*. Any other argument type will lead to a run-time error'. If there are not enough elements on the stack for the operation, an error will occur.
+Arithmetic operators are only defined for *integers* and *floats*. Any other argument type will lead to a run-time error'. If there are not enough elements on the stack for the operation, an error will occur.
 
 | Operation | Stack                      | Comment                       |
 |:---------:|:---------------------------|:------------------------------|
 | `+`       | `[ x y <] ---> [ (x+y) <]` | Addition                      |
 | `-`       | `[ x y <] ---> [ (x-y) <]` | Subtraction                   |
 | `*`       | `[ x y <] ---> [ (xy) <]`  | Multiplication                |
-| `/`       | `[ x y <] ---> [ (x/y) <]` | Integer division              |
+| `/`       | `[ x y <] ---> [ (x/y) <]` | Division                      |
 | `%`       | `[ x y <] ---> [ (x/y) <]` | Integer reminder as in C(++). |
+
+If both arguments are integer, the result will be an integer. Although if at least one argument is a float, the result vill also be a float.
+
+### Mathematical operations
+
+Stacky defines the following mathematical operations. They operate on floating point numbers, but will automatically convert integers to floats.
+
+| Operation | Comment                                              |
+|:---------:|:-----------------------------------------------------|
+| `pi`      | The mathematical constant $\pi$.                     |
+| `euler`   | Euler's number, i.e., the mathematical constant $e$. |
+| `exp`     | Exponentiation, i.e, $e^x$                           |
+| `sqrt`    | $\sqrt{x}$                                           |
+| `log`     | $\log_e{x}$                                          |
+| `log2`    | $\log_2{x}$                                          |
+| `log10`   | $\log_10{x}$                                         |
+| `sin`     | $\sin{x}$ on radians                                 |
+| `cos`     | $\cos{x}$ on radians                                 |
+| `tan`     | $\tan{x}$ on radians                                 |
+| `asin`    | asin ${x}$                                           |
+| `acos`    | acos ${x}$                                           |
+| `atan`    | atan ${x}$                                           |
+| `sinh`    | sinh ${x}$                                           |
+| `tanh`    | tanh ${x}$                                           |
+| `cosh`    | cosh ${x}$                                           |
+| `asinh`   | asinh ${x}$                                          |
+| `atanh`   | atanh ${x}$                                          |
+| `acosh`   | acosh ${x}$                                          |
+| `pow`     | `x n pow` is $x$ to the power of $n$, i.e, $x^n$     |
+| `floor`   | Return the closest integer                           |
+| `float`   | Convert an integer or string to float                |
+
+
+
 
 ### Comparison operations
 

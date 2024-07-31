@@ -138,6 +138,7 @@ bool2Truth pos True  = ValInt pos 1
 
 truth2Bool :: Value -> Bool
 truth2Bool (ValInt _ 0)      = False
+truth2Bool (ValFloat _ 0.0)  = False
 truth2Bool (ValList _ [])    = False
 truth2Bool (ValString _ "" ) = False                             
 truth2Bool _                 = True

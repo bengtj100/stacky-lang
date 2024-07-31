@@ -1,10 +1,10 @@
 # Stacky - A simple stack language
 ## Language Introduction
-### Version 0.1
+### Version 0.2
 
 ## Disclaimer
 
-The Stacky language is still in beta version 0.1, so things are moving fast and all versions below 1.0 may break **backwards compatability without notice**!
+The Stacky language is still in beta version 0.2, so things are moving fast and all versions below 1.0 may break **backwards compatability without notice**!
 
 **USE THIS LANGUAGE AT YOUR OWN RISK!**
 
