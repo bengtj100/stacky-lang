@@ -1559,6 +1559,7 @@ ERROR: In 'foo': This is an error
 Commands         <-- Command*
 
 Command          <-- Integer
+                 <-- Float
                  <-- Atom
                  <-- String
                  <-- List
@@ -1567,12 +1568,19 @@ List             <-- '[' Commands ']'
 
 Integer          <-- [-]?[0-9]+
 
+Float            <-- [-]?[0-9]+('.'[0-9]+([eE][0-9]+)?)?
+
 Atom             <-- [a-zA-Z][a-zA-Z0-9_]*
                  <-- BuiltIn-Operator
 
 String           <-- '"' Character* '"'
 
-BuiltIn-Operator <-- '+' | '-' | '*' | '/' | '=' | '<>' | '<' | '>' | '<=' | '>=' | '~' 
+BuiltIn-Operator <-- Operator
+                 <-- Inhibitor
+
+Operator         <-- '+' | '-' | '*' | '/' | '&' | '=' | '<>' | '<' | '>' | '<=' | '>=' | '~' 
+
+Inhibitor        <-- ''' | '^'
 
 Character        <-- ASCII-Character
                  <-- Escape-Sequence
