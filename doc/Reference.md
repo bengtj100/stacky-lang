@@ -1566,9 +1566,16 @@ Command          <-- Integer
 
 List             <-- '[' Commands ']'
 
-Integer          <-- [-]?[0-9]+
+Integer          <-- Sign? Digits
 
-Float            <-- [-]?[0-9]+('.'[0-9]+([eE][0-9]+)?)?
+Float            <-- Integer Fraction
+                 <-- Integer Fraction Exponent
+                 <-- Integer Exponent
+
+Sign             <-- '+'
+Digits           <-- [0-9]+
+Fraction         <-- '.'Digits
+Exponent         <-- [eE][+-]?Digits
 
 Atom             <-- [a-zA-Z][a-zA-Z0-9_]*
                  <-- BuiltIn-Operator
