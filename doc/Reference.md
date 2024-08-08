@@ -1555,6 +1555,8 @@ ERROR: In 'foo': This is an error
 
 ## Syntax description
 
+### Token level elements
+
 ```
 Commands         <-- Command*
 
@@ -1566,6 +1568,13 @@ Command          <-- Integer
 
 List             <-- '[' Commands ']'
 
+```
+
+### Lexemes
+
+Spaces between elements do not indicate whitespace in the code. Whitespace is explicit here.
+
+```
 Integer          <-- Sign? Digits
 
 Float            <-- Integer Fraction
@@ -1574,10 +1583,10 @@ Float            <-- Integer Fraction
 
 Sign             <-- '+'
 Digits           <-- [0-9]+
-Fraction         <-- '.'Digits
-Exponent         <-- [eE][+-]?Digits
+Fraction         <-- '.' Digits
+Exponent         <-- [eE] [+-]? Digits
 
-Atom             <-- [a-zA-Z][a-zA-Z0-9_]*
+Atom             <-- [a-zA-Z] [a-zA-Z0-9_]*
                  <-- BuiltIn-Operator
 
 String           <-- '"' Character* '"'
@@ -1592,5 +1601,5 @@ Inhibitor        <-- ''' | '^'
 Character        <-- ASCII-Character
                  <-- Escape-Sequence
 
-Escape-Sequence  <-- '\'[\"rnt]
+Escape-Sequence  <-- '\'["rnt]
 ```
