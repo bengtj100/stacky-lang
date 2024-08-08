@@ -44,7 +44,7 @@ repl cxt = do printStack cxt
 loop :: Cxt -> IO ()
 loop cxt =
     do line         <- getLines "> "
-       let parseRes =  parseLine line
+       let parseRes =  parseLine builtIns line
        result       <- ifOk parseRes $ \cmds -> interpreter cxt cmds
        either (handleError cxt)
               handleSuccess

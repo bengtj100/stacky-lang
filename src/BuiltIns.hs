@@ -21,7 +21,6 @@ import CoreTypes
 import Interpreter
 import InputOutput
 import Parser
-import Lexer
     
 -- ====================================================================================================
 
@@ -458,7 +457,7 @@ defEval :: Value
 defEval = ValOp noPos "eval" $ \cxt@Cxt{stack = s0} ->
           case s0 of
               (ValString _ str) : s1 ->
-                  do let parseRes = parseLine str
+                  do let parseRes = parseLine builtIns str
                      ifOk parseRes $ \cmds -> interpreter cxt{stack = s1} cmds
               other : _ ->
                   return $ typeError1 other "eval" "a string to be evaluated" other
@@ -498,7 +497,7 @@ defImport = ValOp noPos "import" $ \cxt@Cxt{stack = s0} ->
               (ValString p fName) : s1 ->
                   do res <- readTheFile p fName
                      ifOk res (\str ->
-                               do let parseRes = parseFile fName str
+                               do let parseRes = parseFile builtIns fName str
                                   ifOk parseRes (\cmds -> interpreter cxt{stack = s1} cmds))
               other : _ ->
                   return $ typeError1 other "import" "a string file path" other
@@ -604,22 +603,3 @@ defThrow =
                 return $ stackUnderflowError ValNoop "throw"
 
 -- ====================================================================================================
-
-parseLine :: String -> Result [Value]
-parseLine = parseCont noPos lexerDirect
-
-parseFile :: Name -> String -> Result [Value]
-parseFile fname = parseCont (initPos fname) lexer
-
-parseCont :: Position -> (OpsData -> Position -> String -> Result ([Value], String, Position)) -> String -> Result [Value]
-parseCont pos l str = 
-    do (cmds, rest, pos1) <- l (ops1, ops2) pos str
-       if rest /= ""
-       then newErrPos pos1 ("Trailing input garbage: '" ++ rest ++ "'")
-       else parser builtIns cmds
-
-ops1 :: [Char]
-ops1 = ['^', '\'', '[', ']'] ++ [ c | ([c], _) <- builtIns, not $ isAlphaNum c ]
-
-ops2 :: [String]
-ops2 = [ [c,d] | ([c,d], _) <- builtIns, not $ isAlphaNum c ]

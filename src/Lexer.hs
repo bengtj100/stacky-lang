@@ -1,4 +1,4 @@
--- ====================================================================================================
+-------------------------------------------------------------------------------------------------------
 --
 -- Copyright (c) 2024 Bengt Johansson <bengtj100 at gmail dot com>.
 -- All rights reserved.
@@ -7,126 +7,138 @@
 -- regulated by the conditions stipulated in the file named 'LICENCE',
 -- located in the top directory of said project.
 --
--- ====================================================================================================
+-------------------------------------------------------------------------------------------------------
 
-module Lexer (
-              OpsData,
-              lexer,
-              lexerDirect
-             ) where
+module Lexer(
+             TokType(..),
+             PosTok,
+             mylexer,
+             remLongCmt
+            ) where
 
+import ParseLib
 import Data.Char
-import Data.List.Split (splitOn)
 
 import CoreTypes
 
-type OpsData = ([Char], [String])
+specialOps :: [String]
+specialOps = ["[", "]", "\'", "^"]
 
-type Lexer = Position -> String -> Result ([Value], String, Position)
-    
--- ====================================================================================================
+-------------------------------------------------------------------------------------------------------
 
-lexer :: OpsData -> Lexer
-lexer ops pos = lexerDirect ops pos . removeComments pos
+data TokType = ERROR | DELETE | Str | NumInt | NumFloat | Ident | Op deriving (Show, Eq, Ord)
 
-lexerDirect ::  OpsData -> Lexer
-lexerDirect ops pos str =
-    lx newPos newStr
-    where (newStr, newPos) = dropWhite pos str
-          lx pos0 ""   = Right ([], "", pos0)
-          lx pos0 str0 = do (t, next, pos1) <- token ops pos0 str0
-                            (ts, rest, pos2) <- lexerDirect ops pos1 next
-                            Right $ (t:ts, rest, pos2)
+type Token = (TokType, String)
 
-token :: OpsData -> Position -> String -> Result(Value, String, Position)
-token _   pos str@('-' : c :_) | isDigit c = numToken pos str
-token _   pos str@(c : _)      | isDigit c = numToken pos str
-token _   pos ('"' : str)                  = strToken pos str
-token _   pos ('@':'@':'@':str)            = posToken pos str                 
-token ops pos str                          = atomToken ops pos str
+mkToken :: TokType -> String -> Token
+mkToken t str = (t, str)
 
-posToken :: Position -> String -> Result(Value, String, Position)
-posToken _ str =
-    Right (ValNoop, rest, read posStr)
-    where
-        (posStr, rest) = span (/= '\n') str
-        
- 
-strToken :: Position -> String -> Result(Value, String, Position)
-strToken pos str =
-    case rest of
-        ""        -> newErrPos pos $ "Unterminated string constant: '" ++ val ++ "'"
-        _ : rest' -> Right (ValString pos val, rest', pos1)
-    where (val, rest, pos1)              = tok pos str
-          tok pos0 ""                    = ("", "", pos0)
-          tok pos0 rest'@('"' : _)       = ("", rest', incPosChar pos0 1)
-          tok pos0 ('\\' : '"' : str')   = let (val', rest', pos2) = tok (incPosChar pos0 2) str'
-                                           in ('"' : val', rest', pos2)
-          tok pos0 ('\\' : 'n' : str')   = let (val', rest', pos2) = tok (incPosChar pos0 2) str'
-                                           in ('\n' : val', rest', pos2)
-          tok pos0 ('\\' : 'r' : str')   = let (val', rest', pos2) = tok (incPosChar pos0 2) str'
-                                           in ('\n' : val', rest', pos2)
-          tok pos0 ('\\' : 't' : str')   = let (val', rest', pos2) = tok (incPosChar pos0 2) str'
-                                           in ('\n' : val', rest', pos2)
-          tok pos0 ('\\' : '\\' : str')  = let (val', rest', pos2) = tok (incPosChar pos0 2) str'
-                                           in ('\n' : val', rest', pos2)
-          tok pos0 (c : str')            = let (val', rest', pos2) = tok (nextPos pos0 c) str'
-                                           in (c    : val', rest', pos2)
+-------------------------------------------------------------------------------------------------------
 
-numToken :: Position -> String -> Result(Value, String, Position)
-numToken pos str =
-    case reads str of
-        [(ix, rest)] -> let
-                            pos1 = incPosChar pos $ length $ show ix
-                        in
-                            Right (ValInt pos ix, rest, pos1)
-        _            -> let
-                            (fx, rest) = head $ reads str
-                            pos1       = incPosChar pos $ length $ show fx
-                        in
-                            Right (ValFloat pos fx, rest, pos1)
+type LexError = String
 
-atomToken :: OpsData -> Position -> String -> Result(Value, String, Position)
-atomToken (_, ops2) pos (c:d:rest)
-    | [c,d] `elem` ops2 =
-        Right (ValAtom pos [c,d], rest, nextPosStr pos [c,d])
-atomToken (ops1, _) pos (c:rest)
-    | c `elem` ops1 =
-        Right (ValAtom pos [c], rest, nextPos pos c)
-atomToken _ pos (c:str)
-    | isAlpha c =
-        let (cs, rest) = spanName str
-        in Right (ValAtom pos (c:cs), rest, nextPosStr pos (c:cs))
-atomToken _ pos (c:_) =
-    newErrPos pos ("Unknown character: '" ++ [c] ++ "'")
-atomToken _ pos "" =
-    newErrPos pos "Out of input data"
+-------------------------------------------------------------------------------------------------------
 
-spanName :: String -> (String, String)
-spanName = span (\x -> isAlphaNum x || x=='_')
+type PosTok = (Position, TokType, String)
 
-dropWhite :: Position -> String -> (String, Position)
-dropWhite pos str = (rest, nextPosStr pos ws)
-                    where (ws, rest) = span isSpace str
+posify :: String -> [Token] -> [PosTok]
+posify fName = pfy (initPos fName)
+               where pfy currPos ((t, str) : ts) = (currPos, t, str) : pfy (nextPosStr currPos str) ts
+                     pfy _       []              = []
+
+-------------------------------------------------------------------------------------------------------
+
+digits, fraction, expon, integer, float :: Parser Char LexError [Char]
+operation, string, escChar, escChars    :: Parser Char LexError [Char]
+whitespace, comment                     :: Parser Char LexError [Char]
+ident                                   :: [String] -> Parser Char LexError [Char]
+
+digits     =                                 takeSome isDigit
+
+fraction   =      ok (:)                     `ap` symbol '.' `ap` digits
+
+expon      =      ok (\e s d -> [e]++s++d)   `ap` symbols "eE" `ap` cond (symbols "+-") `ap` digits
+
+integer    =      ok (++)                    `ap` cond (symbol '-') `ap` digits
+
+float      =      ok (\i f e -> i++f++e)     `ap` integer `ap` fraction `ap` optP [] expon
+             <||> ok (++)                    `ap` integer `ap` expon
+
+ident ops  =      ok (:)                     `ap` satisfy isAlpha `ap` takeMany isAlphaNum
+             <||>                            matchSet ops
+
+operation  =                                 matchSet specialOps
+
+string     =      ok (\s -> "\""++s++"\"")   `chk` symbol '"' `ap` escChars `chk` symbol '"'
+
+escChar    =      ok (\x y -> x:[y])         `ap` symbol '\\' `ap` satisfy (\_->True)
+             <||> ok (:[])                   `ap` satisfy (/='"')
+
+escChars   = ok concat                       `ap` many escChar
+
+whitespace =                                 takeSome isSpace
+
+comment    =      ok (:)                     `ap` symbol '`' `ap` takeMany (/='\n')
+
+-------------------------------------------------------------------------------------------------------
+
+number, deletable :: Tokenizer
+
+number  =      ok (mkToken NumFloat) `ap` float
+          <||> ok (mkToken NumInt)   `ap` integer
+
+deletable =    ok (mkToken DELETE)   `ap` (comment  <||> whitespace)
+
+lexemes :: [String] -> Tokenizer
+lexemes ops =                            deletable
+              <||>                       number
+              <||> ok (mkToken Ident)    `ap` ident ops
+              <||> ok (mkToken Str)      `ap` string
+              <||> ok (mkToken Op)       `ap` operation
 
 
--- ====================================================================================================
+-------------------------------------------------------------------------------------------------------
 
-removeComments :: Position -> String -> String
-removeComments pos = removeShortComments . removeLongComments pos
+type Tokenizer = Parser Char LexError Token
 
-removeLongComments :: Position -> String -> String
-removeLongComments pos = unlines . remCmts pos . splitOn "```"
+tokenize :: Tokenizer -> String -> (Token, String)
+tokenize _     ""  = (mkToken DELETE "", "")
+tokenize tknzr str = case runP tknzr lexErr str of
+                         Right x -> x
+                         Left  e -> ((ERROR, e), "")
 
-remCmts :: Position -> [String] -> [String]
-remCmts pos (cmt : nonCmt : xs) = marker : nonCmt : remCmts nonCmtPos xs
-                                  where cmtPos = nextPosStr pos cmt
-                                        nonCmtPos = nextPosStr cmtPos nonCmt
-                                        marker    = "@@@" ++ show cmtPos
-remCmts _ _ = []
+lexErr :: Reporter Char LexError
+lexErr []    = "Premature EOF"
+lexErr (c:_) = "Illegal character: " ++ show c
 
-removeShortComments :: String -> String
-removeShortComments ""           = ""
-removeShortComments ('`' : rest) = removeShortComments rest'
-                                   where rest' = dropWhile ('\n' /=) rest
-removeShortComments (c : str)    = c : removeShortComments str
+
+
+
+runT :: Tokenizer -> String -> [Token]
+runT tk str = case tokenize tk str of
+                   (t, "")   -> [t]
+                   (t, rest) -> t : runT tk rest
+
+
+remDEL :: [PosTok] -> [PosTok]
+remDEL = filter (\(_, t, _) -> t /= DELETE)
+
+mylexer :: [String] -> String -> String -> [PosTok]
+mylexer ops fname = remDEL . posify fname . runT (lexemes ops)
+
+-------------------------------------------------------------------------------------------------------
+
+remLongCmt :: String -> String
+remLongCmt = isCmt
+
+isCmt :: String -> String
+isCmt ('`' :  '`' :  '`' :  str) = "   " ++ notCmt str
+isCmt (c : str) | isSpace c         = c   : isCmt str
+                | otherwise         = ' ' : isCmt str
+isCmt ""                            = ""
+
+
+notCmt :: String -> String
+notCmt ('`' :  '`' :  '`' :  str) = "   " ++ isCmt str
+notCmt (c : str)                     = c : notCmt str
+notCmt ""                            = ""

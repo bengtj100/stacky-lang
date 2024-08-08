@@ -42,10 +42,8 @@ module CoreTypes (
                   Cxt(..),
                   initCxt,
 
-                  Parser,
-
                   Position(..),
-                  initPos,
+                  initPos, eofPos,
                   nextPos,
                   nextPosStr,
                   incPosLine,
@@ -316,32 +314,34 @@ initCxt initEnv = Cxt{stack = newStack, envs = [newEnv ++ initEnv]}
 
 -- ====================================================================================================
 
-type Parser = [Value] -> Result [Value]
-
--- ====================================================================================================
-
-data Position = Pos{ fileName :: String, linePos :: Int, charPos :: Int } deriving (Show, Read, Eq)
+data Position = Pos{ fileName :: String, linePos :: Int, charPos :: Int }
+              | EofPos
+                deriving (Show, Read, Eq, Ord)
 
 initPos :: String -> Position
 initPos fname = Pos{fileName = fname, linePos = 0, charPos = 0}
 
+eofPos :: Position
+eofPos = EofPos
 
 nextPos :: Position -> Char -> Position
 nextPos p@Pos{linePos = l} '\n' = p{linePos = l + 1, charPos = 0}
-nextPos p                  '\r' = p{charPos = 0}
+nextPos p@Pos{}            '\r' = p{charPos = 0}
 nextPos p@Pos{charPos = c} '\t' = p{charPos = calcTab c}
 nextPos p@Pos{charPos = c} _    = p{charPos = c + 1}
-
+nextPos EofPos             _    = EofPos
 
 nextPosStr :: Position -> String -> Position
 nextPosStr = foldl nextPos
 
 incPosLine :: Position -> Int -> Position
 incPosLine p@Pos{linePos = l} i = p{linePos = l + i}
+incPosLine EofPos             _ = EofPos
 
 incPosChar :: Position -> Int -> Position
 incPosChar p@Pos{charPos = l} i = p{charPos = l + i}
-                                  
+incPosChar EofPos             _ = EofPos
+
 calcTab :: Int -> Int
 calcTab c = c + (8 - c `mod` 8)
 

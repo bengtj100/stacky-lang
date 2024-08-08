@@ -68,8 +68,10 @@ executable stacky
         InputOutput,
         Interpreter,
         Lexer,
+        ParseLib,
         Parser,
         Repl,
+        Transforms,
         Version
 
 
