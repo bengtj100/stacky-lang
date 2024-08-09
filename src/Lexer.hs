@@ -9,6 +9,8 @@
 --
 -------------------------------------------------------------------------------------------------------
 
+{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
+
 module Lexer(
              TokType(..),
              PosTok,
@@ -19,7 +21,7 @@ module Lexer(
 import ParseLib
 import Data.Char
 
-import CoreTypes
+import Position
 
 specialOps :: [String]
 specialOps = ["[", "]", "\'", "^"]
@@ -47,11 +49,6 @@ posify fName = pfy (initPos fName)
                      pfy _       []              = []
 
 -------------------------------------------------------------------------------------------------------
-
-digits, fraction, expon, integer, float :: Parser Char LexError [Char]
-operation, string, escChar, escChars    :: Parser Char LexError [Char]
-whitespace, comment                     :: Parser Char LexError [Char]
-ident                                   :: [String] -> Parser Char LexError [Char]
 
 digits     =                                 takeSome isDigit
 
@@ -81,8 +78,6 @@ whitespace =                                 takeSome isSpace
 comment    =      ok (:)                     `ap` symbol '`' `ap` takeMany (/='\n')
 
 -------------------------------------------------------------------------------------------------------
-
-number, deletable :: Tokenizer
 
 number  =      ok (mkToken NumFloat) `ap` float
           <||> ok (mkToken NumInt)   `ap` integer

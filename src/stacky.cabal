@@ -32,7 +32,7 @@ version:            0.2
 license:            MIT
 
 -- The file containing the license text.
-license-file:       LICENSE
+license-file:       ../LICENSE
 
 -- The package author(s).
 author:             Bengt Johansson
@@ -65,15 +65,16 @@ executable stacky
         BuiltIns,
         CommandLine,
         CoreTypes,
+        FrontEnd,
         InputOutput,
         Interpreter,
         Lexer,
         ParseLib,
         Parser,
+        Position,
         Repl,
         Transforms,
         Version
-
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:

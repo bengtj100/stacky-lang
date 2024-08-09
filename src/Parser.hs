@@ -9,17 +9,18 @@
 --
 -------------------------------------------------------------------------------------------------------
 
+{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
+
 module Parser(
-              parseFile,
-              parseLine
+              parse
              ) where
 
 import Data.Char
 
 import CoreTypes
+import Position
 import ParseLib
 import Lexer
-import Transforms
 
 -------------------------------------------------------------------------------------------------------
 
@@ -35,9 +36,6 @@ pMatch expType expStr = satisfy (\(_, actType, actStr) -> expType == actType && 
 
 val :: (String -> b) -> (Position -> b -> Value) -> PosTok -> Value
 val r vc (p, _, s) = vc p (r s)
-
-pInt, pFloat, pStr, pAtom, pInhibitor, pList, pCmd :: Parser PosTok Error Value
-pCmds, pLang                                       :: Parser PosTok Error [Value]
 
 pInt       = ok (val read ValInt)               `ap` pType NumInt
 
@@ -73,11 +71,5 @@ reporter []              = (eofPos, "Premature EOF")
 reporter ((p, _, _) : _) = (p,      "Syntax Error")
 
 parse :: Env -> String -> String -> Result [Value]
-parse env fname str = do (res, _) <- runParser env pLang fname str
-                         return $ transform env res
-
-parseFile :: Env -> String -> String -> Result [Value]
-parseFile env fname str = parse env fname (remLongCmt str)
-
-parseLine :: Env -> String -> Result [Value]
-parseLine env inp = parse env "" inp
+parse bis fname str = do (res, _) <- runParser bis pLang fname str
+                         return res

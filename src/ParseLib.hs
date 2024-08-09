@@ -43,9 +43,9 @@ atEOF r xs = Left $ r xs
 
 
 satisfy :: (symb -> Bool) -> Parser symb err symb
-satisfy pred r []                 = Left $ r []
-satisfy pred r (x:xs) | pred x    = Right (x, xs)
-                      | otherwise = Left $ r (x:xs)
+satisfy _    r []              = Left $ r []
+satisfy p r (x:xs) | p x       = Right (x, xs)
+                   | otherwise = Left $ r (x:xs)
 
 symbol :: Eq symb => symb -> Parser symb err symb
 symbol s = satisfy (==s)

@@ -18,9 +18,10 @@ import Data.Char
 import Control.Exception
 
 import CoreTypes
+import Position
 import Interpreter
 import InputOutput
-import Parser
+import FrontEnd
     
 -- ====================================================================================================
 

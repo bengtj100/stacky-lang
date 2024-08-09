@@ -23,7 +23,8 @@ import System.Environment
 
 import Version
 import CoreTypes
-    
+import Position
+
 -- ====================================================================================================
 
 data CmdRes = CmdRes{ interactive :: Bool,

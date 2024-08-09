@@ -21,6 +21,7 @@ import System.Environment
 import InputOutput
 
 import CoreTypes
+import Position
 import Interpreter
 import BuiltIns
 import CommandLine

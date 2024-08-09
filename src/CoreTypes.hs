@@ -1,4 +1,4 @@
--- ====================================================================================================
+-------------------------------------------------------------------------------------------------------
 --
 -- Copyright (c) 2024 Bengt Johansson <bengtj100 at gmail dot com>.
 -- All rights reserved.
@@ -7,13 +7,23 @@
 -- regulated by the conditions stipulated in the file named 'LICENCE',
 -- located in the top directory of said project.
 --
--- ====================================================================================================
+-------------------------------------------------------------------------------------------------------
 
 module CoreTypes (
-                  Name,
+                  ---- Cxt ----
+                  Cxt(..),
+                  initCxt,
 
-                  Operation,
+                  ---- Env ----
+                  Env,
+                  insertEnv,
+                  lookupEnv,
 
+                  ---- Stack ----
+                  Stack,
+                  printStack,
+
+                  ---- Value ----
                   Value(..),
                   valueType, valueTypeSize,
                   isComparable, isSequence,
@@ -22,43 +32,79 @@ module CoreTypes (
                   valAdd, valSub, valMult, valDiv, valRem,
                   valPow, valFloor, valFloat,
 
-                  Error,
-                  newError, newErrPos,
-                  printError, printErrorWithProgname,
+                  ---- Operation ----
+                  Operation,
 
+                  ---- Result ----
                   Result,
                   stackUnderflowError,
                   typeError1,
                   typeError2,
                   ifOk,
 
-                  Stack,
-                  printStack,
+                  ---- Error ----
+                  Error,
+                  newError, newErrPos,
+                  printError, printErrorWithProgname,
 
-                  Env,
-                  insertEnv,
-                  lookupEnv,
+                  ---- Name ----
+                  Name
 
-                  Cxt(..),
-                  initCxt,
-
-                  Position(..),
-                  initPos, eofPos,
-                  nextPos,
-                  nextPosStr,
-                  incPosLine,
-                  incPosChar,
-                  noPos, isNoPos
                  ) where
 
 import System.Environment(getProgName)
 import Text.Read(readMaybe)
-    
--- ====================================================================================================
 
-type Name = String
+import Position
+
+-------------------------------------------------------------------------------------------------------
+--  Cxt - The interpreter execution context
+-------------------------------------------------------------------------------------------------------
+
+data Cxt = Cxt{ stack :: Stack, envs :: [Env] }
+
+initCxt :: Env -> Cxt
+initCxt initEnv = Cxt{stack = newStack, envs = [newEnv ++ initEnv]}
+
+
+-------------------------------------------------------------------------------------------------------
+--  Env - The interpreter name bindings
+-------------------------------------------------------------------------------------------------------
+
+type Env = [(Name, Value)]
+
+newEnv :: Env
+newEnv = []
+
+insertEnv :: Cxt -> Name -> Value -> Result Cxt
+insertEnv Cxt{envs = env:_} key _ | key `elem` map fst env =
+    newError ValNoop $ "Redefining name: '" ++ key ++ "'"
+insertEnv cxt@Cxt{envs = env:es} key val =
+    Right $ cxt{envs=((key, val) : env) : es}
+insertEnv _ _ _ = error "INSERTENV CALLED WITH EMPTY ENV STACK! THIS SHOULD NEVER HAPPEN!"
     
-type Operation = Cxt -> IO (Result Cxt)
+
+lookupEnv :: Cxt -> Name -> Maybe Value
+lookupEnv Cxt{envs = es} key = lookup key (concat es)
+
+-------------------------------------------------------------------------------------------------------
+--  Stack - The main evaluation stack
+-------------------------------------------------------------------------------------------------------
+
+type Stack = [Value]
+
+newStack :: Stack
+newStack = []
+
+fmtStack :: Stack -> String
+fmtStack = unwords . map show . reverse
+
+printStack :: Cxt -> IO ()
+printStack Cxt{stack = elems} = putStrLn $ "[ " ++ fmtStack elems ++ " <]"
+
+-------------------------------------------------------------------------------------------------------
+--  Value - The values we operate on
+-------------------------------------------------------------------------------------------------------
 
 data Value = ValInt    Position Integer
            | ValFloat  Position Double
@@ -160,8 +206,6 @@ fmtString ('\t' : str) = '\\' : 't' : fmtString str
 fmtString ('\\' : str) = '\\' : '\\' : fmtString str
 fmtString (c : str)    = c : fmtString str
 
--- ----------------------------------------------------------------------------------------------------
-
 type IntOp   = Integer -> Integer -> Integer
 type FloatOp = Double  -> Double  -> Double
 
@@ -223,32 +267,16 @@ fromString str =
     case readMaybe str of
         Just f -> f
         Nothing -> 0.0
-                   
--- ====================================================================================================
 
-type Error = (Position, String)
+-------------------------------------------------------------------------------------------------------
+--  Operation - The type of built-in operations
+-------------------------------------------------------------------------------------------------------
 
-printError :: Error -> IO ()
-printError (pos, msg) = putStrLn (fmtPosition pos ++"ERROR: " ++ msg)
+type Operation = Cxt -> IO (Result Cxt)
 
-printErrorWithProgname :: Error -> IO ()
-printErrorWithProgname (pos, msg) =
-    do pName <- getProgName
-       putStrLn (fmtPosition pos ++ pName ++ ": " ++ msg)
-                                    
-fmtPosition :: Position -> String
-fmtPosition pos | isNoPos pos  = ""
-                | otherwise    = fileName pos ++ ":"
-                                 ++ show (linePos pos) ++ ":"
-                                 ++ show (charPos pos) ++ ": "
-
-newError :: Value -> String -> Result a
-newError val err = newErrPos (getValPos val) err
-
-newErrPos :: Position -> String -> Result a
-newErrPos pos err = Left (pos, err)
-
--- ====================================================================================================
+-------------------------------------------------------------------------------------------------------
+--  Result - The result of an operation
+-------------------------------------------------------------------------------------------------------
 
 type Result a = Either Error a
 
@@ -273,82 +301,36 @@ ifOk :: Result a -> (a -> IO (Result b)) -> IO (Result b)
 ifOk (Left err) _    = return $ Left err
 ifOk (Right ok) cont = cont ok
 
+-------------------------------------------------------------------------------------------------------
+--  Error - Representation of errors
+-------------------------------------------------------------------------------------------------------
 
--- ====================================================================================================
+type Error = (Position, String)
 
-type Stack = [Value]
+printError :: Error -> IO ()
+printError (pos, msg) = putStrLn (fmtPosition pos ++"ERROR: " ++ msg)
 
-newStack :: Stack
-newStack = []
+printErrorWithProgname :: Error -> IO ()
+printErrorWithProgname (pos, msg) =
+    do pName <- getProgName
+       putStrLn (fmtPosition pos ++ pName ++ ": " ++ msg)
 
-fmtStack :: Stack -> String
-fmtStack = unwords . map show . reverse
+newError :: Value -> String -> Result a
+newError val err = newErrPos (getValPos val) err
 
-printStack :: Cxt -> IO ()
-printStack Cxt{stack = elems} = putStrLn $ "[ " ++ fmtStack elems ++ " <]"
+newErrPos :: Position -> String -> Result a
+newErrPos pos err = Left (pos, err)
 
--- ====================================================================================================
+-------------------------------------------------------------------------------------------------------
+--  That's all folks
+-------------------------------------------------------------------------------------------------------
 
-type Env = [(Name, Value)]
+-------------------------------------------------------------------------------------------------------
+--  Name - Representation of names in the language
+-------------------------------------------------------------------------------------------------------
 
-newEnv :: Env
-newEnv = []
-
-insertEnv :: Cxt -> Name -> Value -> Result Cxt
-insertEnv Cxt{envs = env:_} key _ | key `elem` map fst env =
-    newError ValNoop $ "Redefining name: '" ++ key ++ "'"
-insertEnv cxt@Cxt{envs = env:es} key val =
-    Right $ cxt{envs=((key, val) : env) : es}
-insertEnv _ _ _ = error "INSERTENV CALLED WITH EMPTY ENV STACK! THIS SHOULD NEVER HAPPEN!"
-    
-
-lookupEnv :: Cxt -> Name -> Maybe Value
-lookupEnv Cxt{envs = es} key = lookup key (concat es)
-
--- ====================================================================================================
-
-data Cxt = Cxt{ stack :: Stack, envs :: [Env] }
-
-initCxt :: Env -> Cxt
-initCxt initEnv = Cxt{stack = newStack, envs = [newEnv ++ initEnv]}
-
--- ====================================================================================================
-
-data Position = Pos{ fileName :: String, linePos :: Int, charPos :: Int }
-              | EofPos
-                deriving (Show, Read, Eq, Ord)
-
-initPos :: String -> Position
-initPos fname = Pos{fileName = fname, linePos = 0, charPos = 0}
-
-eofPos :: Position
-eofPos = EofPos
-
-nextPos :: Position -> Char -> Position
-nextPos p@Pos{linePos = l} '\n' = p{linePos = l + 1, charPos = 0}
-nextPos p@Pos{}            '\r' = p{charPos = 0}
-nextPos p@Pos{charPos = c} '\t' = p{charPos = calcTab c}
-nextPos p@Pos{charPos = c} _    = p{charPos = c + 1}
-nextPos EofPos             _    = EofPos
-
-nextPosStr :: Position -> String -> Position
-nextPosStr = foldl nextPos
-
-incPosLine :: Position -> Int -> Position
-incPosLine p@Pos{linePos = l} i = p{linePos = l + i}
-incPosLine EofPos             _ = EofPos
-
-incPosChar :: Position -> Int -> Position
-incPosChar p@Pos{charPos = l} i = p{charPos = l + i}
-incPosChar EofPos             _ = EofPos
-
-calcTab :: Int -> Int
-calcTab c = c + (8 - c `mod` 8)
-
-noPos :: Position
-noPos = Pos{fileName = "", linePos = -1, charPos = -1}
-
-isNoPos :: Position -> Bool
-isNoPos Pos{fileName = ""} = True
-isNoPos _                  = False
-                             
+type Name = String
+                   
+-------------------------------------------------------------------------------------------------------
+--  That's all folks!
+-------------------------------------------------------------------------------------------------------
