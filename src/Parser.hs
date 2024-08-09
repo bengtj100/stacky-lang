@@ -8,6 +8,10 @@
 -- located in the top directory of said project.
 --
 -------------------------------------------------------------------------------------------------------
+--
+-- This module implements a parser for the Stacky language
+--
+-------------------------------------------------------------------------------------------------------
 
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 
@@ -23,42 +27,74 @@ import ParseLib
 import Lexer
 
 -------------------------------------------------------------------------------------------------------
+--  Error reporters
+-------------------------------------------------------------------------------------------------------
 
-repC :: String -> Reporter PosTok Error
-repC _   []              = (eofPos, "Premature EOF 1")
-repC msg ((p, _, _) : _) = (p,      msg)
-
+--
+-- Used to report errors from the lexer. It just propagates the
+-- position and message from lexer ERROR token.
+--
 lexErrRep :: Reporter PosTok Error
 lexErrRep []                = (eofPos, "Premature EOF 2")
 lexErrRep ((p, _, msg) : _) = (p,      msg)
 
+--
+-- Report a missing end of list bracket.
+--
 listRep :: Reporter PosTok Error
 listRep xs = case xs of
              []              -> (eofPos, msg)
              ((p, _, _) : _) -> (p,      msg)
              where msg = "Missing end bracket (']') in list"
+
+--
+-- This is the default reporter used throughout the parser.
+--
+defaultRep :: Reporter PosTok Error
+defaultRep = repC "Syntax Error"
+
+--
+-- Simple constant helper reporter that injects the current position
+-- into the report.
+--
+repC :: String -> Reporter PosTok Error
+repC _   []              = (eofPos, "Premature EOF")
+repC msg ((p, _, _) : _) = (p,      msg)
           
 -------------------------------------------------------------------------------------------------------
+--  Primitive parsers
+-------------------------------------------------------------------------------------------------------
 
+--
+-- Succeeds if the current token is of the given type.
+--
 pType :: TokType -> Parser PosTok Error PosTok
 pType expType = satisfy (\(_, actType, _) -> expType == actType)
 
+--
+-- Succeeds if the current token is of the given type and the symbol
+-- matches.
+--
 pMatch :: TokType -> String -> Parser PosTok Error PosTok
 pMatch expType expStr = satisfy (\(_, actType, actStr) -> expType == actType && expStr == actStr)
 
+--
+-- Report garbage input after the program
+--
 pEOF :: Parser PosTok Error ()
 pEOF = report (repC "Garbage after program") atEOF
 
+--
+-- Propagate lexical errors through the parser
+--
 pLexErr :: Parser PosTok Error a
 pLexErr = expErr (pType ERROR) $ cut (report lexErrRep failure)
 
 -------------------------------------------------------------------------------------------------------
-
-val :: (String -> b) -> (Position -> b -> Value) -> PosTok -> Value
-val r vc (p, _, s) = vc p (r s)
+--  Main parser
+-------------------------------------------------------------------------------------------------------
 
 mkList :: Parser PosTok Error (PosTok -> [Value] -> Value)
-
 mkList = ok (\(p, _, _) xs -> ValList p xs)
          
 pInt       = ok (val read ValInt)    `ap` pType NumInt
@@ -82,7 +118,24 @@ pCmds      = many pCmd
 pLang      = ok id `ap` many pCmd `chk` pEOF
              
 -------------------------------------------------------------------------------------------------------
+--  Public API
+-------------------------------------------------------------------------------------------------------
 
+--
+-- Main parser function
+--
+-- It takes the following inputs:
+--   - bis   :: Env    : Used to generate a list of non alphanum operations.
+--   - fname :: String : The name of the file the program comes from.
+--   - inp   :: String : The input string to be parsed.
+--
+parse :: Env -> String -> String -> Result [Value]
+parse bis fname str = do (res, _) <- runParser bis pLang fname str
+                         return res
+
+--
+-- Helper function for `parse`
+--
 runParser :: Env -> Parser PosTok Error a -> String -> String -> Either Error (a, [PosTok])
 runParser bis p fname inp =
     let
@@ -90,12 +143,14 @@ runParser bis p fname inp =
                    , let op = fst bi
                    , not (isAlphaNum (head op))]
     in
-        runP p reporter $ mylexer ops fname inp
+        runP p defaultRep $ mylexer ops fname inp
 
-reporter :: Reporter PosTok Error
-reporter []              = (eofPos, "Premature EOF")
-reporter ((p, _, _) : _) = (p,      "Syntax Error")
+-------------------------------------------------------------------------------------------------------
+--  General helper functions
+-------------------------------------------------------------------------------------------------------
 
-parse :: Env -> String -> String -> Result [Value]
-parse bis fname str = do (res, _) <- runParser bis pLang fname str
-                         return res
+--
+-- Build a Value from a token string
+--
+val :: (String -> b) -> (Position -> b -> Value) -> PosTok -> Value
+val r vc (p, _, s) = vc p (r s)
