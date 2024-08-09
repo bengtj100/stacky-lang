@@ -66,16 +66,21 @@ ident ops  =      ok (:)                     `ap` satisfy isAlpha `ap` takeMany 
 
 operation  =                                 matchSet specialOps
 
-string     =      ok (\s -> "\""++s++"\"")   `chk` symbol '"' `ap` escChars `chk` symbol '"'
+string     =      ok (\s -> "\""++s++"\"")   `chk` symbol '"'
+                                             `ap`  escChars
+                                             `chk` cut (report strRep (symbol '"'))
 
 escChar    =      ok (\x y -> x:[y])         `ap` symbol '\\' `ap` satisfy (\_->True)
              <||> ok (:[])                   `ap` satisfy (/='"')
 
-escChars   = ok concat                       `ap` many escChar
+escChars   =      ok concat                  `ap` many escChar
 
 whitespace =                                 takeSome isSpace
 
 comment    =      ok (:)                     `ap` symbol '`' `ap` takeMany (/='\n')
+
+strRep :: Reporter Char LexError
+strRep _ =  "Missing end quote ('\"') in string"
 
 -------------------------------------------------------------------------------------------------------
 
@@ -103,11 +108,8 @@ tokenize tknzr str = case runP tknzr lexErr str of
                          Left  e -> ((ERROR, e), "")
 
 lexErr :: Reporter Char LexError
-lexErr []    = "Premature EOF"
+lexErr []    = "Premature EOF in lexical analysys"
 lexErr (c:_) = "Illegal character: " ++ show c
-
-
-
 
 runT :: Tokenizer -> String -> [Token]
 runT tk str = case tokenize tk str of

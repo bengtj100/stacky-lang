@@ -62,7 +62,8 @@ isNoPos _                  = False
                              
                                     
 fmtPosition :: Position -> String
-fmtPosition pos | isNoPos pos  = ""
-                | otherwise    = fileName pos ++ ":"
-                                 ++ show (linePos pos) ++ ":"
-                                 ++ show (charPos pos) ++ ": "
+fmtPosition EofPos               = "EOF: "
+fmtPosition p@Pos{fileName = ""} = fmtPosition p{fileName = "-"}
+fmtPosition pos                  = fileName pos ++ ":"
+                                   ++ show (linePos pos) ++ ":"
+                                   ++ show (charPos pos) ++ ": "
