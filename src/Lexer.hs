@@ -153,7 +153,7 @@ tokenize tknzr str = case runP tknzr lexErr str of
 -- Default reporter for lexical errors.
 --
 lexErr :: Reporter Char LexError
-lexErr []    = "Premature EOF in lexical analysys"
+lexErr []    = "Premature EOF in lexical analysis"
 lexErr (c:_) = "Illegal character: " ++ show c
 
 --
