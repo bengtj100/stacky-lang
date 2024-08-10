@@ -1,5 +1,9 @@
 # Revision history for stacky
 
+## 0.2.2 -- **Preliminary**
+
+* Added factorial operation (`!`) to the language
+
 ## 0.2.1 -- 2024-08-10
 
 * Minor bug-fixes in code and documentation.

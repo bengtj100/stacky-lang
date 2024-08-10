@@ -426,34 +426,33 @@ If both arguments are integer, the result will be an integer. Although if at lea
 
 Stacky defines the following mathematical operations. They operate on floating point numbers, but will automatically convert integers to floats.
 
-| Operation | Comment                                              |
-|:---------:|:-----------------------------------------------------|
-| `pi`      | The mathematical constant $\pi$.                     |
-| `euler`   | Euler's number, i.e., the mathematical constant $e$. |
-| `exp`     | Exponentiation, i.e, $e^x$                           |
-| `sqrt`    | $\sqrt{x}$                                           |
-| `log`     | $\log_e{x}$                                          |
-| `log2`    | $\log_2{x}$                                          |
-| `log10`   | $\log_10{x}$                                         |
-| `sin`     | $\sin{x}$ on radians                                 |
-| `cos`     | $\cos{x}$ on radians                                 |
-| `tan`     | $\tan{x}$ on radians                                 |
-| `asin`    | asin ${x}$                                           |
-| `acos`    | acos ${x}$                                           |
-| `atan`    | atan ${x}$                                           |
-| `sinh`    | sinh ${x}$                                           |
-| `tanh`    | tanh ${x}$                                           |
-| `cosh`    | cosh ${x}$                                           |
-| `asinh`   | asinh ${x}$                                          |
-| `atanh`   | atanh ${x}$                                          |
-| `acosh`   | acosh ${x}$                                          |
-| `pow`     | `x n pow` is $x$ to the power of $n$, i.e, $x^n$     |
-| `floor`   | Return the closest smaller integer                   |
-| `ceil`    | Return the closest larger integer                    |
-| `round`   | Return the closest integer                           |
-| `float`   | Convert an integer or string to float                |
-
-
+| Operation | Comment                                               |
+|:---------:|:------------------------------------------------------|
+| `pi`      | The mathematical constant $\pi$.                      |
+| `euler`   | Euler's number, i.e., the mathematical constant $e$.  |
+| `exp`     | Exponentiation, i.e, $e^x$                            |
+| `sqrt`    | $\sqrt{x}$                                            |
+| `log`     | $\log_e{x}$                                           |
+| `log2`    | $\log_2{x}$                                           |
+| `log10`   | $\log_10{x}$                                          |
+| `sin`     | $\sin{x}$ on radians                                  |
+| `cos`     | $\cos{x}$ on radians                                  |
+| `tan`     | $\tan{x}$ on radians                                  |
+| `asin`    | asin ${x}$                                            |
+| `acos`    | acos ${x}$                                            |
+| `atan`    | atan ${x}$                                            |
+| `sinh`    | sinh ${x}$                                            |
+| `tanh`    | tanh ${x}$                                            |
+| `cosh`    | cosh ${x}$                                            |
+| `asinh`   | asinh ${x}$                                           |
+| `atanh`   | atanh ${x}$                                           |
+| `acosh`   | acosh ${x}$                                           |
+| `pow`     | `x n pow` is $x$ to the power of $n$, i.e, $x^n$      |
+| `floor`   | Return the closest smaller integer                    |
+| `ceil`    | Return the closest larger integer                     |
+| `round`   | Return the closest integer                            |
+| `float`   | Convert an integer or string to float                 |
+| `!`       | Compute the factorial function of an integer or float |
 
 
 ### Comparison operations

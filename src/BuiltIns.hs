@@ -69,6 +69,7 @@ builtIns =
                defMath "asinh" asinh,
                defMath "atanh" atanh,
                defMath "acosh" acosh,
+               defUnOp "!" factorial,
                
                -- Comparison operations
                defBinCmpOp "=" (==),
@@ -139,6 +140,20 @@ defBinOp name f =
         case stack cxt of
             x : y : stack1 -> do { val <- f y x; return cxt{stack = val : stack1}; }
             _              -> stackUnderflowError ValNoop name
+
+-------------------------------------------------------------------------------------------------------
+
+--
+-- Helper function that computes factorials. (!)
+--
+factorial :: Value -> Result Value
+factorial (ValInt pos n)   = Right $ ValInt pos $ fact n
+factorial (ValFloat pos n) = Right $ ValInt pos $ fact $ floor n
+factorial val              = typeError1 val "!" "expects an integer or float" val
+
+fact :: Integer -> Integer
+fact n | n<2       = 1
+       | otherwise = n * fact (n - 1)
 
 -------------------------------------------------------------------------------------------------------
 --  Comparison operations
