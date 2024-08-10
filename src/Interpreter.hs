@@ -1,4 +1,4 @@
--- ====================================================================================================
+-------------------------------------------------------------------------------------------------------
 --
 -- Copyright (c) 2024 Bengt Johansson <bengtj100 at gmail dot com>.
 -- All rights reserved.
@@ -7,13 +7,12 @@
 -- regulated by the conditions stipulated in the file named 'LICENCE',
 -- located in the top directory of said project.
 --
--- ====================================================================================================
+-------------------------------------------------------------------------------------------------------
 
 module Interpreter (
                     interpreter,
                     runValues,
                     runValue,
-                    runAtom,
                     defApply,
                     runLocalValues
                    ) where
@@ -21,22 +20,38 @@ module Interpreter (
 import CoreTypes
 import Position
 
--- ====================================================================================================
+-------------------------------------------------------------------------------------------------------
+-- Main interpreter API functions and their helpers
+-------------------------------------------------------------------------------------------------------
 
+--
+-- Main interpreter entrypoiny
+--
 interpreter :: Cxt -> [Value] -> IO (Result Cxt)
 interpreter = runValues
 
-
+--
+-- Execute a list of operations in a given context.
+-- Return the updated context or and error.
+--
 runValues :: Cxt -> [Value] -> IO (Result Cxt)
 runValues cxt []       = return $ Right cxt
 runValues cxt (v : vs) = do res <- runValue cxt v
                             ifOk res $ flip runValues vs
 
+--
+-- Execute a single operation in a given context.
+-- Return the updated context or and error.
+--
 runValue :: Cxt -> Value -> IO (Result Cxt)
 runValue cxt (ValAtom _ atom)   = runAtom cxt atom
 runValue cxt (ValOp pos _ op)   = injectPos pos $ op cxt
 runValue cxt@Cxt{stack = s} val = leaveVal cxt val s
-                    
+
+--
+-- Evaluate an atom by looking it up in the environment.
+-- If inhibitors are present on the stack, act accordlingly.
+--
 runAtom :: Cxt -> Name -> IO (Result Cxt)
 runAtom cxt@Cxt{stack = s} atom =
     case s of
@@ -44,28 +59,15 @@ runAtom cxt@Cxt{stack = s} atom =
            (ValAtom pos "^") : s1 -> lookupAtom cxt atom pos s1  $ \val -> leaveVal cxt val s1
            _                      -> lookupAtom cxt atom noPos s $ \val -> runValue cxt{stack = val : s} defApply
 
-leaveVal :: Cxt -> Value -> [Value] -> IO (Either a Cxt)
-leaveVal cxt val newStack =
-    return $ Right cxt{stack = val : newStack}
-                            
-lookupAtom :: Cxt -> Name -> Position -> [Value] -> (Value -> IO (Either Error Cxt)) -> IO (Either Error Cxt)
-lookupAtom cxt atom pos s cont = 
-    case lookupEnv cxt atom of
-        Nothing  -> leaveVal cxt (ValAtom pos atom) s
-        Just val -> cont val
-                            
+-------------------------------------------------------------------------------------------------------
+-- Auxilliary public functions
+-------------------------------------------------------------------------------------------------------
 
-injectPos :: Position -> IO (Result a) -> IO (Result a)
-injectPos pos iop =
-    iop >>= \res ->
-               return $ case res of
-                            l@(Left (p, err)) | isNoPos p  -> Left (pos, err)
-                                              | otherwise  -> l
-                            right                          -> right
-
-
--- ====================================================================================================
-
+--
+-- This is the definition of the apply ('@') operation. It is located
+-- here to avoid circular dependencies between the interpreter and the
+-- BuiltIns module.
+--
 defApply :: Value
 defApply =
     ValOp noPos "@" $ \cxt@Cxt{stack = s0} ->
@@ -76,8 +78,55 @@ defApply =
               _              : _  -> return $ Right cxt
               _                   -> return $ stackUnderflowError ValNoop "@"
 
+--
+-- Evaluate a list of operations in its own local environment, which
+-- is discarded upon return. This is howe get local variables.
+--
 runLocalValues :: Cxt -> [Value] -> IO (Result Cxt)
 runLocalValues cxt@Cxt{envs = es} vs =
     do res <- runValues cxt{envs = []:es} vs
        ifOk res $ \cxt1 ->
            return $ Right cxt1{envs = es}
+
+-------------------------------------------------------------------------------------------------------
+-- Local helper functions
+-------------------------------------------------------------------------------------------------------
+
+--
+-- This leaves a new value in a (possibly new stack). Essentially a
+-- macro for the incantations needed to return a succesful
+-- IO (Result Cxt)
+--
+leaveVal :: Cxt -> Value -> [Value] -> IO (Either a Cxt)
+leaveVal cxt val newStack =
+    return $ Right cxt{stack = val : newStack}
+
+--
+-- Look up the value of an atom in the environment and continue
+-- processing it in `cont`.
+--
+lookupAtom :: Cxt ->
+              Name ->
+              Position ->
+              [Value] ->
+              (Value -> IO (Either Error Cxt)) -> IO (Either Error Cxt)
+lookupAtom cxt atom pos s cont = 
+    case lookupEnv cxt atom of
+        Nothing  -> leaveVal cxt (ValAtom pos atom) s
+        Just val -> cont val
+                            
+--
+-- Insert a position into an error message, if none is present.
+--
+injectPos :: Position -> IO (Result a) -> IO (Result a)
+injectPos pos iop =
+    iop >>= \res ->
+               return $ case res of
+                            l@(Left (p, err)) | isNoPos p  -> Left (pos, err)
+                                              | otherwise  -> l
+                            right                          -> right
+
+-------------------------------------------------------------------------------------------------------
+--  That's all folks!!
+-------------------------------------------------------------------------------------------------------
+
