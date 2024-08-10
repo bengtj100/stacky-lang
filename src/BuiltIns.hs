@@ -150,10 +150,15 @@ factorial :: Value -> Result Value
 factorial (ValInt pos n)   = Right $ ValInt pos $ fact n
 factorial (ValFloat pos n) = Right $ ValInt pos $ fact $ floor n
 factorial val              = typeError1 val "!" "expects an integer or float" val
-
+--
+-- Compute The factorial n! of an integer.
+--
+-- In case someone wonders, this was the fastest way without resorting
+-- to exotic algorithms. Even faster than an optimized tail-recursive
+-- function...
+--
 fact :: Integer -> Integer
-fact n | n<2       = 1
-       | otherwise = n * fact (n - 1)
+fact n = product [1..n]
 
 -------------------------------------------------------------------------------------------------------
 --  Comparison operations
