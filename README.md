@@ -18,7 +18,7 @@ Installation and building instructions are available in the [installation guide]
 
 An introduction to using the Stacky interpreter, as well as a short tutorial is available in the [introductory guide](https://github.com/bengtj100/stacky-lang/blob/main/doc/Introduction.md).
 
-There is also a [reference manual](https://github.com/bengtj100/stacky-lang/blob/main/doc/Reference.md) as well as a documented [prelude](https://github.com/bengtj100/stacky-lang/blob/main/prelude/Prelude.sy) (a a library of standard operations written in Stacky it self.
+There is also a [reference manual](https://github.com/bengtj100/stacky-lang/blob/main/doc/Reference.md) as well as a documented [prelude](https://github.com/bengtj100/stacky-lang/blob/main/prelude/Prelude.sy) (a library of standard operations written in Stacky itself).
 
 There is also a list of known build and run-time [dependencies](https://github.com/bengtj100/stacky-lang/blob/main/DEPENDENCIES.md) to this project.
 
