@@ -1,4 +1,4 @@
--- ====================================================================================================
+-------------------------------------------------------------------------------------------------------
 --
 -- Copyright (c) 2024 Bengt Johansson <bengtj100 at gmail dot com>.
 -- All rights reserved.
@@ -7,11 +7,24 @@
 -- regulated by the conditions stipulated in the file named 'LICENCE',
 -- located in the top directory of said project.
 --
--- ====================================================================================================
+-------------------------------------------------------------------------------------------------------
+--
+-- This module defines the built-in operations of Stacky.
+--
+-- It provides a default environment that contains all operations. The
+-- operations themselves are defined later in the file.
+--
+-- Operations start with 'def' helper functions do not. Helper
+-- functions that are only used in one operation (or type of
+-- operations) are located together with the operations. More general
+-- helpers are located towards the end of the module.
+--
+-- Operations are described in the Language reference.
+--
+-------------------------------------------------------------------------------------------------------
 
 module BuiltIns (
-                 builtIns,
-                 parseLine
+                 builtIns
                 ) where
 
 import Data.Char
@@ -23,7 +36,9 @@ import Interpreter
 import InputOutput
 import FrontEnd
     
--- ====================================================================================================
+-------------------------------------------------------------------------------------------------------
+--  Main API functions
+-------------------------------------------------------------------------------------------------------
 
 builtIns :: Env
 builtIns =
@@ -75,7 +90,7 @@ builtIns =
                defDrop,  defSwap,  defRot,  defLRot,  defOver,  defDup, defClear, defDepth,
                defNDrop, defNSwap, defNRot, defNLRot, defNOver, defNDup,
 
-               -- String/list operations
+               -- Sequence operations
                defAppend, defLength,
                defToList, defFromList,
                defToString, defFromString,
@@ -90,30 +105,22 @@ builtIns =
                defTypeInfo, defExpectType, defExpectDepth, defThrow
               ]
 
+-------------------------------------------------------------------------------------------------------
+--  Arithmetic operations
+-------------------------------------------------------------------------------------------------------
+
+--
+-- Help define a mathematical function. Uses the Haskell built-in
+-- functions w. type Double -> Double.
+--
 defMath :: Name -> (Double -> Double) -> Value
-defMath name f = defUnOp  name $ valFloatFun name f
-
-defBI :: Value -> (Name, Value)
-defBI op@(ValOp _ name _) = (name, op)
-defBI op                  = error $ "INTERNAL ERROR: A builtin is not a ValOp: '" ++ show op ++ "'"
-
-
-defBinCmpOp :: Name -> (Value -> Value -> Bool) -> Value
-defBinCmpOp name f = defBinOp name $ cmpBinOp name f
-
-defUnBoolOp :: Name -> (Bool -> Bool) -> Value
-defUnBoolOp name f = defUnOp name $ boolUnOp name f
-
-defBinBoolOp :: Name -> (Bool -> Bool -> Bool) -> Value
-defBinBoolOp name f = defBinOp name $ boolBinOp name f
-
-defBinOp :: Name -> (Value -> Value -> Result Value) -> Value
-defBinOp name f =
-    defOp name $ \cxt ->
-        case stack cxt of
-            x : y : stack1 -> do { val <- f y x; return cxt{stack = val : stack1}; }
-            _              -> stackUnderflowError ValNoop name
+defMath name f = defUnOp name $ valFloatFun name f
                          
+-------------------------------------------------------------------------------------------------------
+
+--
+-- Define a unary operation. The operation may fail with an error.
+--
 defUnOp :: Name -> (Value -> Result Value) -> Value
 defUnOp name f = 
     defOp name $ \cxt ->
@@ -121,33 +128,71 @@ defUnOp name f =
             cxt1@Cxt{stack = x : s} -> do { val <- f x; return cxt1{stack = val : s}; }
             _                       -> stackUnderflowError ValNoop name
 
+-------------------------------------------------------------------------------------------------------
+
+--
+-- Define a binary operation. The operation may fail with an error.
+--
+defBinOp :: Name -> (Value -> Value -> Result Value) -> Value
+defBinOp name f =
+    defOp name $ \cxt ->
+        case stack cxt of
+            x : y : stack1 -> do { val <- f y x; return cxt{stack = val : stack1}; }
+            _              -> stackUnderflowError ValNoop name
+
+-------------------------------------------------------------------------------------------------------
+--  Comparison operations
+-------------------------------------------------------------------------------------------------------
+
+--
+-- Define a binary comparison operation
+--
+defBinCmpOp :: Name -> (Value -> Value -> Bool) -> Value
+defBinCmpOp name f = defBinOp name $ cmpBinOp name f
+
 cmpBinOp :: Name -> (Value -> Value -> Bool) -> Value -> Value -> Result Value
 cmpBinOp name f x y | isComparable x y = Right $ bool2Truth (getValPos x) $ f x y
                     | otherwise        = typeError2 x name "comparable arguments" x y
 
-boolBinOp :: Name -> (Bool -> Bool -> Bool) -> Value -> Value -> Result Value
-boolBinOp _ f v1 v2 = Right $ bool2Truth (getValPos v1) $ f (truth2Bool v1) (truth2Bool v2)
+-------------------------------------------------------------------------------------------------------
+--  Boolean operations
+-------------------------------------------------------------------------------------------------------
+
+--
+-- Define a unary boolean operation.
+--
+defUnBoolOp :: Name -> (Bool -> Bool) -> Value
+defUnBoolOp name f = defUnOp name $ boolUnOp name f
 
 boolUnOp :: Name -> (Bool -> Bool) -> Value -> Result Value
 boolUnOp _ f v1 = Right $ bool2Truth (getValPos v1) $ f (truth2Bool v1)
 
+-------------------------------------------------------------------------------------------------------
 
-bool2Truth :: Position -> Bool -> Value
-bool2Truth pos False = ValInt pos 0
-bool2Truth pos True  = ValInt pos 1
+--
+-- Define a binary boolean operation.
+--
+defBinBoolOp :: Name -> (Bool -> Bool -> Bool) -> Value
+defBinBoolOp name f = defBinOp name $ boolBinOp name f
 
-truth2Bool :: Value -> Bool
-truth2Bool (ValInt _ 0)      = False
-truth2Bool (ValFloat _ 0.0)  = False
-truth2Bool (ValList _ [])    = False
-truth2Bool (ValString _ "" ) = False                             
-truth2Bool _                 = True
+boolBinOp :: Name -> (Bool -> Bool -> Bool) -> Value -> Value -> Result Value
+boolBinOp _ f v1 v2 = Right $ bool2Truth (getValPos v1) $ f (truth2Bool v1) (truth2Bool v2)
 
--- ====================================================================================================
+-------------------------------------------------------------------------------------------------------
+--  Control operations
+-------------------------------------------------------------------------------------------------------
 
-defOp :: Name -> (Cxt -> Result Cxt) -> Value
-defOp name op = ValOp noPos name $ \cxt -> return $ op cxt
+defStash :: Value
+defStash = defOp ";" $ \cxt@Cxt{stack = s0} ->
+                       case s0 of
+                           ValAtom _ key : val : s1 ->
+                               insertEnv cxt{stack = s1} key val 
+                           key : _ : _ ->
+                               typeError1 key ";" "an atom as key for" key
+                           _ ->
+                               stackUnderflowError ValNoop ";"
 
+-------------------------------------------------------------------------------------------------------
 
 defCond :: Value
 defCond =
@@ -163,19 +208,32 @@ defCond =
            _ ->
                return $ stackUnderflowError ValNoop "?"
 
+--
+-- A head function that cannot fail. Returns boolean false on an empty
+-- list.
+--
 safeHead :: [Value] -> Value
 safeHead []    = ValInt noPos 0
 safeHead (x:_) = x
 
+-- Safely take the tail of a list. Just return an empty list if the
+-- input is empty.
+--
 safeTail :: [Value] -> [Value]
 safeTail []     = []
 safeTail (_:xs) = xs
+
+-------------------------------------------------------------------------------------------------------
+--  Stack operations
+-------------------------------------------------------------------------------------------------------
                   
 defDrop :: Value
 defDrop = defOp "drop" $ \cxt@Cxt{stack = s0} ->
               case s0 of
                   _ : s1 -> Right cxt{stack = s1}
                   _      -> stackUnderflowError ValNoop "drop"
+
+-------------------------------------------------------------------------------------------------------
 
 defSwap :: Value
 defSwap = defOp "swap" $ \cxt@Cxt{stack = s0} ->
@@ -184,11 +242,15 @@ defSwap = defOp "swap" $ \cxt@Cxt{stack = s0} ->
                   _          -> stackUnderflowError ValNoop "swap"
 
 
+-------------------------------------------------------------------------------------------------------
+
 defRot :: Value
 defRot = defOp "rot" $ \cxt@Cxt{stack = s0} ->
              case s0 of
                  x : y : z : s1 -> Right cxt{stack = z : x : y : s1}
                  _              -> stackUnderflowError ValNoop "rot"
+
+-------------------------------------------------------------------------------------------------------
 
 defLRot :: Value
 defLRot = defOp "lrot" $ \cxt@Cxt{stack = s0} ->
@@ -196,11 +258,15 @@ defLRot = defOp "lrot" $ \cxt@Cxt{stack = s0} ->
                  x : y : z : s1 -> Right cxt{stack = y : z : x : s1}
                  _              -> stackUnderflowError ValNoop "rot"
 
+-------------------------------------------------------------------------------------------------------
+
 defOver :: Value
 defOver = defOp "over" $ \cxt@Cxt{stack = s0} ->
               case s0 of
                   x : y : s1 -> Right cxt{stack = y : x : y : s1}
                   _          -> stackUnderflowError ValNoop "over"
+
+-------------------------------------------------------------------------------------------------------
 
 defDup :: Value
 defDup = defOp "dup" $ \cxt@Cxt{stack = s0} ->
@@ -208,8 +274,12 @@ defDup = defOp "dup" $ \cxt@Cxt{stack = s0} ->
                  x : s1 -> Right cxt{stack = x : x : s1}
                  _      -> stackUnderflowError ValNoop "dup"
 
+-------------------------------------------------------------------------------------------------------
+
 defClear :: Value
 defClear = defOp "clear" $ \cxt -> Right cxt{stack = []}
+
+-------------------------------------------------------------------------------------------------------
 
 defDepth :: Value
 defDepth = defOp "depth" $ \cxt@Cxt{stack = s} ->
@@ -218,11 +288,17 @@ defDepth = defOp "depth" $ \cxt@Cxt{stack = s} ->
                in
                    Right cxt{stack = depth : s}                         
 
+-------------------------------------------------------------------------------------------------------
+
 defNDrop :: Value
 defNDrop = nStackOp "ndrop" $ \_ st -> st
     
+-------------------------------------------------------------------------------------------------------
+
 defNSwap :: Value
 defNSwap = nStackOp "nswap" $ \pfix st -> reverse pfix ++ st
+
+-------------------------------------------------------------------------------------------------------
 
 defNRot :: Value
 defNRot = nStackOp "nrot" $ \pfix st ->
@@ -230,11 +306,15 @@ defNRot = nStackOp "nrot" $ \pfix st ->
              then st
              else (last pfix) : (init pfix) ++ st
 
+-------------------------------------------------------------------------------------------------------
+
 defNLRot :: Value
 defNLRot = nStackOp "nlrot" $ \pfix st ->
            if null pfix
               then st
               else (tail pfix) ++ (head pfix : st)
+
+-------------------------------------------------------------------------------------------------------
 
 defNOver :: Value
 defNOver = nStackOp "nover" $ \pfix st ->
@@ -242,9 +322,21 @@ defNOver = nStackOp "nover" $ \pfix st ->
               then st
               else (last pfix) : pfix ++ st
 
+-------------------------------------------------------------------------------------------------------
+
 defNDup :: Value
 defNDup = nStackOp "ndup" $ \pfix st -> pfix ++ pfix ++ st
 
+-------------------------------------------------------------------------------------------------------
+
+--
+-- Helper for stack operations that take a variable argument to
+-- describe the number of elements to operate on, such as `ndrop`
+--
+-- The number of elements is on the top of the stack and that number
+-- of elements are handed to the handler function. The result of the
+-- handler is then pushed onto the stack.
+--
 nStackOp :: String -> ([Value] -> [Value] -> [Value]) -> Value
 nStackOp name handler =
     defOp name $ \cxt@Cxt{stack = s0} ->
@@ -264,16 +356,9 @@ nStackOp name handler =
                [] ->
                    stackUnderflowError ValNoop name
 
-
-defStash :: Value
-defStash = defOp ";" $ \cxt@Cxt{stack = s0} ->
-                       case s0 of
-                           ValAtom _ key : val : s1 ->
-                               insertEnv cxt{stack = s1} key val 
-                           key : _ : _ ->
-                               typeError1 key ";" "an atom as key for" key
-                           _ ->
-                               stackUnderflowError ValNoop ";"
+-------------------------------------------------------------------------------------------------------
+--  Sequence operations
+-------------------------------------------------------------------------------------------------------
 
 defAppend :: Value
 defAppend  =
@@ -288,6 +373,8 @@ defAppend  =
             _ ->
                 stackUnderflowError ValNoop "++"
 
+-------------------------------------------------------------------------------------------------------
+
 defLength :: Value
 defLength  =
     defOp "length" $ \cxt@Cxt{stack = s0} ->
@@ -300,6 +387,51 @@ defLength  =
                 typeError1 v1 "length" "either a list or string" v1
             _ ->
                 stackUnderflowError ValNoop "length"
+
+
+-------------------------------------------------------------------------------------------------------
+
+defToList :: Value
+defToList =
+    nStackOp "toList" $ \pfix st -> ValList noPos (reverse pfix) : st
+
+-------------------------------------------------------------------------------------------------------
+
+defFromList :: Value
+defFromList  =
+    defOp "fromList" $ \cxt@Cxt{stack = s0} ->
+        case s0 of
+            ValList p xs : s1 ->
+                let len = ValInt p $ toInteger $ length xs
+                in  Right cxt{stack = len : reverse xs ++ s1}
+            v1 : _ ->
+                typeError1 v1 "fromList" "a list" v1
+            _ ->
+                stackUnderflowError ValNoop "fromList"
+                             
+-------------------------------------------------------------------------------------------------------
+
+defToString :: Value
+defToString =
+    nStackOp "toString" $ \pfix st ->
+        ValString noPos (concat $ map toString $ reverse pfix) : st
+
+-------------------------------------------------------------------------------------------------------
+
+defFromString :: Value
+defFromString  =
+    defOp "fromString" $ \cxt@Cxt{stack = s0} ->
+        case s0 of
+            ValString p str : s1 ->
+                let len = ValInt p $ toInteger $ length str
+                    strs = [ ValString p [c] | c <- reverse str ]
+                in  Right cxt{stack = len : strs ++ s1}
+            v1 : _ ->
+                typeError1 v1 "fromString" "a string" v1
+            _ ->
+                stackUnderflowError ValNoop "fromString"
+
+-------------------------------------------------------------------------------------------------------
 
 defReverse :: Value
 defReverse  =
@@ -314,6 +446,8 @@ defReverse  =
             _ ->
                 stackUnderflowError ValNoop "reverse"
 
+-------------------------------------------------------------------------------------------------------
+
 defToStr :: Value
 defToStr  =
     defOp "toStr" $ \cxt@Cxt{stack = s0} ->
@@ -323,18 +457,7 @@ defToStr  =
             _ ->
                 stackUnderflowError ValNoop "toStr"
 
-defToList :: Value
-defToList =
-    nStackOp "toList" $ \pfix st -> ValList noPos (reverse pfix) : st
-
-defToString :: Value
-defToString =
-    nStackOp "toString" $ \pfix st ->
-        ValString noPos (concat $ map toString $ reverse pfix) : st
-
-toString :: Value -> String
-toString (ValString _ str) = str
-toString val               = show val
+-------------------------------------------------------------------------------------------------------
 
 defSlice :: Value
 defSlice =
@@ -351,6 +474,28 @@ defSlice =
             _ ->
                 stackUnderflowError ValNoop "slice"
 
+--
+-- Perform the slicing operation with the semantics of the Stacky language.
+--
+doSlice :: Integer -> Integer -> [a] -> Position -> ([a] -> Result b) -> Result b
+doSlice from to xs pos cont
+    | to < 0 = let to' = toInteger (length xs) + to + 1
+               in  doSlice from to' xs pos cont
+doSlice from to xs _ cont
+    | checkSlice from to xs =
+        cont $ take (fromInteger (to - from)) $ drop (fromInteger from) xs
+doSlice _ _ _ pos _ =
+    newErrPos pos "'slice' expects '0 <= from <= to <= length'"
+
+--
+-- Check the arguments to slice for validity.
+--
+checkSlice :: Integer -> Integer -> [a] -> Bool
+checkSlice from to xs =
+    0 <= from && from <= to && fromInteger to <= length xs
+
+-------------------------------------------------------------------------------------------------------
+
 defOrd :: Value
 defOrd =
     defOp "ord" $ \cxt@Cxt{stack = s0} ->
@@ -364,6 +509,8 @@ defOrd =
             _ ->
                 stackUnderflowError ValNoop "ord"
 
+-------------------------------------------------------------------------------------------------------
+
 defChr :: Value
 defChr =
     defOp "chr" $ \cxt@Cxt{stack = s0} ->
@@ -376,45 +523,10 @@ defChr =
                 typeError1 other "chr" "an integer" other
             _ ->
                 stackUnderflowError ValNoop "chr"
-                               
-doSlice :: Integer -> Integer -> [a] -> Position -> ([a] -> Result b) -> Result b
-doSlice from to xs pos cont
-    | to < 0 = let to' = toInteger (length xs) + to + 1
-               in  doSlice from to' xs pos cont
-doSlice from to xs _ cont
-    | checkSlice from to xs =
-        cont $ take (fromInteger (to - from)) $ drop (fromInteger from) xs
-doSlice _ _ _ pos _ =
-    newErrPos pos "'slice' expects '0 <= from <= to <= length'"
-    
-checkSlice :: Integer -> Integer -> [a] -> Bool
-checkSlice from to xs =
-    0 <= from && from <= to && fromInteger to <= length xs
-                   
-defFromList :: Value
-defFromList  =
-    defOp "fromList" $ \cxt@Cxt{stack = s0} ->
-        case s0 of
-            ValList p xs : s1 ->
-                let len = ValInt p $ toInteger $ length xs
-                in  Right cxt{stack = len : reverse xs ++ s1}
-            v1 : _ ->
-                typeError1 v1 "fromList" "a list" v1
-            _ ->
-                stackUnderflowError ValNoop "fromList"
-                             
-defFromString :: Value
-defFromString  =
-    defOp "fromString" $ \cxt@Cxt{stack = s0} ->
-        case s0 of
-            ValString p str : s1 ->
-                let len = ValInt p $ toInteger $ length str
-                    strs = [ ValString p [c] | c <- reverse str ]
-                in  Right cxt{stack = len : strs ++ s1}
-            v1 : _ ->
-                typeError1 v1 "fromString" "a string" v1
-            _ ->
-                stackUnderflowError ValNoop "fromString"
+
+-------------------------------------------------------------------------------------------------------
+--  Input/output operations
+-------------------------------------------------------------------------------------------------------
 
 defPrint :: Value
 defPrint = ValOp noPos "print" $ \cxt@Cxt{stack = s0} ->
@@ -423,11 +535,17 @@ defPrint = ValOp noPos "print" $ \cxt@Cxt{stack = s0} ->
                               return $ Right cxt{stack = s1}
                _        -> return $ stackUnderflowError ValNoop "print"
 
+-------------------------------------------------------------------------------------------------------
+
 defPut :: Value
 defPut = putVal putStr "put"
 
+-------------------------------------------------------------------------------------------------------
+
 defPutLn :: Value
 defPutLn = putVal putStrLn "putLn"
+
+-------------------------------------------------------------------------------------------------------
 
 putVal :: (String -> IO ()) -> Name -> Value
 putVal f n = ValOp noPos n $ \cxt@Cxt{stack = s0} ->
@@ -438,10 +556,14 @@ putVal f n = ValOp noPos n $ \cxt@Cxt{stack = s0} ->
                  _  ->
                      return $ stackUnderflowError ValNoop n
 
+-------------------------------------------------------------------------------------------------------
+
 defInput :: Value
 defInput = ValOp noPos "input" $ \cxt@Cxt{stack = s0} ->
            do str <- getLines "? "
               return $ Right cxt{stack = ValString noPos str : s0}
+
+-------------------------------------------------------------------------------------------------------
 
 defPrompt :: Value
 defPrompt = ValOp noPos "prompt" $ \cxt@Cxt{stack = s0} ->
@@ -454,16 +576,27 @@ defPrompt = ValOp noPos "prompt" $ \cxt@Cxt{stack = s0} ->
                 _ ->
                     return $ stackUnderflowError ValNoop "prompt"
 
-defEval :: Value
-defEval = ValOp noPos "eval" $ \cxt@Cxt{stack = s0} ->
+-------------------------------------------------------------------------------------------------------
+
+defReadFile :: Value
+defReadFile = ValOp noPos "readFile" $ \cxt@Cxt{stack = s0} ->
           case s0 of
-              (ValString _ str) : s1 ->
-                  do let parseRes = parseLine builtIns str
-                     ifOk parseRes $ \cmds -> interpreter cxt{stack = s1} cmds
+              (ValString p fName) : s1 ->
+                  do res <- readTheFile p fName
+                     ifOk res $ \str ->
+                         return $ Right cxt{stack = ValString p str : s1}
               other : _ ->
-                  return $ typeError1 other "eval" "a string to be evaluated" other
+                  return $ typeError1 other "readFile" "a string file path" other
               _ ->
-                  return $ stackUnderflowError ValNoop "eval"
+                  return $ stackUnderflowError ValNoop "readFile"
+
+-------------------------------------------------------------------------------------------------------
+--  Reflection/introspection operations
+-------------------------------------------------------------------------------------------------------
+
+-- defApply is defined in Interpreter
+
+-------------------------------------------------------------------------------------------------------
 
 defApplyList :: Value
 defApplyList =
@@ -480,17 +613,20 @@ defApplyList =
               _ ->
                   return $ stackUnderflowError ValNoop "$"
 
-defReadFile :: Value
-defReadFile = ValOp noPos "readFile" $ \cxt@Cxt{stack = s0} ->
+-------------------------------------------------------------------------------------------------------
+
+defEval :: Value
+defEval = ValOp noPos "eval" $ \cxt@Cxt{stack = s0} ->
           case s0 of
-              (ValString p fName) : s1 ->
-                  do res <- readTheFile p fName
-                     ifOk res $ \str ->
-                         return $ Right cxt{stack = ValString p str : s1}
+              (ValString _ str) : s1 ->
+                  do let parseRes = parseLine builtIns str
+                     ifOk parseRes $ \cmds -> interpreter cxt{stack = s1} cmds
               other : _ ->
-                  return $ typeError1 other "readFile" "a string file path" other
+                  return $ typeError1 other "eval" "a string to be evaluated" other
               _ ->
-                  return $ stackUnderflowError ValNoop "readFile"
+                  return $ stackUnderflowError ValNoop "eval"
+
+-------------------------------------------------------------------------------------------------------
 
 defImport :: Value
 defImport = ValOp noPos "import" $ \cxt@Cxt{stack = s0} ->
@@ -505,20 +641,14 @@ defImport = ValOp noPos "import" $ \cxt@Cxt{stack = s0} ->
               _ ->
                   return $ stackUnderflowError ValNoop "readFile"
 
-readTheFile :: Position -> String -> IO (Result String)
-readTheFile pos fName =
-    (do str <- readFile fName
-        return $ Right str) `catch` (handleError pos)
-
-handleError :: Position -> IOError -> IO (Result a)
-handleError pos err =
-    return $ newErrPos pos $ show err
-
+-------------------------------------------------------------------------------------------------------
 
 defEnv :: Value
 defEnv = ValOp noPos "env" $ \cxt@Cxt{envs = e0} ->
          do putStrLn $ unlines $ map (\(k,v) -> show k ++ " : " ++ show v) $ concat e0
             return $ Right cxt
+
+-------------------------------------------------------------------------------------------------------
 
 defTypeOf :: Value
 defTypeOf = ValOp noPos "typeOf" $ \cxt@Cxt{stack = s0} ->
@@ -527,6 +657,8 @@ defTypeOf = ValOp noPos "typeOf" $ \cxt@Cxt{stack = s0} ->
                     return $ Right cxt{stack = ValString noPos (valueType val) : s1}
                 _ ->
                     return $ stackUnderflowError ValNoop "typeOf"
+
+-------------------------------------------------------------------------------------------------------
 
 defTypeInfo :: Value
 defTypeInfo =
@@ -537,6 +669,8 @@ defTypeInfo =
                 in  return $ Right cxt{stack = ValInt noPos (toInteger s) : ValString noPos t : s1}
             _ ->
                 return $ stackUnderflowError ValNoop "typeInfo"
+
+-------------------------------------------------------------------------------------------------------
 
 defExpectType :: Value
 defExpectType =
@@ -550,7 +684,10 @@ defExpectType =
                 return $ typeError1 other "expectType" "a type and size description" other
             _ ->
                 return $ stackUnderflowError ValNoop "expectType"
-                       
+
+--
+-- Do the actual expectType operation.
+--
 expectType :: Cxt -> [Char] -> Integer -> Integer -> Name -> Value -> [Value] -> IO (Result Cxt)
 expectType cxt eType eMin eMax name val s1 =
     let (aType, aSize) = valueTypeSize val
@@ -559,18 +696,29 @@ expectType cxt eType eMin eMax name val s1 =
     in if typesMatch aType (toInteger aSize) eTypes eMin eMax
        then return $ Right cxt{stack = val : s1}
        else return $ typeError1 val name desc val
-    
-fmtTypeDesc :: String -> Integer -> Integer -> String
-fmtTypeDesc t sMin sMax = t ++ "(" ++ show sMin ++ "," ++ show sMax ++ ")"
 
-typeSet :: String -> [String]
-typeSet "sequence" = ["list", "string"]
-typeSet t          = [t]
-                     
+--
+-- Verify that the given types match
+--
 typesMatch :: String -> Integer -> [String] -> Integer -> Integer -> Bool
 typesMatch aType aSize eTypes eMin (-1) | aType `elem` eTypes && eMin <= aSize                 = True
 typesMatch aType aSize eTypes eMin eMax | aType `elem` eTypes && eMin <= aSize && aSize < eMax = True
 typesMatch _     _     _      _    _                                                           = False
+
+--
+-- Format a type description for an error message
+--
+fmtTypeDesc :: String -> Integer -> Integer -> String
+fmtTypeDesc t sMin sMax = t ++ "(" ++ show sMin ++ "," ++ show sMax ++ ")"
+
+--
+-- Allows us to expect sequence
+--
+typeSet :: String -> [String]
+typeSet "sequence" = ["list", "string"]
+typeSet t          = [t]
+                     
+-------------------------------------------------------------------------------------------------------
 
 defExpectDepth :: Value
 defExpectDepth =
@@ -592,6 +740,8 @@ expectDepth cxt minDepth name s1 =
     else return $ stackUnderflowError ValNoop name
 
 
+-------------------------------------------------------------------------------------------------------
+
 defThrow :: Value
 defThrow =
     ValOp noPos "throw" $ \Cxt{stack = s0} ->
@@ -603,4 +753,74 @@ defThrow =
             _ ->
                 return $ stackUnderflowError ValNoop "throw"
 
--- ====================================================================================================
+-------------------------------------------------------------------------------------------------------
+--  Local helper functions
+-------------------------------------------------------------------------------------------------------
+
+--
+-- Create an entry in the environment based on the given operation's name.
+--
+defBI :: Value -> (Name, Value)
+defBI op@(ValOp _ name _) = (name, op)
+defBI op                  = error $ "INTERNAL ERROR: A builtin is not a ValOp: '" ++ show op ++ "'"
+
+-------------------------------------------------------------------------------------------------------
+
+--
+-- Shorthand to define operations
+--
+defOp :: Name -> (Cxt -> Result Cxt) -> Value
+defOp name op = ValOp noPos name $ \cxt -> return $ op cxt
+
+-------------------------------------------------------------------------------------------------------
+
+--
+-- Haskell Bool to Stacky truthiness
+--
+bool2Truth :: Position -> Bool -> Value
+bool2Truth pos False = ValInt pos 0
+bool2Truth pos True  = ValInt pos 1
+
+-------------------------------------------------------------------------------------------------------
+
+--
+-- Stacky truthiness to Haskell Bool
+--
+truth2Bool :: Value -> Bool
+truth2Bool (ValInt _ 0)      = False
+truth2Bool (ValFloat _ 0.0)  = False
+truth2Bool (ValList _ [])    = False
+truth2Bool (ValString _ "" ) = False                             
+truth2Bool _                 = True
+
+-------------------------------------------------------------------------------------------------------
+
+--
+-- Convert a value to string. In case of a string value, just return
+-- the string.
+--
+toString :: Value -> String
+toString (ValString _ str) = str
+toString val               = show val
+
+-------------------------------------------------------------------------------------------------------
+
+--
+-- Read the contents of a file and return as a result. In case of an
+-- error, return an appropriate error message.
+--
+readTheFile :: Position -> String -> IO (Result String)
+readTheFile pos fName =
+    (do str <- readFile fName
+        return $ Right str) `catch` (handleError pos)
+
+--
+-- Helper for `readTheFile`
+--
+handleError :: Position -> IOError -> IO (Result a)
+handleError pos err =
+    return $ newErrPos pos $ show err
+
+-------------------------------------------------------------------------------------------------------
+--  That's all folks!!
+-------------------------------------------------------------------------------------------------------

@@ -8,6 +8,12 @@
 -- located in the top directory of said project.
 --
 -------------------------------------------------------------------------------------------------------
+--
+-- This module contains the interpreter proper of the Stacky
+-- language. It deals with operations that are intrinsic to the
+-- language. Built-in operations can be found in the BuiltIns module.
+--
+-------------------------------------------------------------------------------------------------------
 
 module Interpreter (
                     interpreter,

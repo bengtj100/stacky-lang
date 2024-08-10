@@ -8,6 +8,10 @@
 -- located in the top directory of said project.
 --
 -------------------------------------------------------------------------------------------------------
+--
+-- This module implements the REPL of the Stacky interpreter.
+--
+-------------------------------------------------------------------------------------------------------
 
 module Repl (
              repl,
@@ -24,6 +28,7 @@ import CoreTypes
 import Position
 import Interpreter
 import BuiltIns
+import FrontEnd
 import CommandLine
 
 -------------------------------------------------------------------------------------------------------
