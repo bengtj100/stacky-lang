@@ -87,7 +87,7 @@ Either paste the below commands into a shell on your server or run the build-ser
 As root on the build server do:
 ```
 curl -O https://raw.githubusercontent.com/bengtj100/stacky-lang/main/tools/make-build-server.sh
-chmode +x ./make-build-server
+chmod +x ./make-build-server
 ./make-build-server
 ```
 
@@ -112,7 +112,7 @@ This will install the Haskell and pandoc tool-chains needed to build the applica
 
 ```
 curl -O https://raw.githubusercontent.com/bengtj100/stacky-lang/main/tools/setup-toolchain.sh
-chmode +x ./setup-toolchain.sh
+chmod +x ./setup-toolchain.sh
 ./setup-toolchain.sh
 ```
 
