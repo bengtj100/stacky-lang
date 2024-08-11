@@ -3,6 +3,7 @@
 ## 0.2.2 -- **Preliminary**
 
 * Added factorial operation (`!`) to the language
+* Minor typos in error messages corrected
 
 ## 0.2.1 -- 2024-08-10
 
