@@ -1,7 +1,8 @@
 # Revision history for stacky
 
-## 0.2.2 -- **Preliminary**
+## 0.2.2 -- 2024-08-11
 
+* **MAJOR BUG FIX!** The append operation will now be parsed as "++" and not two "+" as in version 0.2.1
 * Added factorial operation (`!`) to the language
 * Minor typos in error messages corrected
 
