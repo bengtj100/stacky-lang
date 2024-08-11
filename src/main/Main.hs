@@ -17,12 +17,16 @@
 
 module Main where
 
+-- System modules
 import System.IO.Error
 import System.Exit
 import System.Environment
 import Control.Exception
 
+-- Base modules
 import CoreTypes
+
+-- Local modules
 import Repl
 import CommandLine
 

@@ -27,15 +27,21 @@ module BuiltIns (
                  builtIns
                 ) where
 
+-- System modules
 import Data.Char
 import Control.Exception
 
+-- Base modules
 import CoreTypes
 import Position
-import Interpreter
 import InputOutput
+
+-- Interpreter modules
+import Interpreter
+
+-- Frontend modules
 import FrontEnd
-    
+
 -------------------------------------------------------------------------------------------------------
 --  Main API functions
 -------------------------------------------------------------------------------------------------------

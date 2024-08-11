@@ -19,10 +19,14 @@ module Parser(
               parse
              ) where
 
+-- System modules
 import Data.Char
 
+-- Base modules
 import CoreTypes
 import Position
+
+-- Local modules
 import ParseLib
 import Lexer
 

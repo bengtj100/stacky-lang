@@ -22,13 +22,17 @@ module CommandLine(
                    printGreeting
                    ) where
 
+-- System modules
 import Text.RawString.QQ
 import System.Exit
 import System.Environment
 
-import Version
+-- Base modules
 import CoreTypes
 import Position
+
+-- Local modules
+import Version
 
 -------------------------------------------------------------------------------------------------------
 --  Main API

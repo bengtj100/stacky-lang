@@ -14,7 +14,10 @@ module FrontEnd(
               parseLine
              ) where
 
+-- Base modules
 import CoreTypes
+
+-- Local modules
 import Lexer(remLongCmt)
 import Parser
 import Transforms

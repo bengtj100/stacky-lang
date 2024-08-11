@@ -52,9 +52,11 @@ module CoreTypes (
 
                  ) where
 
+-- System modules
 import System.Environment(getProgName)
 import Text.Read(readMaybe)
 
+-- Local modules
 import Position
 
 -------------------------------------------------------------------------------------------------------

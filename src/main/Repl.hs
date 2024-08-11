@@ -18,17 +18,24 @@ module Repl (
              runPrelude             
             ) where
 
+-- System modules
 import Data.List
 import Data.List.Utils
 import System.Environment
-    
-import InputOutput
 
+-- Base modules
+import InputOutput
 import CoreTypes
 import Position
+
+-- Interpreter modules
 import Interpreter
 import BuiltIns
+
+-- FrontEnd modules
 import FrontEnd
+
+-- Local modules
 import CommandLine
 
 -------------------------------------------------------------------------------------------------------

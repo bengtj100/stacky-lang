@@ -30,10 +30,14 @@ module Lexer(
              remLongCmt
             ) where
 
-import ParseLib
+-- System modules
 import Data.Char
 
+-- Base modules
 import Position
+
+-- Local modules
+import ParseLib
 
 -------------------------------------------------------------------------------------------------------
 --  Special operations that are not builtins.
