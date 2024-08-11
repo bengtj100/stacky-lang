@@ -35,7 +35,7 @@ HASKTAGS_ARGS      = -e .
 INST_BIN           = /usr/local/bin
 INST_LIB           = /usr/local/lib/$(PROJECT)
 
-VERSION_FILE       = $(SRC)/generated/Version.hs
+VERSION_FILE       = $(SRC)/main/Version.hs
 MAKE_VERSION_PATH  = ./tools/make-version-file
 
 MAKE_VERSION_ARGS  = $(CABAL_FILE) $(VERSION_FILE)
