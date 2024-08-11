@@ -831,8 +831,15 @@ toString val               = show val
 --
 readTheFile :: Position -> String -> IO (Result String)
 readTheFile pos fName =
-    (do str <- readFile fName
+    (do str <- doRead fName
         return $ Right str) `catch` (handleError pos)
+
+--
+-- If fName is "STDIN", read from stdin
+--
+doRead :: String -> IO String
+doRead "STDIN"   = getContents
+doRead fName     = readFile fName
 
 --
 -- Helper for `readTheFile`

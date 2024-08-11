@@ -172,6 +172,23 @@ $
 
 The option `-b` or `--batch` makes Stacky work in batch mode. In this mode the program in the file(s) given is executed and then the interpreter terminates.
 
+Stacky programs can also be loaded using a *shebang* `#!`. Here is an example of the Hello World program as a stand-alone script:
+
+~~~
+#!/usr/bin/env -S stacky -b
+```
+"HELLO WORLD" putLn
+~~~
+
+Save it to a file called `hello.sy`, make it executable. Then it will run:
+
+```
+$ chmod +x hello.sy 
+$ ./hello.sy 
+HELLO WORLD
+$ 
+```
+
 Issuing `stacky --help` will list the available options.
 
 ## Quick tutorial

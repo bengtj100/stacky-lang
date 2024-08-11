@@ -1402,6 +1402,8 @@ N = 17
 [  <]
 ```
 
+**NOTE**: If fname is `"STDIN"`, then import reads from standard input. This is useful when stacky programs are parts of scripts.
+
 #### The `env` operation
 
 This operation prints the bound names in the [environment](#variables-and-the-environment).
