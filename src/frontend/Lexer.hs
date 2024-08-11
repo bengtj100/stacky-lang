@@ -31,13 +31,18 @@ module Lexer(
             ) where
 
 -- System modules
-import Data.Char
+import Data.Char(isAlpha, isAlphaNum, isDigit, isSpace)
 
 -- Base modules
-import Position
+import Position(Position, initPos, nextPosStr)
 
 -- Local modules
-import ParseLib
+import ParseLib(Parser,   runP,
+                          ok, symbol, symbols, satisfy,
+                          ap, chk, (<||>),
+                          cond, many, matchSet, optP, takeMany, takeSome,
+                          cut,
+                Reporter, report)
 
 -------------------------------------------------------------------------------------------------------
 --  Special operations that are not builtins.

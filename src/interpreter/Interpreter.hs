@@ -23,9 +23,14 @@ module Interpreter (
                     runLocalValues
                    ) where
 
--- Base modules
-import CoreTypes
-import Position
+-- Base modules 
+import CoreTypes(Cxt(..),     lookupEnv,
+                 Value(..),
+                 Result,      ifOk,
+                 Name,
+                 Error,       stackUnderflowError)
+
+import Position(Position(..), noPos, isNoPos)
 
 -------------------------------------------------------------------------------------------------------
 -- Main interpreter API functions and their helpers

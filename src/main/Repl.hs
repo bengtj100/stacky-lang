@@ -19,24 +19,29 @@ module Repl (
             ) where
 
 -- System modules
-import Data.List
-import Data.List.Utils
-import System.Environment
+import Data.List(intercalate)
+import Data.List.Utils(split)
+import System.Environment(getExecutablePath)
 
 -- Base modules
-import InputOutput
-import CoreTypes
-import Position
+import InputOutput(getLines)
+
+import Position(noPos)
+
+import CoreTypes(Cxt,      initCxt, printStack,
+                 Error,    printError,
+                 Value(..),
+                 ifOk)
 
 -- Interpreter modules
-import Interpreter
-import BuiltIns
+import Interpreter(interpreter)
+import BuiltIns(builtIns)
 
 -- FrontEnd modules
-import FrontEnd
+import FrontEnd(parseLine)
 
 -- Local modules
-import CommandLine
+import CommandLine(CmdRes(..))
 
 -------------------------------------------------------------------------------------------------------
 --  repl - The read, eval, print loo of the interpreter

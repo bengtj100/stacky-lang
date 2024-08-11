@@ -28,19 +28,28 @@ module BuiltIns (
                 ) where
 
 -- System modules
-import Data.Char
-import Control.Exception
+import Data.Char(chr, ord)
+
+import Control.Exception(catch)
 
 -- Base modules
-import CoreTypes
-import Position
-import InputOutput
+import CoreTypes(Cxt(..), insertEnv,
+                 Env,
+                 Name,
+                 Result,        ifOk, stackUnderflowError, typeError1, typeError2, newErrPos,
+                 Value(..),     valAdd, valSub, valMult, valDiv, valRem, valPow, valFloor,
+                                valFloat, valFloatFun, isComparable, getValPos, isSequence,
+                                valueType, valueTypeSize)
+
+import Position(Position(..),   noPos)
+
+import InputOutput(getLines)
 
 -- Interpreter modules
-import Interpreter
+import Interpreter(defApply, runValues, runLocalValues)
 
 -- Frontend modules
-import FrontEnd
+import FrontEnd(parseLine, parseFile)
 
 -------------------------------------------------------------------------------------------------------
 --  Main API functions
@@ -395,7 +404,7 @@ defAppend  =
             ValString p str1 : ValString _ str2 : s3 ->
                 Right cxt{stack = ValString p (str2 ++ str1) : s3}
             v1 : v2 : _ ->
-                typeError2 v1 "++" "either two stacks or strings" v2 v1
+                typeError2 v1 "++" "either two lists or strings" v2 v1
             _ ->
                 stackUnderflowError ValNoop "++"
 
@@ -646,7 +655,7 @@ defEval = ValOp noPos "eval" $ \cxt@Cxt{stack = s0} ->
           case s0 of
               (ValString _ str) : s1 ->
                   do let parseRes = parseLine builtIns str
-                     ifOk parseRes $ \cmds -> interpreter cxt{stack = s1} cmds
+                     ifOk parseRes $ \cmds -> runValues cxt{stack = s1} cmds
               other : _ ->
                   return $ typeError1 other "eval" "a string to be evaluated" other
               _ ->
@@ -661,7 +670,7 @@ defImport = ValOp noPos "import" $ \cxt@Cxt{stack = s0} ->
                   do res <- readTheFile p fName
                      ifOk res (\str ->
                                do let parseRes = parseFile builtIns fName str
-                                  ifOk parseRes (\cmds -> interpreter cxt{stack = s1} cmds))
+                                  ifOk parseRes (\cmds -> runValues cxt{stack = s1} cmds))
               other : _ ->
                   return $ typeError1 other "import" "a string file path" other
               _ ->

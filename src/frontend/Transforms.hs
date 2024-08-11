@@ -19,7 +19,7 @@ module Transforms (
               ) where
 
 -- Base modules
-import CoreTypes
+import CoreTypes(Env, Value(..))
     
 -------------------------------------------------------------------------------------------------------
 --  Main transform API

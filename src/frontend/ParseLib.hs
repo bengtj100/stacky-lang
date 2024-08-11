@@ -17,7 +17,14 @@
 --
 -------------------------------------------------------------------------------------------------------
 
-module ParseLib where
+module ParseLib(
+                Parser,   runP,
+                          ok, epsilon, failure, symbol, symbols, satisfy, atEOF,
+                          ap, chk, expErr, (<||>),
+                          anyOf, cond, many, matchSet, optP, spanP, takeMany, takeSome,
+                          cut,
+                Reporter, constR, report, repFail
+               ) where
 
 -- System modules
 import Data.List(isPrefixOf)

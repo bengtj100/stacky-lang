@@ -15,20 +15,20 @@
 -- REPL.
 -------------------------------------------------------------------------------------------------------
 
-module Main where
+module Main(main) where
 
 -- System modules
-import System.IO.Error
-import System.Exit
-import System.Environment
-import Control.Exception
+import System.IO.Error(isEOFError)
+import System.Exit(exitWith, ExitCode(..))
+import System.Environment(getArgs, getProgName)
+import Control.Exception(catch)
 
 -- Base modules
-import CoreTypes
+import CoreTypes(Cxt)
 
 -- Local modules
-import Repl
-import CommandLine
+import Repl(repl, runPrelude)
+import CommandLine(CmdRes(..), parseArguments, printGreeting)
 
 -------------------------------------------------------------------------------------------------------
 --  The main function

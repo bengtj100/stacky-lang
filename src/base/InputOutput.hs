@@ -16,7 +16,7 @@
 module InputOutput (getLines) where
 
 -- System modules
-import System.IO
+import System.IO(hFlush, stdout)
 
 -------------------------------------------------------------------------------------------------------
 --  Main API

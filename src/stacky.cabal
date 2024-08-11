@@ -91,7 +91,6 @@ executable stacky
       .
       ./base
       ./frontend
-      ./generated
       ./interpreter
       ./main
       

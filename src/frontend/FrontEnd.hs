@@ -15,12 +15,12 @@ module FrontEnd(
              ) where
 
 -- Base modules
-import CoreTypes
+import CoreTypes(Env, Result, Value)
 
 -- Local modules
 import Lexer(remLongCmt)
-import Parser
-import Transforms
+import Parser(parse)
+import Transforms(transform)
 
 -------------------------------------------------------------------------------------------------------
 --  Main API functions

@@ -23,16 +23,16 @@ module CommandLine(
                    ) where
 
 -- System modules
-import Text.RawString.QQ
-import System.Exit
-import System.Environment
+import Text.RawString.QQ(r)
+import System.Exit(exitWith, ExitCode(..))
+import System.Environment(getProgName)
 
 -- Base modules
-import CoreTypes
-import Position
+import CoreTypes(Value(..), printErrorWithProgname)
+import Position(noPos)
 
 -- Local modules
-import Version
+import Version(build, gitTag, version)
 
 -------------------------------------------------------------------------------------------------------
 --  Main API

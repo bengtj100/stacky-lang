@@ -57,7 +57,7 @@ import System.Environment(getProgName)
 import Text.Read(readMaybe)
 
 -- Local modules
-import Position
+import Position(Position, fmtPosition, noPos)
 
 -------------------------------------------------------------------------------------------------------
 --  Cxt - The interpreter execution context

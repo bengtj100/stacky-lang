@@ -20,15 +20,21 @@ module Parser(
              ) where
 
 -- System modules
-import Data.Char
+import Data.Char(isAlphaNum)
+import Data.List(sortBy)
 
 -- Base modules
-import CoreTypes
+import CoreTypes(Env, Error, Result, Value(..))
 import Position
 
 -- Local modules
-import ParseLib
-import Lexer
+import ParseLib(Parser,   runP,
+                          ok, failure, satisfy, atEOF, expErr, cut,
+                          ap, chk, (<||>),
+                          anyOf, many,
+                Reporter, report)
+    
+import Lexer(PosTok, TokType(..), mylexer)
 
 -------------------------------------------------------------------------------------------------------
 --  Error reporters
@@ -143,11 +149,23 @@ parse bis fname str = do (res, _) <- runParser bis pLang fname str
 runParser :: Env -> Parser PosTok Error a -> String -> String -> Either Error (a, [PosTok])
 runParser bis p fname inp =
     let
-        ops = [ op | bi <- bis
-                   , let op = fst bi
-                   , not (isAlphaNum (head op))]
+        ops = sortByLen [ op | bi <- bis
+                             , let op = fst bi
+                             , not (isAlphaNum (head op))]
     in
         runP p defaultRep $ mylexer ops fname inp
+
+--
+-- Sort a list of strings on their lenghts. Longest first.
+-- This way "++" will be parsed as one token and not two "+".
+--
+sortByLen :: [String] -> [String]
+sortByLen = sortBy longestFirst
+            where longestFirst s1 s2 | l1 > l2   = LT
+                                     | l1 < l2   = GT
+                                     | otherwise = EQ
+                                     where l1 = length s1
+                                           l2 = length s2
 
 -------------------------------------------------------------------------------------------------------
 --  General helper functions
