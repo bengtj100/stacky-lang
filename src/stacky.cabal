@@ -87,7 +87,13 @@ executable stacky
         MissingH ^>=1.6.0.1
         
     -- Directories containing source files.
-    hs-source-dirs:   .
-
+    hs-source-dirs:
+      .
+      ./base
+      ./frontend
+      ./generated
+      ./interpreter
+      ./main
+      
     -- Base language which the package is written in.
     default-language: Haskell2010
