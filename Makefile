@@ -56,7 +56,7 @@ build:  tags $(VERSION_FILE)
 
 run: build
 	@echo ">>>>>>>>>>>>    Running executable '$(shell basename $(EXECUTABLE))'..."
-	@$(EXECUTABLE) $(EXE_ARGS)
+	$(EXECUTABLE) $(EXE_ARGS)
 
 ## ----------------------------------------------------------------------------------------------------
 

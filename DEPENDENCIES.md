@@ -18,6 +18,7 @@ These are the dependences you need to meet to build the interpreter using `make 
 | Cabal | split          | 0.2.5    | `split`          |                          |
 | Cabal | raw-strings-qq | 1.1      | `raw-strings-qq` |                          |
 | Cabal | MissingH       | 1.6.0.1  | `MissingH`       |                          |
+| Cabal | directory      | 1.3.8.5  | directory        |                          |
 
 ### Other dependencies
 
@@ -25,7 +26,6 @@ These are the dependences you need to meet to build the interpreter using `make 
 |:----:|:--------:|:-----------------------:|:------------------------|:---------|
 | DNF  | Pandoc   | 3.1.3                   | `pandoc`                |          |
 | DNF  | PdfLaTeX | 3.141592653-2.6-1.40.25 | `texlive texlive-latex` |          |
-|      |          |                         |                         |          |
 
 ## Run-time dependencies
 

@@ -18,11 +18,6 @@ module Repl (
              runPrelude             
             ) where
 
--- System modules
-import Data.List(intercalate)
-import Data.List.Utils(split)
-import System.Environment(getExecutablePath)
-
 -- Base modules
 import InputOutput(getLines)
 
@@ -42,6 +37,7 @@ import FrontEnd(parseLine)
 
 -- Local modules
 import CommandLine(CmdRes(..))
+import LibraryPath(loadLibPath, findLibModule)
 
 -------------------------------------------------------------------------------------------------------
 --  repl - The read, eval, print loo of the interpreter
@@ -99,7 +95,7 @@ handleError cxt err =
 runPrelude :: CmdRes -> IO (Maybe Cxt)
 runPrelude opts =
     do let cxt =  initCxt builtIns
-       prl     <- makePrelude opts
+       prl     <- makePrelude cxt opts
        result  <- interpreter cxt prl
        case result of
            Left  err  -> do printError err
@@ -112,43 +108,28 @@ runPrelude opts =
 --   2) It imports the Prelude.sy module
 --   3) Execute any previously defined otions. (--eval or module names)
 --
-makePrelude :: CmdRes -> IO [Value]
-makePrelude opts =
-    do
-        (exePath,exeName) <- splitExecutableDir
-        let path = if (preludeFile opts) == "" then
-                       exePath ++ "/../lib/" ++ exeName ++ "/Prelude.sy"
-                   else
-                       preludeFile opts
-        let isInteractive =
-                setDef "isInteractive" $ ValInt noPos (if interactive opts then 1 else 0)
-        return $ isInteractive ++ [ValString noPos path, ValAtom noPos "import"] ++ prelude opts
+makePrelude :: Cxt -> CmdRes -> IO [Value]
+makePrelude cxt opts =
+    do cxt1 <- loadLibPath (incPrePaths opts) (incAppPaths opts) cxt
+       path <- makePreludePath (preludeFile opts) cxt1
+       let isInteractive = setDef "isInteractive" $ ValInt noPos (if interactive opts then 1 else 0)
+       return (isInteractive
+               ++ [ValString noPos path, ValAtom noPos "import"]
+               ++ prelude opts)
 
+makePreludePath :: String -> Cxt -> IO String
+makePreludePath name cxt =
+    do let name' = if name == "" then "Prelude" else name
+       modRes <- findLibModule name' cxt
+       case modRes of
+           Nothing   -> error "ERROR: No Prelude file found at specified location(s)"
+           Just path -> return path
+    
 --
 -- Create a variable definition
 --
 setDef :: String -> Value -> [Value]
 setDef name val = [val, ValAtom noPos "'", ValAtom noPos name, ValAtom noPos ";"]
-
---
--- Find the directory the executable is located in
---
--- Similar to BASH: dirname "$0"
---
-splitExecutableDir :: IO (String, String)
-splitExecutableDir =
-    do path <- getExecutablePath
-       return $ splitDirname path
-
---
--- Split a path into the executable file's name and leading path. Much
--- like `dirname` and `basename` in BASH.
---
-splitDirname :: String -> (String, String)
-splitDirname path = (dirName, exeName)
-              where dirName = intercalate "/" $ init parts 
-                    exeName = last parts
-                    parts   = split "/" path
 
 -------------------------------------------------------------------------------------------------------
 --  That's all folks!!
