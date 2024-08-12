@@ -43,10 +43,12 @@ import Version(build, gitTag, version)
 -- needs to be passed on to the rest of the program.
 --
 
-data CmdRes = CmdRes{ interactive :: Bool,       -- True = Interactive mode. Run the REPL
-                      prelude     :: [Value],    -- Operations to run as the prelude.
-                      preludeFile :: String }    -- Name of the Prelude file.
-
+data CmdRes = CmdRes{ interactive :: Bool      -- True = Interactive mode. Run the REPL
+                    , prelude     :: [Value]   -- Operations to run as the prelude.
+                    , preludeFile :: String    -- Name of the Prelude file.
+                    , incPrePaths :: [String]  -- List of paths to prepend to STACKY_INCLUDE_PATH
+                    , incAppPaths :: [String]  -- List of paths to append to STACKY_INCLUDE_PATH
+                    }
 -------------------------------------------------------------------------------------------------------
 
 --
@@ -89,50 +91,60 @@ data CmdArgs = CmdArg CmdRes    -- Collected options for the interpreter
 -- Initialize a normal instance of CmdArgs
 --
 newCmdArgs :: CmdArgs
-newCmdArgs = CmdArg CmdRes{interactive = True, prelude = [], preludeFile = ""}
+newCmdArgs = CmdArg CmdRes{ interactive = True
+                          , prelude     = []
+                          , preludeFile = ""
+                          , incPrePaths = []
+                          , incAppPaths = []
+                          }
+
+makeCA :: (CmdRes -> CmdRes) -> CmdArgs -> CmdArgs
+makeCA f (CmdArg res) = CmdArg $ f res
+makeCA _ _            = error "INTERNAL ERROR in CommandLine.makeCmdArgs"
 
 --
 -- Add commands to the prelude string to eval a string of code.
 --
-makeEval :: CmdArgs -> String -> CmdArgs
-makeEval (CmdArg res@(CmdRes{prelude = p})) code =
-    CmdArg res{prelude = p ++ [ValString noPos code, ValAtom noPos "eval"]}
-makeEval _ _ =
-    error "INTERNAL ERROR in CommandLine.makeEval"
+makeEval :: String -> CmdArgs -> CmdArgs
+makeEval code = makeCA $ \res@CmdRes{prelude = p} ->
+                   res{prelude = p ++ [ValString noPos code, ValAtom noPos "eval"]}
 
 --
 -- Add commands to the prelude string to import a module.
 --
-makeImport :: CmdArgs -> String -> CmdArgs
-makeImport (CmdArg (res@CmdRes{prelude = p})) fName
-    = CmdArg res{prelude = p ++ [ValString noPos fName, ValAtom noPos "import"]}
-makeImport _ _ =
-    error "INTERNAL ERROR in CommandLine.makeImport"
+makeImport :: String -> CmdArgs -> CmdArgs
+makeImport fName = makeCA $ \res@CmdRes{prelude = p} ->
+                       res{prelude = p ++ [ValString noPos fName, ValAtom noPos "import"]}
 
 --
 -- Set the name of the prelude file to load the prelude from.
 --
-makePrelude :: CmdArgs -> String -> CmdArgs
-makePrelude (CmdArg res) fName =
-    CmdArg res{preludeFile = fName}
-makePrelude _ _ =
-    error "INTERNAL ERROR in CommandLine.makePrelude"
+makePrelude :: String -> CmdArgs -> CmdArgs
+makePrelude fName = makeCA $ \res -> res{preludeFile = fName}
 
+--
+-- Prepend path to STACKY_INCLUDE_PATH
+--
+makeIncPrePaths :: String -> CmdArgs -> CmdArgs
+makeIncPrePaths pre = makeCA $ \res@CmdRes{incPrePaths = pres} -> res{incPrePaths = pre : pres}
+
+--
+-- Append path to STACKY_INCLUDE_PATH
+--
+makeIncAppPaths ::  String -> CmdArgs ->CmdArgs
+makeIncAppPaths app = makeCA $ \res@CmdRes{incAppPaths = apps} -> res{incAppPaths = apps ++ [app]}
+    
 --
 -- Set/reset the interactive flag.
 --
-makeInteractive :: CmdArgs -> Bool -> CmdArgs
-makeInteractive (CmdArg res) i =
-    CmdArg res{interactive = i}
-makeInteractive _ _ =
-    error "INTERNAL ERROR in CommandLine.makeInteractive"
+makeInteractive :: Bool -> CmdArgs -> CmdArgs
+makeInteractive i = makeCA $ \res -> res{interactive = i}
 
 --
 -- Raise an error due to an unknown option.
 --
 unknownOptError :: String -> CmdArgs
-unknownOptError str =
-    CmdError ("Undefined option: '" ++ str ++ "'")
+unknownOptError str = CmdError ("Undefined option: '" ++ str ++ "'")
 
 --
 -- Raise an error due to too few arguments to an option.
@@ -150,17 +162,19 @@ tooFewArgsError opt expArgs actArgs =
 --
 parseArgs :: [String] -> CmdArgs -> CmdArgs
 parseArgs (opt : code : args) cargs
-    | opt `elem` ["--eval", "-e"]        = parseArgs args $ makeEval cargs code
-    | opt `elem` ["--prelude"]           = parseArgs args $ makePrelude cargs code
+    | opt `elem` ["--eval", "-e"]        = parseArgs args $ makeEval code cargs
+    | opt `elem` ["--prelude"]           = parseArgs args $ makePrelude code cargs
+    | opt `elem` ["-IA"]                 = parseArgs args $ makeIncAppPaths code cargs
+    | opt `elem` ["-IP"]                 = parseArgs args $ makeIncPrePaths code cargs
 parseArgs [opt] _
     | opt `elem` ["--eval", "-e"]        = tooFewArgsError opt 1 0
 parseArgs (opt : args) cargs
-    | opt `elem` ["--interactive", "-i"] = parseArgs args $ makeInteractive cargs True
-    | opt `elem` ["--batch",       "-b"] = parseArgs args $ makeInteractive cargs False
+    | opt `elem` ["--interactive", "-i"] = parseArgs args $ makeInteractive True  cargs
+    | opt `elem` ["--batch",       "-b"] = parseArgs args $ makeInteractive False cargs
     | opt `elem` ["--version"          ] = CmdVersion
     | opt `elem` ["--help",        "-h"] = CmdUsage
 parseArgs (err@('-':_) : _   ) _          = unknownOptError err
-parseArgs (fName       : args) cargs      = parseArgs args $ makeImport cargs fName
+parseArgs (fName       : args) cargs      = parseArgs args $ makeImport fName cargs
 parseArgs []                   cargs      = cargs
 
 -------------------------------------------------------------------------------------------------------
@@ -191,6 +205,9 @@ Where option is one of:
 --batch, -b                 Run in batch mode, i.e., terminate once all modules are loaded.
 
 --prelude <path>            Load the prelude from <path> instead of the default location.
+
+-IA <path>                  Append <path> to STACKY_INCLUDE_PATH.
+-IP <path>                  Prepend <path> to STACKY_INCLUDE_PATH.
 
 --version                   Print the current version and terminate.
 

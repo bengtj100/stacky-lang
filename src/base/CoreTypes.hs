@@ -63,10 +63,16 @@ import Position(Position, fmtPosition, noPos)
 --  Cxt - The interpreter execution context
 -------------------------------------------------------------------------------------------------------
 
-data Cxt = Cxt{ stack :: Stack, envs :: [Env] }
+data Cxt = Cxt{ stack :: Stack
+              , envs  :: [Env]
+              , incPath :: [String]
+              }
 
 initCxt :: Env -> Cxt
-initCxt initEnv = Cxt{stack = newStack, envs = [newEnv ++ initEnv]}
+initCxt initEnv = Cxt{ stack = newStack
+                     , envs = [newEnv ++ initEnv]
+                     , incPath = []
+                     }
 
 
 -------------------------------------------------------------------------------------------------------
