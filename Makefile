@@ -27,7 +27,7 @@ PROJECT            = stacky
 CABAL_FILE         = $(SRC)/$(PROJECT).cabal
 
 EXECUTABLE         = $(shell $(CABAL) list-bin $(PROJECT))
-EXE_ARGS           = --prelude $(PRELUDE)/Prelude.sy
+EXE_ARGS           = -IA $(PRELUDE)
 
 HASKTAGS           = cd $(SRC) && ~/.cabal/bin/hasktags
 HASKTAGS_ARGS      = -e .
