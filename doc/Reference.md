@@ -1587,7 +1587,7 @@ Digits           <-- [0-9]+
 Fraction         <-- '.' Digits
 Exponent         <-- [eE] [+-]? Digits
 
-Atom             <-- [a-zA-Z] [a-zA-Z0-9_]*
+Atom             <-- [a-zA-Z_] [a-zA-Z0-9_]*
                  <-- BuiltIn-Operator
 
 String           <-- '"' Character* '"'

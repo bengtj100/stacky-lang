@@ -92,7 +92,7 @@ integer    =      ok (++)                    `ap` cond (symbol '-') `ap` digits
 float      =      ok (\i f e -> i++f++e)     `ap` integer `ap` fraction `ap` optP [] expon
              <||> ok (++)                    `ap` integer `ap` expon
 
-ident ops  =      ok (:)                     `ap` satisfy isAlpha `ap` takeMany isAlphaNum
+ident ops  =      ok (:)                     `ap` satisfy isAlpha_ `ap` takeMany isAlphaNum_
              <||>                            matchSet ops
 
 operation  =                                 matchSet specialOps
@@ -112,6 +112,18 @@ comment    =      ok (:)                     `ap` symbol '`' `ap` takeMany (/='\
 
 strRep :: Reporter Char LexError
 strRep _ =  "Missing end quote ('\"') in string"
+
+--
+-- Helpers that define character classes
+--
+isAlpha_, isAlphaNum_, is_ :: Char -> Bool
+
+is_ '_' = True
+is_ _   = False
+
+isAlpha_ c = isAlpha c || is_ c
+
+isAlphaNum_ c = isAlphaNum c || is_ c
 
 -------------------------------------------------------------------------------------------------------
 --  Definition of the lexeme recognizer
