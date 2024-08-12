@@ -89,7 +89,7 @@ splitParts = wordsBy (==':')
 makeDefaultPrelPath :: IO String
 makeDefaultPrelPath =
     do (pHome, pName) <- splitExecutableDir
-       let prelude = pHome ++ "/../lib/" ++ pName
+       let prelude = pHome ++ "/../lib/" ++ pName ++ "/prelude"
        return $ prelude
 
 --

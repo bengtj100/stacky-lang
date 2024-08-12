@@ -47,7 +47,7 @@ function getExecutable
 {
     (
         cd "$SRC_DIR";
-	${CABAL} list-bin "$PROJECT";
+        ${CABAL} list-bin "$PROJECT";
     )
 }
 
@@ -93,9 +93,8 @@ function copyLibFiles
 {
     message "Copying lib files to release"
     local libDir="$THIS_RELEASE/lib/${PROJECT}"
-    local preludeFile="${PRELUDE}/Prelude.sy"
     mkdir -p "${libDir}"
-    cp -p "${preludeFile}" "${libDir}/"
+    cp -pPr "${PRELUDE}/" "${libDir}/"
 }
 
 ## ----------------------------------------------------------------------------------------------------

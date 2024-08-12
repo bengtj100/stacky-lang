@@ -686,7 +686,7 @@ findModule :: String -> Position -> Cxt -> (String -> IO (Result a)) -> IO (Resu
 findModule name pos cxt handler =
     do res <- findLibModule name cxt
        case res of
-           Nothing   -> return $ newErrPos pos $ "import cannot find file for: '"++name++"'"
+           Nothing   -> return $ newErrPos pos ("import cannot find file for: '"++name++"' "++show (libPath cxt))
            Just path -> handler path
 
 
