@@ -45,6 +45,8 @@ import Position(Position(..),   noPos)
 
 import InputOutput(getLines)
 
+import LibraryPath(findLibModule)
+
 -- Interpreter modules
 import Interpreter(defApply, runValues, runLocalValues)
 
@@ -666,15 +668,27 @@ defEval = ValOp noPos "eval" $ \cxt@Cxt{stack = s0} ->
 defImport :: Value
 defImport = ValOp noPos "import" $ \cxt@Cxt{stack = s0} ->
           case s0 of
-              (ValString p fName) : s1 ->
-                  do res <- readTheFile p fName
-                     ifOk res (\str ->
-                               do let parseRes = parseFile builtIns fName str
-                                  ifOk parseRes (\cmds -> runValues cxt{stack = s1} cmds))
+              (ValString p name) : s1 ->
+                  findModule name p cxt $ \path ->
+                      do res  <- readTheFile p path
+                         ifOk res (\str ->
+                                    do let parseRes = parseFile builtIns path str
+                                       ifOk parseRes (\cmds -> runValues cxt{stack = s1} cmds))
               other : _ ->
                   return $ typeError1 other "import" "a string file path" other
               _ ->
                   return $ stackUnderflowError ValNoop "readFile"
+
+--
+-- Locate the file for the module and report an error if not found
+--
+findModule :: String -> Position -> Cxt -> (String -> IO (Result a)) -> IO (Result a)
+findModule name pos cxt handler =
+    do res <- findLibModule name cxt
+       case res of
+           Nothing   -> return $ newErrPos pos $ "import cannot find file for: '"++name++"'"
+           Just path -> handler path
+
 
 -------------------------------------------------------------------------------------------------------
 

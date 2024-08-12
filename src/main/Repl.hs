@@ -37,7 +37,7 @@ import FrontEnd(parseLine)
 
 -- Local modules
 import CommandLine(CmdRes(..))
-import LibraryPath(loadLibPath, findLibModule)
+import LibraryPath(loadLibPath)
 
 -------------------------------------------------------------------------------------------------------
 --  repl - The read, eval, print loo of the interpreter
@@ -88,15 +88,17 @@ handleError cxt err =
 
 --
 -- This is the entry point. It:
---   1) Creates a list of commands to evaluate
---   2) Runs the interpreter on that list
---   3) Hands the updated Context to the caller
+--   1) Initializes the context w.r.t. load paths
+--   2) Creates a list of commands to evaluate
+--   3) Runs the interpreter on that list
+--   4) Hands the updated Context to the caller
 --
 runPrelude :: CmdRes -> IO (Maybe Cxt)
 runPrelude opts =
-    do let cxt =  initCxt builtIns
-       prl     <- makePrelude cxt opts
-       result  <- interpreter cxt prl
+    do let cxt0 =  initCxt builtIns
+       cxt      <- loadLibPath (incPrePaths opts) (incAppPaths opts) cxt0
+       prl      <- makePrelude opts
+       result   <- interpreter cxt prl
        case result of
            Left  err  -> do printError err
                             return $ Nothing
@@ -108,22 +110,14 @@ runPrelude opts =
 --   2) It imports the Prelude.sy module
 --   3) Execute any previously defined otions. (--eval or module names)
 --
-makePrelude :: Cxt -> CmdRes -> IO [Value]
-makePrelude cxt opts =
-    do cxt1 <- loadLibPath (incPrePaths opts) (incAppPaths opts) cxt
-       path <- makePreludePath (preludeFile opts) cxt1
-       let isInteractive = setDef "isInteractive" $ ValInt noPos (if interactive opts then 1 else 0)
-       return (isInteractive
+makePrelude :: CmdRes -> IO [Value]
+makePrelude opts =
+    let name          = preludeFile opts
+        path          = if name == "" then "Prelude" else name
+        isInteractive = setDef "isInteractive" $ ValInt noPos (if interactive opts then 1 else 0)
+    in return (isInteractive
                ++ [ValString noPos path, ValAtom noPos "import"]
                ++ prelude opts)
-
-makePreludePath :: String -> Cxt -> IO String
-makePreludePath name cxt =
-    do let name' = if name == "" then "Prelude" else name
-       modRes <- findLibModule name' cxt
-       case modRes of
-           Nothing   -> error "ERROR: No Prelude file found at specified location(s)"
-           Just path -> return path
     
 --
 -- Create a variable definition
