@@ -7,7 +7,7 @@
   - Extension of atoms to allow the first character to be an underscore.
 * Added STACKY_LIBRARY_PATH and options to control where the Prelude file(s) are loaded from.
 * Added support for multiple prelude files to install and release scripts and Makefile.
-
+* Added `__POS__` meta operation that can be used to report current position in a file.
 ## 0.2.2 -- 2024-08-11
 
 * **MAJOR BUG FIX!** The append operation will now be parsed as "++" and not two "+" as in version 0.2.1

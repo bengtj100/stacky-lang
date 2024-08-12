@@ -1249,9 +1249,11 @@ As of now, there are no operations for *type introspection*, but such will be ad
 | [`env`](#the-env-operation)                 | Prints a list of all defined names on stdout.                               |
 | [`typeOf`](#the-typeof-operation)           | Returns a string representing the type of the value on the top of the stack |
 | [`typeInfo`](#the-typeinfo-operation)       | Returns information about the type of the top element.                      |
-| [`expectType`](#The-expecttype-operation)   | Throws an error if the top element does not match a description.            |
-| [`expectDepth`](#The-expectdepth-operation) | Throws an error if the depth of the stack is insufficient.                  |
-| [`throw`](#The-throw-operation)             | Unconditionally throws an error with supplied message.                      |
+| [`expectType`](#the-expecttype-operation)   | Throws an error if the top element does not match a description.            |
+| [`expectDepth`](#the-expectdepth-operation) | Throws an error if the depth of the stack is insufficient.                  |
+| [`throw`](#the-throw-operation)             | Unconditionally throws an error with supplied message.                      |
+| [`__POS__`](#the-pos-operation)             | Meta operation that reports current position in the source file             |
+
 
 #### The apply operation
 
@@ -1506,36 +1508,25 @@ ERROR: Operation 'foo' expects a value of type 'atom(1,2)', got '42 : integer(1)
 
 #### The `expectDepth` operation
 
-This operation tests the top element against a type specification. If the type of the element matches, it keeps the element on the stack, but if there is a mismatch an error occurs.
+This operation tests the minimum depth of the stack against a specification. If the stack is at least *n* elements deep it removes the description and succeeds, but if there is a mismatch an error occurs.
 
 ```
-             [ val [type:string minSize:integer maxSize:integer] <] ---> [ val <]
-expectType : or
-             [ val [type:string minSize:integer maxSize:integer name:string] <] ---> [ val <]
+              [ [depth:integer name:string] <] ---> [  <]
+expectDepth : or
+              [ [depth:integer] <] ---> [  <]
 ```
-
-**NOTE:** The size parameters must be present even if the type is size-less, like an integer. In such case any values *m* and *n*, such that *m <= 1 < n* will work. Furthermore an infinite upper range is denoted by *-1*, so `["list 5 -1]` means any list with five or more elements.
 
 If the *name* parameter is provided, the error message will contain the name which is useful when debugging error messages.
 
 Examples:
 
 ```
-> "Hello" ["string" 0 -1] expectType
-[ "Hello" <]
-> ["string" 4 7] expectType
-[ "Hello" <]
-> ["string" 8 -1] expectType
-ERROR: Operation 'expectType' expects a value of type 'string(8,-1)', got '"Hello" : string(5)'
-> clear
-[  <]
-> 42 ["integer" 1 2] expectType
-[ 42 <]
-> ["atom" 1 2] expectType
-ERROR: Operation 'expectType' expects a value of type 'atom(1,2)', got '42 : integer(1)'
-> 42 ["atom" 1 2 "foo"] expectType
-ERROR: Operation 'foo' expects a value of type 'atom(1,2)', got '42 : integer(1)'
-
+> clear 1 2 3
+[ 1 2 3 <]
+> [3] expectDepth
+[ 1 2 3 <]
+> [4 "foo"] expectDepth
+-:0:10: ERROR: Stack underflow in operation: 'foo'
 ```
 
 #### The `throw` operation
@@ -1552,6 +1543,14 @@ Example:
 > ["This is an error" "foo"] throw
 ERROR: In 'foo': This is an error
 > 
+```
+
+#### The `__POS__` operation
+
+This is a meta operation that is replaced with the actual position in the source file. It returns a list with the file-name, the line and character in the file.
+
+```
+__POS__ : [ <] --> [ [fname:string line:integer char:integer] <]
 ```
 
 ## Syntax description

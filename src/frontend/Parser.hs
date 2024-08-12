@@ -106,7 +106,14 @@ pLexErr = expErr (pType ERROR) $ cut (report lexErrRep failure)
 
 mkList :: Parser PosTok Error (PosTok -> [Value] -> Value)
 mkList = ok (\(p, _, _) xs -> ValList p xs)
-         
+
+mkPos :: Parser PosTok Error (PosTok -> Value)
+mkPos = ok (\(p, _, _) -> ValList p [ValString p $ fileName p,
+                                     ValInt p $ toInteger $ linePos p,
+                                     ValInt p $ toInteger $ charPos p])
+        
+pPos       = mkPos                   `ap` pMatch Ident "__POS__"
+
 pInt       = ok (val read ValInt)    `ap` pType NumInt
 
 pFloat     = ok (val read ValFloat)  `ap` pType NumFloat
@@ -121,7 +128,7 @@ pList      = mkList                  `ap`  pMatch Op "["
                                      `ap`  pCmds
                                      `chk` cut (report listRep (pMatch Op "]"))
 
-pCmd       = anyOf [pList, pInt, pFloat, pStr, pAtom, pInhibitor, pLexErr]
+pCmd       = anyOf [pPos, pInt, pFloat, pStr, pAtom, pInhibitor, pList, pLexErr]
 
 pCmds      = many pCmd
 
