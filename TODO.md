@@ -41,7 +41,7 @@
 | 23a | Script and build functiontinality to genreated release tar-balls      | In v0.1          |
 | 23b | Build server/container to build using Ubuntu 22.04 for compatibility. | In v0.1          |
 |     |                                                                       |                  |
-| 24  | Add a horizontal stack layout                                         | Planned for v0.2 |
+| 24  | Add a vertical stack layout                                           | Planned for v0.2 |
 
 
 ## DONE
