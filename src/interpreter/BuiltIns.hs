@@ -119,7 +119,7 @@ builtIns =
 
                -- Reflection/introspection operations
                defApply, defApplyList, defEval, defImport, defEnv, defTypeOf,
-               defTypeInfo, defExpectType, defExpectDepth, defThrow
+               defTypeInfo, defExpectType, defExpectDepth, defThrow, defCatch
               ]
 
 -------------------------------------------------------------------------------------------------------
@@ -881,6 +881,29 @@ defThrow =
 
 mk_pos :: String -> Integer -> Integer -> Position
 mk_pos fn l c = mkPos fn (fromInteger l) (fromInteger c)
+
+-------------------------------------------------------------------------------------------------------
+
+defCatch :: Value
+defCatch =
+    ValOp noPos "catch" $ \cxt@Cxt{stack = s0} ->
+           case s0 of
+            catchClause : tryClause : s1 ->
+                do res <- runValues cxt{stack = s1} [tryClause, defApply]
+                   case res of
+                       Right cxt' ->
+                           return $ Right cxt'
+                       Left (pos, msg) ->
+                           do let s2 = [ValString pos msg, pos2val pos] ++ s1
+                                  cs = [catchClause, defApply]
+                              runValues cxt{stack = s2} cs
+            _ ->
+                return $ stackUnderflowError ValNoop "catch"
+
+pos2val :: Position -> Value
+pos2val pos = ValList pos [ValString pos (fileName pos),
+                           ValInt    pos (toInteger $ linePos pos),
+                           ValInt    pos (toInteger $ charPos pos)]
 
 -------------------------------------------------------------------------------------------------------
 --  Local helper functions

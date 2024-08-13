@@ -1259,6 +1259,7 @@ As of now, there are no operations for *type introspection*, but such will be ad
 | [`expectType`](#the-expecttype-operation)   | Throws an error if the top element does not match a description.            |
 | [`expectDepth`](#the-expectdepth-operation) | Throws an error if the depth of the stack is insufficient.                  |
 | [`throw`](#the-throw-operation)             | Unconditionally throws an error with supplied message.                      |
+| [`catch`](#the-catch-operation)             | Catches and handles run-time errors.                                        |
 | [`__POS__`](#the-pos-operation)             | Meta operation that reports current position in the source file             |
 
 
@@ -1554,6 +1555,31 @@ Example:
 > ["This is an error" "foo"] throw
 ERROR: In 'foo': This is an error
 > 
+```
+
+#### The `catch` operation
+
+This catches run-time errors in the code and presents them on the stack for a handler to process.
+
+```
+catch : [ catchClause tryClause <] ---> [ ... <]
+```
+
+The try clause must fulfil:
+
+```
+catchClause : [ position msg:string <] ---> [ ... <]
+```
+
+$position$$ is a file position as returned by `__POS__`
+
+Example:
+
+```
+> clear [ 1 0 / ] [] catch
+[ ["" 0 10] "Division by zero" <]
+> clear [ 1 1 /] [] catch
+[ 1 <]
 ```
 
 #### The `__POS__` operation

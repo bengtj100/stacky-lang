@@ -10,6 +10,7 @@
 * Added `__POS__` meta operation that can be used to report current position in a file.
 * Added 'Division by zero error' to the interpreter and constants for floating point infinity.
 * Added the `global` operation that stashes values in the global scope.
+* Added the `catch` operation to handle run-time errors.
 
 ## 0.2.2 -- 2024-08-11
 
