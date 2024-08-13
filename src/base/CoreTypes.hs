@@ -16,8 +16,9 @@ module CoreTypes (
 
                   ---- Env ----
                   Env,
-                  insertEnv,
+                  insertEnv, insertEnvGlobal,
                   lookupEnv,
+                  pushLocal, popLocal,
 
                   ---- Stack ----
                   Stack,
@@ -77,19 +78,48 @@ initCxt initEnv = Cxt{ stack = newStack
 
 type Env = [(Name, Value)]
 
+-------------------------------------------------------------------------------------------------------
+
 newEnv :: Env
 newEnv = []
 
+-------------------------------------------------------------------------------------------------------
+
 insertEnv :: Cxt -> Name -> Value -> Result Cxt
-insertEnv Cxt{envs = env:_} key _ | key `elem` map fst env =
-    newError ValNoop $ "Redefining name: '" ++ key ++ "'"
-insertEnv cxt@Cxt{envs = env:es} key val =
-    Right $ cxt{envs=((key, val) : env) : es}
-insertEnv _ _ _ = error "INSERTENV CALLED WITH EMPTY ENV STACK! THIS SHOULD NEVER HAPPEN!"
-    
+insertEnv cxt@Cxt{envs = e : es} key val =
+    do e' <- insertToEnv e key val
+       return $ cxt{envs = e' : es}
+insertEnv _ _ _ =
+    error "INSERTENV CALLED WITH EMPTY ENV STACK! THIS SHOULD NEVER HAPPEN!"
+
+insertEnvGlobal :: Cxt -> Name -> Value -> Result Cxt
+insertEnvGlobal cxt@Cxt{envs = es0@(_:_)} key val =
+    do e' <- insertToEnv e key val
+       return $ cxt{envs = es ++ [e']}
+    where es = init es0
+          e  = last es0
+insertEnvGlobal _ _ _ =
+    error "INSERTENVGLOBAL CALLED WITH EMPTY ENV STACK! THIS SHOULD NEVER HAPPEN!"
+
+insertToEnv :: Env -> Name -> Value -> Result Env
+insertToEnv env key _   | key `isIn` env = newError ValNoop $ "Redefining name: '" ++ key ++ "'"
+insertToEnv env key val                  = Right $ (key, val) : env
+
+isIn :: Name -> Env -> Bool
+isIn key env = key `elem` map fst env
+
+-------------------------------------------------------------------------------------------------------
 
 lookupEnv :: Cxt -> Name -> Maybe Value
 lookupEnv Cxt{envs = es} key = lookup key (concat es)
+
+-------------------------------------------------------------------------------------------------------
+
+pushLocal :: Cxt -> Cxt
+pushLocal cxt@Cxt{envs = es} = cxt{envs = [] : es}
+
+popLocal :: Cxt -> Cxt
+popLocal cxt@Cxt{envs = es} = cxt{envs = tail es}
 
 -------------------------------------------------------------------------------------------------------
 --  Stack - The main evaluation stack

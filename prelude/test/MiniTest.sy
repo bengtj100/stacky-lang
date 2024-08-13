@@ -11,6 +11,12 @@ located in the top directory of said project.
 
 ## Introduction
 
+## Begin Guard
+
+```
+['defined 
+```
+
 ## Operations
 
 ### `assert`

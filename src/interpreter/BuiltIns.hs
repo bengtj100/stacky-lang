@@ -34,7 +34,7 @@ import Text.Read(readMaybe)
 import Control.Exception(catch)
 
 -- Base modules
-import CoreTypes(Cxt(..), insertEnv,
+import CoreTypes(Cxt(..), insertEnv, insertEnvGlobal,
                  Env,
                  Name,
                  Result,        ifOk, stackUnderflowError, typeError1, typeError2, newErrPos,
@@ -101,7 +101,7 @@ builtIns =
                defBinBoolOp "or" (||),
 
                -- Control operations
-               defStash, defCond,
+               defStash, defGlobal, defCond,
 
                -- Stack operations
                defDrop,  defSwap,  defRot,  defLRot,  defOver,  defDup, defClear, defDepth,
@@ -283,14 +283,24 @@ boolBinOp _ f v1 v2 = Right $ bool2Truth (getValPos v1) $ f (truth2Bool v1) (tru
 -------------------------------------------------------------------------------------------------------
 
 defStash :: Value
-defStash = defOp ";" $ \cxt@Cxt{stack = s0} ->
-                       case s0 of
-                           ValAtom _ key : val : s1 ->
-                               insertEnv cxt{stack = s1} key val 
-                           key : _ : _ ->
-                               typeError1 key ";" "an atom as key for" key
-                           _ ->
-                               stackUnderflowError ValNoop ";"
+defStash = stash ";" insertEnv
+
+defGlobal :: Value
+defGlobal = stash "global" insertEnvGlobal
+
+--
+-- Stash a value using the provided insert function.
+--
+stash :: Name -> (Cxt -> Name -> Value -> Result Cxt) -> Value
+stash name insert =
+    defOp name $ \cxt@Cxt{stack = s0} ->
+                 case s0 of
+                     ValAtom _ key : val : s1 ->
+                         insert cxt{stack = s1} key val 
+                     key : _ : _ ->
+                         typeError1 key name "an atom as key for" key
+                     _ ->
+                         stackUnderflowError ValNoop ";"
 
 -------------------------------------------------------------------------------------------------------
 

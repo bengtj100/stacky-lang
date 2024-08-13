@@ -24,7 +24,7 @@ module Interpreter (
                    ) where
 
 -- Base modules 
-import CoreTypes(Cxt(..),     lookupEnv,
+import CoreTypes(Cxt(..),     lookupEnv, pushLocal, popLocal,
                  Value(..),
                  Result,      ifOk,
                  Name,
@@ -95,10 +95,9 @@ defApply =
 -- is discarded upon return. This is howe get local variables.
 --
 runLocalValues :: Cxt -> [Value] -> IO (Result Cxt)
-runLocalValues cxt@Cxt{envs = es} vs =
-    do res <- runValues cxt{envs = []:es} vs
-       ifOk res $ \cxt1 ->
-           return $ Right cxt1{envs = es}
+runLocalValues cxt vs = do res <- runValues (pushLocal cxt) vs
+                           ifOk res $ \cxt1 ->
+                               return $ Right $ popLocal cxt1
 
 -------------------------------------------------------------------------------------------------------
 -- Local helper functions

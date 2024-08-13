@@ -495,9 +495,9 @@ The names that are created are immediately made available to the program.
 
 **NOTE:** Bound names can not be updated! It is similar to how names (variables) are treated in mathematics and in functional programming languages, like Haskell or Erlang.
 
-| Operation | Stack                             | Comment                    |
-|:---------:|:----------------------------------|:---------------------------|
-| `;`       | `[ value name:atom <] ---> [  <]` | *name* is bound to *value. |
+| Operation | Stack                             | Comment                     |
+|:---------:|:----------------------------------|:----------------------------|
+| `;`       | `[ value name:atom <] ---> [  <]` | *name* is bound to *value*. |
 
 Examples:
 
@@ -509,6 +509,10 @@ Examples:
 
 theAnswer square             ' Compute 42 * 42 = 1764
 ```
+
+#### The `global` operation
+
+This works exactly as the [stash operation](#the-stash-operation), but will always stash the name in the global scope.
 
 #### The `cond` operation
 
