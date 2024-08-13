@@ -147,7 +147,8 @@ valMult :: Value -> Value -> Result Value
 valMult x y = valOp "*" (*) (*) x y
 
 valDiv :: Value -> Value -> Result Value
-valDiv x y = valOp "/" div (/) x y
+valDiv _ (ValInt p 0) = newErrPos p "Division by zero"
+valDiv x y            = valOp "/" div (/) x y
 
 valRem :: Value -> Value -> Result Value
 valRem x y = valOp "/" rem floatRem x y

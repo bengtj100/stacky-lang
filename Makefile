@@ -21,7 +21,8 @@ DOC_FILES          = $(wildcard $(DOC)/*.md)
 PDF_FILES	   = $(DOC_FILES:.md=.pdf)
 PDF_FILES	  += $(DOC)/Prelude.pdf
 
-CABAL              = cd $(SRC) && ~/.cabal/bin/cabal
+SRC_FULL           = $(shell readlink -f $(SRC))
+CABAL              = cd $(SRC_FULL) && ~/.cabal/bin/cabal
 
 PROJECT            = stacky
 CABAL_FILE         = $(SRC)/$(PROJECT).cabal
@@ -50,7 +51,9 @@ all: build
 
 build:  tags $(VERSION_FILE)
 	@echo ">>>>>>>>>>>>    Building executable ..."
+	@echo 'Entering directory `'"$(SRC_FULL)'"
 	$(CABAL) build
+	@echo 'Leaving directory `'"$(SRC_FULL)'"
 
 ## ----------------------------------------------------------------------------------------------------
 

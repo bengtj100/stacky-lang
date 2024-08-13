@@ -30,6 +30,11 @@ located in the top directory of said project.
 
 1.0 exp 'euler;
 
+
+1.0  0.0 / 'PosInf;
+-1.0 0.0 / 'NegInf;
+
+PosInf 'Infinity;
 ```
 
 ## List operations
