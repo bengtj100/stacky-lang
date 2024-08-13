@@ -1535,7 +1535,11 @@ This operating throws an error, given a message and an operation's name.
 
 ```
 throw : [ [message:string name:string] <] ---> ERROR
+        or
+        [ [position message:string name:string] <] ---> ERROR
 ```
+
+$position$ is a file position as returned by `__POS__`
 
 Example:
 

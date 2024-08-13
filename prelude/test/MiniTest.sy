@@ -16,7 +16,27 @@ located in the top directory of said project.
 ### `assert`
 
 ~~~
-assert : [ description:string predicate <] --> [ <]
+assert : [ description:string predicate position <] --> [ <]
 ~~~
 ```
-43'apa;
+
+"Loading MiniTest" putLn
+
+[
+    'pred; 'desc; 'pos;
+
+    [pred]
+        [desc " .... PASS" ++ putLn]
+        [ ^pos
+          desc " : " ++ ^pred toStr ++ " .... FAIL" ++
+          "assert"
+          3 toList throw  ]
+        ?
+]'assert;
+
+```
+
+## Helpers
+
+```
+

@@ -40,7 +40,7 @@ import CoreTypes(Cxt(..), insertEnv,
                  Result,        ifOk, stackUnderflowError, typeError1, typeError2, newErrPos,
                  Value(..),     isComparable, getValPos, isSequence, valueType, valueTypeSize)
 
-import Position(Position(..),   noPos)
+import Position(Position(..),   mkPos, noPos)
 
 import InputOutput(getLines)
 
@@ -857,12 +857,19 @@ defThrow :: Value
 defThrow =
     ValOp noPos "throw" $ \Cxt{stack = s0} ->
         case s0 of
+            (ValList _ [ValList _ [ValString _ fn, ValInt _ l, ValInt _ c]
+                       ,ValString _ msg
+                       ,ValString _ name]) : _ ->
+                return $ newErrPos (mk_pos fn l c) ("In '" ++ name ++ "': " ++ msg)
             (ValList pos [ValString _ msg, ValString _ name]) : _ ->
                 return $ newErrPos pos ("In '" ++ name ++ "': " ++ msg)
             other : _ ->
-                return $ typeError1 other "throw" "a type and size description" other
+                return $ typeError1 other "throw" "an optional position, message and name" other
             _ ->
                 return $ stackUnderflowError ValNoop "throw"
+
+mk_pos :: String -> Integer -> Integer -> Position
+mk_pos fn l c = mkPos fn (fromInteger l) (fromInteger c)
 
 -------------------------------------------------------------------------------------------------------
 --  Local helper functions

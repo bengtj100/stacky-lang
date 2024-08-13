@@ -25,7 +25,7 @@ import Data.List(sortBy)
 
 -- Base modules
 import CoreTypes(Env, Error, Result, Value(..))
-import Position
+import Position(Position(..), eofPos)
 
 -- Local modules
 import ParseLib(Parser,   runP,

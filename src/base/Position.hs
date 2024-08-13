@@ -22,7 +22,7 @@
 
 module Position (
                   Position(..),
-                  initPos, eofPos,
+                  initPos, mkPos, eofPos,
                   nextPos,
                   nextPosStr,
                   incPosLine,
@@ -43,7 +43,13 @@ data Position = Pos{ fileName :: String, linePos :: Int, charPos :: Int }
 -- Initialize a position to the first character of the first line in a file.
 --
 initPos :: String -> Position
-initPos fname = Pos{fileName = fname, linePos = 0, charPos = 0}
+initPos fname = mkPos fname 0 0
+
+--
+-- Create a position from its components
+--
+mkPos :: String -> Int -> Int -> Position
+mkPos fn l c = Pos{fileName = fn, linePos = l, charPos = c}
 
 --
 -- Initialize a position to the EOF marker.
