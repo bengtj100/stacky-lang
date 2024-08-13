@@ -29,6 +29,7 @@ module BuiltIns (
 
 -- System modules
 import Data.Char(chr, ord)
+import Text.Read(readMaybe)
 
 import Control.Exception(catch)
 
@@ -37,9 +38,7 @@ import CoreTypes(Cxt(..), insertEnv,
                  Env,
                  Name,
                  Result,        ifOk, stackUnderflowError, typeError1, typeError2, newErrPos,
-                 Value(..),     valAdd, valSub, valMult, valDiv, valRem, valPow, valFloor,
-                                valFloat, valFloatFun, isComparable, getValPos, isSequence,
-                                valueType, valueTypeSize)
+                 Value(..),     isComparable, getValPos, isSequence, valueType, valueTypeSize)
 
 import Position(Position(..),   noPos)
 
@@ -133,7 +132,70 @@ builtIns =
 --
 defMath :: Name -> (Double -> Double) -> Value
 defMath name f = defUnOp name $ valFloatFun name f
-                         
+
+
+type IntOp   = Integer -> Integer -> Integer
+type FloatOp = Double  -> Double  -> Double
+
+valAdd :: Value -> Value -> Result Value
+valAdd x y = valOp "+" (+) (+) x y
+
+valSub :: Value -> Value -> Result Value
+valSub x y = valOp "-" (-) (+) x y
+
+valMult :: Value -> Value -> Result Value
+valMult x y = valOp "*" (*) (*) x y
+
+valDiv :: Value -> Value -> Result Value
+valDiv x y = valOp "/" div (/) x y
+
+valRem :: Value -> Value -> Result Value
+valRem x y = valOp "/" rem floatRem x y
+
+floatRem :: Double -> Double -> Double
+floatRem fx fy = fromIntegral (x `rem` y)
+                 where x = floor fx :: Integer
+                       y = floor fy :: Integer
+
+valPow :: Value -> Value -> Result Value
+valPow x y = valOp "pow" intPow (**) x y
+
+intPow :: Integer -> Integer -> Integer
+intPow x n | n < 1          = 1
+           | n `rem` 2 == 1 = x * intPow x (n-1)
+           | otherwise      = x2 * x2
+           where
+               x2 = intPow x (n `div` 2)
+
+valOp :: Name -> IntOp -> FloatOp -> Value -> Value -> Result Value
+valOp _    iop _   (ValInt pos x)   (ValInt _ y)   = Right $ ValInt   pos (x `iop` y)
+valOp _    _   fop (ValFloat pos x) (ValFloat _ y) = Right $ ValFloat pos (x `fop` y)
+valOp _    _   fop (ValInt pos x)   (ValFloat _ y) = Right $ ValFloat pos (fromIntegral x `fop` y)
+valOp _    _   fop (ValFloat pos x) (ValInt _ y)   = Right $ ValFloat pos (x `fop` fromIntegral y)
+valOp name _   _   vx               vy             = typeError2 vx name "numerical arguments" vx vy
+
+valFloatFun :: Name -> (Double -> Double) -> Value -> Result Value
+valFloatFun _    f (ValInt pos val)   = Right $ ValFloat pos (f $ fromIntegral val)
+valFloatFun _    f (ValFloat pos val) = Right $ ValFloat pos (f val)
+valFloatFun name _ val                = typeError1 val name "numerical argument" val
+                                      
+valFloor :: Value -> Result Value
+valFloor (ValFloat pos fval) = Right $ ValInt pos (floor fval)
+valFloor (ValInt   pos ival) = Right $ ValInt pos ival
+valFloor val                 = typeError1 val "floor" "numerical argument" val
+
+valFloat :: Value -> Result Value
+valFloat vf@(ValFloat _ _)      = Right vf
+valFloat    (ValInt   pos ival) = Right $ ValFloat pos (fromIntegral ival)
+valFloat    (ValString pos str) = Right $ ValFloat pos (fromString str)
+valFloat val                    = typeError1 val "float" "numerical or string argument" val
+
+fromString :: String -> Double
+fromString str =
+    case readMaybe str of
+        Just f -> f
+        Nothing -> 0.0
+
 -------------------------------------------------------------------------------------------------------
 
 --
