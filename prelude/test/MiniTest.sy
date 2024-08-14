@@ -29,23 +29,55 @@ assert : [ description:string predicate position <] --> [ <]
 "Loading MiniTest" putLn
 
 [
+    "" putLn
+    "Suite " swap ++ " " ++ 80 "-" __mt_left putLn 
+    clear
+    0
+] 'startSuite global
+
+[
+    "Sucessful tests: " put putLn
+    clear
+] 'endSuite global
+
+[
     'pred; 'desc; 'pos;
 
     [pred]
-        [desc " .... PASS" ++ putLn]
-        [ ^pos
-          desc " : " ++ ^pred toStr ++ " .... FAIL" ++
-          "assert"
-          3 toList throw  ]
+        [desc __mt_repPass 1 +]
+        [ ^pos desc ^pred toStr __mt_repFail]
         ?
-]'assert global
+] 'assert global
 
 ```
 
 ## Helpers
 
 ```
+[
+    " " ++
+    72 "." __mt_left
+    " PASS" ++
+    putLn
+] '__mt_repPass global
 
+[
+    toStr
+    " : " swap ++
+    ++
+    "assert" 3 toList throw
+] '__mt_repFail global
+
+[
+    'f;
+    [ [dup 0 >] [swap f ++ swap 1 - fill] [] ?]'fill;
+    fill drop
+] '__mt_fill global
+
+[
+    'f;
+    over length - f __mt_fill
+] '__mt_left global
 ```
 
 
@@ -53,4 +85,15 @@ assert : [ description:string predicate position <] --> [ <]
 
 ```
 ]?
+
+[
+    "MiniTest1" startSuite
+    __POS__ "Test success"        [1 1 =]     assert
+    __POS__ "A very long success" [123 123 =] assert
+    endSuite
+    
+    "MiniTest2" startSuite
+    __POS__ "Test failure"        [1 1 <>]    assert
+    endSuite
+]'test;
 ```
