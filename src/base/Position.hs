@@ -106,8 +106,8 @@ fmtPosition :: Position -> String
 fmtPosition EofPos               = "EOF: "
 fmtPosition p@Pos{fileName = ""} = fmtPosition p{fileName = "-"}
 fmtPosition pos                  = fileName pos ++ ":"
-                                   ++ show (linePos pos) ++ ":"
-                                   ++ show (charPos pos) ++ ": "
+                                   ++ show (1 + linePos pos) ++ ":"
+                                   ++ show (1 + charPos pos) ++ ": "
 
 -------------------------------------------------------------------------------------------------------
 --  Helper functions
