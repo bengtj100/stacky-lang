@@ -17,41 +17,150 @@ located in the top directory of said project.
 ['defined ^__MiniTest_Guard__ =] [] [ 'defined __MiniTest_Guard__ global
 ```
 
-## Operations
+## Public API Operations
 
-### `assert`
+These operations are part of the public API of MiniTest and will stay quite stable
+
+### `mt_assert` - Perform a test and report if it failed.
+
+This operation takes a position, a short description and a predicate. If the predicate evaluates to true, the test is passed, otherwise it fails with an error message.
 
 ~~~
-assert : [ description:string predicate position <] --> [ <]
+mt_assert : [ position description:string predicate <] --> [ <]
 ~~~
+
+Implementation:
+
 ```
-
-"Loading MiniTest" putLn
-
-[
-    "" putLn
-    "Suite " swap ++ " " ++ 80 "-" __mt_left putLn 
-    clear
-    0
-] 'startSuite global
-
-[
-    "Sucessful tests: " put putLn
-    clear
-] 'endSuite global
-
 [
     'pred; 'desc; 'pos;
 
     [pred]
-        [desc __mt_repPass 1 +]
-        [ ^pos desc ^pred toStr __mt_repFail]
-        ?
-] 'assert global
+        ^pred toStr
+        __mt_report
+] 'mt_assert global
+```
+
+### `mt_assertError` - Success if test subject throws an error
+
+This operation is similar to `mt_assert`, but will only succeed if the test subject fails with an error.
+
+`mt_assertError` is typically used to ensure that parameters are checked correctly in functions.
+
+~~~
+mt_assertError : [ position description:string subject <] --> [ <]
+~~~
+
+Implementation:
+
+```
+[
+    'test; 'desc; 'pos;
+
+    [test 0] [1] catch
+        "EXPECTED TO FAIL WITH ERROR! DID NOT!"
+        __mt_report
+] 'mt_assertError global
+```
+
+### `mt_suite` - Perform several tests together
+
+This operation takes several tests and runs them in order of appearance. I also counts the number of successful tests and reports that number to the user.
+
+A failed test will cause the suite to terminate but will not terminate the entire test program.
+
+~~~
+mt_suite : [ tests:list <] --> [ ... <]
+~~~
+
+Implementation:
+
+```
+[
+    'suite; 'name;
+
+    "" putLn
+    "Suite " name ++ " " ++ 80 "-" __mt_left putLn 
+
+    clear
+    0
+    [
+        suite
+        
+        "PASSED: " put
+    ]
+    [
+        swap __mt_putPos "ERROR: " put putLn
+        "ERROR: " put
+        ['yes '__mt_suite_had_errors global] [2 ndrop] catch
+    ]
+    catch
+    
+    "Sucessful tests: " put putLn
+    "" 80 "-" __mt_left putLn
+] 'mt_suite global
 
 ```
 
-## Helpers
+### `mt_conclude` 
+
+Conclude the tests and report an error if there were errors in the suites
+
+```
+[
+    "" putLn
+    "" 80 "-" __mt_left putLn
+
+    ['yes ^__mt_suite_had_errors =]
+        [
+            ["THERE WERE ERRORS IN ONE OR MORE OF THE SUITES!" "mt_conclude"] throw
+        ]
+        [
+            "ALL PASS" putLn
+        ]
+        ?
+
+    "" 80 "-" __mt_left putLn
+    "" putLn
+] 'mt_conclude global
+```
+
+## Local helper operations
+
+Operations that are local to the MiniTest module.
+
+**NOTE:** Do not call these from outside the module, since they may change from one minor version to another without warning!
+
+### Reporting helpers
+
+#### `__mt_report`
+
+Report PASS or FAIL according to the result of executing the predicate.
+
+~~~
+__mt_report : [ predResult:truthiness predStr:string <] --> [ .. <]
+~~~
+
+```
+[
+    'predStr;
+    `Evaluated predicate already on the stack
+        [
+            desc __mt_repPass
+            __mt_clear
+            1 +
+        ]
+        [
+            ^pos desc predStr __mt_repFail
+        ]
+        ?
+   
+] '__mt_report global
+```
+
+#### `__mt_repPass`
+
+Used by `__mt_report` to report a passing test.
 
 ```
 [
@@ -60,24 +169,100 @@ assert : [ description:string predicate position <] --> [ <]
     " PASS" ++
     putLn
 ] '__mt_repPass global
+```
 
+#### `__mt_repFail`
+
+Used by `__mt_report` to report a failing test.
+
+```
 [
     toStr
     " : " swap ++
     ++
-    "assert" 3 toList throw
+    "mt_assert" 3 toList throw
 ] '__mt_repFail global
+```
 
+### Suite helpers
+
+#### `__mt_clear`
+
+Clear the stack for the test, all but the test counter.
+
+```
+[
+    depth 1 - ndrop
+] '__mt_clear global
+```
+
+#### `__mt_putPos`
+
+Print a position on the stack on stdout.
+
+```
+[
+    reverse fromList drop
+    put ":"  put
+    put ":"  put
+    put ": " put
+] '__mt_putPos global
+```
+
+### String helpers
+
+#### `__mt_fill`
+
+Add $n$ instances of the fill character $char$ to the right of $s$.
+
+~~~
+__mt_fill : [ s:string(l) n:integer char:string(1) <] --> [ s2:string(l + n) <]
+~~~
+
+```
 [
     'f;
     [ [dup 0 >] [swap f ++ swap 1 - fill] [] ?]'fill;
     fill drop
 ] '__mt_fill global
+```
 
+#### `__mt_left`
+
+Fill character left adjusted to max $n$ characters.
+
+~~~
+__mt_left : [ s:string(l) n:integer char:string(1) <] --> [ s2:string(max(l,n)) <]
+~~~
+
+```
 [
     'f;
     over length - f __mt_fill
 ] '__mt_left global
+
+```
+
+## Mini test suite
+
+```
+[
+    "MiniTest1 (Should pass)" [
+        __POS__ "Test success"        [1 1 =]     mt_assert
+        __POS__ "A very long success" [123 123 =] mt_assert
+    ] mt_suite
+    
+    "MiniTest2 (Should fail)" [
+        __POS__ "Test failure"        [1 1 <>]    mt_assert
+    ] mt_suite
+    
+    "MiniTest3 (Last should fail)" [
+        __POS__ "Division by zero"        [1 0 /]    mt_assertError
+        __POS__ "Division by one"         [1 1 /]    mt_assertError
+    ] mt_suite
+    
+    mt_conclude
+] '__mt_run_test global
 ```
 
 
@@ -85,15 +270,4 @@ assert : [ description:string predicate position <] --> [ <]
 
 ```
 ]?
-
-[
-    "MiniTest1" startSuite
-    __POS__ "Test success"        [1 1 =]     assert
-    __POS__ "A very long success" [123 123 =] assert
-    endSuite
-    
-    "MiniTest2" startSuite
-    __POS__ "Test failure"        [1 1 <>]    assert
-    endSuite
-]'test;
 ```
