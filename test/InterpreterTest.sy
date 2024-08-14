@@ -1,0 +1,85 @@
+
+[comment]: # (-*-Markdown-*-  First line intentionally left blank!)
+
+# Compliance tests for the Stacky interpreter
+
+## *Copyright (c) 2024 Bengt Johansson <bengtj100 at gmail dot com> - All rights reserved.*
+
+This software is part of the stacky project and its use is
+regulated by the conditions stipulated in the file named 'LICENCE',
+located in the top directory of said project.
+
+## Clean Stack after loading the prelude
+
+```
+[depth 0 =]
+    []
+    [[__POS__ "Stack not empty after loading prelude!" "-"] throw]
+    ?
+```
+
+## Dependencies
+
+```
+"test/MiniTest" import
+```
+
+## Basic interpreter tests
+
+```
+"Basic interpreter tests"
+[
+    __POS__ "Push"             [ depth 'd1; 1 2 3 depth 'd2; d2 d1 - 3 =] mt_assert
+    __POS__ "Auto apply"       [ [1 2 3 + +]'f; f 6 =]                    mt_assert
+    __POS__ "Inihibit"         [ [1 2 3 + +]'f; 'f 'f =]                  mt_assert
+    __POS__ "Load Inihibit"    [ [1 2 3 + +]'f; ^f [1 2 3 + +] =]         mt_assert
+    __POS__ "Explicit apply 1" [ [1 2 3 + +]'f; 'f @ 6 =]                 mt_assert
+    __POS__ "Explicit apply 2" [ [1 2 3 + +]'f; ^f @ 6 =]                 mt_assert
+] mt_suite
+```
+
+## Built-in operations
+
+### Arithmetic
+
+```
+"Built-in operations: Arithmetic"
+[
+    __POS__ "Add zero 1"     [   0   0 +    0 = ] mt_assert
+    __POS__ "Add zero 2"     [   0   1 +    1 = ] mt_assert
+    __POS__ "Add zero 3"     [   1   0 +    1 = ] mt_assert
+    __POS__ "Add positive"   [  42  33 +   75 = ] mt_assert
+    __POS__ "Add negative 1" [  42 -33 +    9 = ] mt_assert
+    __POS__ "Add negative 2" [ -42 -33 +  -75 = ] mt_assert
+
+    __POS__ "Sub zero 1"     [   0   0 -    0 = ] mt_assert
+    __POS__ "Sub zero 2"     [   0   1 -   -1 = ] mt_assert
+    __POS__ "Sub zero 3"     [   1   0 -    1 = ] mt_assert
+    __POS__ "Sub positive"   [  42  33 -    9 = ] mt_assert
+    __POS__ "Sub negative 1" [  42 -33 -   75 = ] mt_assert
+    __POS__ "Sub negative 2" [ -42 -33 -   -9 = ] mt_assert
+
+    __POS__ "Mul zero 1"     [   0   0 *      0 = ] mt_assert
+    __POS__ "Mul zero 2"     [   0   1 *      0 = ] mt_assert
+    __POS__ "Mul zero 3"     [   1   0 *      0 = ] mt_assert
+    __POS__ "Mul positive"   [  42  33 *   1386 = ] mt_assert
+    __POS__ "Mul negative 1" [  42 -33 *  -1386 = ] mt_assert
+    __POS__ "Mul negative 2" [ -42 -33 *   1386 = ] mt_assert
+
+    __POS__ "Div zero 1"     [   0   0 /       ] mt_assertError
+    __POS__ "Div zero 2"     [   0   1 /   0 = ] mt_assert
+    __POS__ "Div zero 3"     [   1   0 /       ] mt_assertError
+    __POS__ "Div positive"   [  20   5 /   4 = ] mt_assert
+    __POS__ "Div negative 1" [  20  -5 /  -4 = ] mt_assert
+    __POS__ "Div negative 2" [ -20  -5 /   4 = ] mt_assert
+] mt_suite
+```
+## Prelude operations
+
+
+## This is the end
+
+```
+mt_conclude
+```
+

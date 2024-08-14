@@ -15,6 +15,7 @@ RELEASES           = ./releases
 TOOLS              = ./tools
 DOC                = ./doc
 PDF		   = ./pdf
+TEST               = ./test
 
 DOC_FILES          = $(wildcard $(DOC)/*.md)
 
@@ -64,9 +65,10 @@ run: build
 ## ----------------------------------------------------------------------------------------------------
 
 test: build
-	@echo ">>>>>>>>>>>>    Running unit tests ..."
-	$(EXECUTABLE) --prelude $(PRELUDE)/Prelude.sy -b -e '[depth 0 =][][["Stack not empty after loading prelude!" "prelude"] throw]?'
-	$(CABAL) test
+	@echo ">>>>>>>>>>>>    Running Haskell unit tests ..."
+	@$(CABAL) test
+	@echo ">>>>>>>>>>>>    Running Stacky unit tests ..."
+	@$(EXECUTABLE) $(EXE_ARGS) -b -IA "." $(TEST)/InterpreterTest
 
 ## ----------------------------------------------------------------------------------------------------
 
