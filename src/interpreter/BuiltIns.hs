@@ -141,7 +141,7 @@ valAdd :: Value -> Value -> Result Value
 valAdd x y = valOp "+" (+) (+) x y
 
 valSub :: Value -> Value -> Result Value
-valSub x y = valOp "-" (-) (+) x y
+valSub x y = valOp "-" (-) (-) x y
 
 valMult :: Value -> Value -> Result Value
 valMult x y = valOp "*" (*) (*) x y
@@ -151,7 +151,9 @@ valDiv _ (ValInt p 0) = newErrPos p "Division by zero"
 valDiv x y            = valOp "/" div (/) x y
 
 valRem :: Value -> Value -> Result Value
-valRem x y = valOp "/" rem floatRem x y
+valRem _ (ValInt   p 0  ) = newErrPos p "Zero Reminder"
+valRem _ (ValFloat p 0.0) = newErrPos p "Zero Reminder"
+valRem x y                = valOp "/" rem floatRem x y
 
 floatRem :: Double -> Double -> Double
 floatRem fx fy = fromIntegral (x `rem` y)
