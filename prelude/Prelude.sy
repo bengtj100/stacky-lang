@@ -19,6 +19,13 @@ located in the top directory of said project.
 
 ```
 
+## Logical and boolean operations
+
+```
+0 'false;
+1 'true;
+```
+
 ## Mathematical operations
 
 ```

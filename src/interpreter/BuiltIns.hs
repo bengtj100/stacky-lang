@@ -956,11 +956,12 @@ bool2Truth pos True  = ValInt pos 1
 -- Stacky truthiness to Haskell Bool
 --
 truth2Bool :: Value -> Bool
-truth2Bool (ValInt _ 0)      = False
-truth2Bool (ValFloat _ 0.0)  = False
-truth2Bool (ValList _ [])    = False
-truth2Bool (ValString _ "" ) = False                             
-truth2Bool _                 = True
+truth2Bool (ValInt _ 0)         = False
+truth2Bool (ValFloat _ 0.0)     = False
+truth2Bool (ValList _ [])       = False
+truth2Bool (ValString _ "" )    = False
+truth2Bool (ValAtom _ "false" ) = False
+truth2Bool _                    = True
 
 -------------------------------------------------------------------------------------------------------
 

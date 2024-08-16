@@ -42,6 +42,21 @@ located in the top directory of said project.
 ] mt_suite
 ```
 
+## Tests of truthiness
+
+```
+"Truthiness"
+[
+    __POS__ "0       is false"   [ 0   ~ ] mt_assert
+    __POS__ "0.0     is false"   [ 0.0 ~ ] mt_assert
+    __POS__ "[]      is false"   [ []  ~ ] mt_assert
+    __POS__ "\"\"      is false" [ ""  ~ ] mt_assert
+    
+    __POS__ "'false  is false" [ 'false  ~ ] mt_assert
+    __POS__ "false   is false" [ 'false  ~ ] mt_assert
+] mt_suite
+```
+
 ## Built-in operations
 
 ### Arithmetic
@@ -274,6 +289,44 @@ located in the top directory of said project.
         
 ] mt_suite
 ```
+
+### Booleans
+
+```
+"Built-in operations: Booleans"
+[
+    __POS__ "not (~)  0" [ 0 ~   1 = ] mt_assert
+    __POS__ "not (~)  1" [ 1 ~   0 = ] mt_assert
+
+    __POS__ "and     00" [ 0 0 and   0 = ] mt_assert
+    __POS__ "and     01" [ 0 1 and   0 = ] mt_assert
+    __POS__ "and     10" [ 1 0 and   0 = ] mt_assert
+    __POS__ "and     11" [ 1 1 and   1 = ] mt_assert
+
+    __POS__ "or      00" [ 0 0 or    0 = ] mt_assert
+    __POS__ "or      01" [ 0 1 or    1 = ] mt_assert
+    __POS__ "or      10" [ 1 0 or    1 = ] mt_assert
+    __POS__ "or      11" [ 1 1 or    1 = ] mt_assert
+    
+] mt_suite
+```
+
+### Control
+
+```
+"Built-in operations: Control"
+[
+    __POS__ "Stash undefined" [ undefined                        'undefined =    ] mt_assert
+    __POS__ "Stash defined"   [ 42 'x;                           42 x =          ] mt_assert
+    __POS__ "Stash local"     [ 42 'x; [ 33 'x; x ] @            33 = 42 x = and ] mt_assert
+    
+    __POS__ "Global"          [ [ "foo" 'bar global ] @          "foo" bar =     ] mt_assert
+    
+    __POS__ "Cond true"       [ [33 42 =] ["then"] ["else"] ?    "else" =        ] mt_assert
+    __POS__ "Cond false"      [ [42 42 =] ["then"] ["else"] ?    "then" =        ] mt_assert
+] mt_suite
+```
+
 
 ## Prelude operations
 
