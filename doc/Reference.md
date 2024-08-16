@@ -245,7 +245,7 @@ The following operations are defined on integers:
 
 * [Comparison](#comparison-operations): `=`, `<>`, `<`, `>`, `<=`, `>=`
 
-* [Mathematical](#mathematical-operations): `pi`, `euler`, `pow`, `floor`, `ceil`, `round`, `float`, `exp`, `sqrt`, `log`, `log2`, `log10`, `sin`, `tan`, `cos`, `asin`, `atan`, `acos`, `sinh`, `tanh`, `cosh`, `asinh`, `atanh`, `acosh`, `PosInf`, `NegInf`, `Infinity`
+* [Mathematical](#mathematical-operations): `pi`, `euler`, `pow`, `floor`, `abs`, `sign`, `ceil`, `round`, `float`, `exp`, `sqrt`, `log`, `log2`, `log10`, `sin`, `tan`, `cos`, `asin`, `atan`, `acos`, `sinh`, `tanh`, `cosh`, `asinh`, `atanh`, `acosh`, `PosInf`, `NegInf`, `Infinity`
 
 ### Boolean values
 
@@ -452,6 +452,8 @@ Stacky defines the following mathematical operations. They operate on floating p
 | `acosh`    | acosh ${x}$                                           |
 | `pow`      | `x n pow` is $x$ to the power of $n$, i.e, $x^n$      |
 | `floor`    | Return the closest smaller integer                    |
+| `abs`      | The absolute value                                    |
+| `sign`     | The signum operation                                  |
 | `ceil`     | Return the closest larger integer                     |
 | `round`    | Return the closest integer                            |
 | `float`    | Convert an integer or string to float                 |
