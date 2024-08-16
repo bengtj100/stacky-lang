@@ -157,7 +157,7 @@ runParser :: Env -> Parser PosTok Error a -> String -> String -> Either Error (a
 runParser bis p fname inp =
     let
         ops = sortByLen [ op | bi <- bis
-                             , let op = fst bi
+                             , let (op,_,_) = bi
                              , not (isAlphaNum (head op))]
     in
         runP p defaultRep $ mylexer ops fname inp

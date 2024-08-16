@@ -313,17 +313,20 @@ fullEpoch                             `The stack becomes [ 1970 1 1 0 0 0 <]
 
 **NOTE:** Best practice is to always inhibit an atom if it is going to be used as a value. Even if it isn't defined for the moment, it might become so in the future of the program's execution.
 
-| Operation  | Syntax | Stack                              | Comment            |
-|:-----------|:------:|:-----------------------------------|--------------------|
-| Stash      | `;`    | `[ y a:atom ; <] ---> [  <]`       |                    |
-|            |        |                                    |                    |
-| Evaluation | n/a    | `[ a:atom <]   ---> [ env(a) @ <]` | if *a* is defined. |
-|            |        | `[ a:atom <]   ---> [ a <]`        | Otherwise.         |
-|            |        |                                    |                    |
-| Inhibitor  | `'`    | `[ ' a:atom <] ---> [ a <]`        |                    |
-|            |        |                                    |                    |
-|            | `^`    | `[ ^ a:atom <] ---> [ env(a) <]`   | if *a* is defined. |
-|            |        | `[ ^ a:atom <]   ---> [ a <]`      | Otherwise.         |
+| Operation  | Syntax | Stack                              | Comment                       |
+|:-----------|:------:|:-----------------------------------|-------------------------------|
+| Stash      | `;`    | `[ y a:atom ; <] ---> [  <]`       | Stash readonly value          |
+|            | `;=;   | =""=                               | Stash updateable value        |
+|            | global | =""=                               | Stash globally                |
+|            | UPDATE | =""=                               | Stash updateable global value |
+|            |        |                                    |                               |
+| Evaluation | n/a    | `[ a:atom <]   ---> [ env(a) @ <]` | if *a* is defined.            |
+|            |        | `[ a:atom <]   ---> [ a <]`        | Otherwise.                    |
+|            |        |                                    |                               |
+| Inhibitor  | `'`    | `[ ' a:atom <] ---> [ a <]`        |                               |
+|            |        |                                    |                               |
+|            | `^`    | `[ ^ a:atom <] ---> [ env(a) <]`   | if *a* is defined.            |
+|            |        | `[ ^ a:atom <]   ---> [ a <]`      | Otherwise.                    |
 
 ### Strings
 

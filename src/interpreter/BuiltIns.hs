@@ -34,7 +34,7 @@ import Text.Read(readMaybe)
 import Control.Exception(catch)
 
 -- Base modules
-import CoreTypes(Cxt(..), insertEnv, insertEnvGlobal,
+import CoreTypes(Cxt(..), insertEnv, insertEnvGlobal, updateEnv, updateEnvGlobal,
                  Env,
                  Name,
                  Result,        ifOk, stackUnderflowError, typeError1, typeError2, newErrPos,
@@ -103,7 +103,9 @@ builtIns =
                defBinBoolOp "or" (||),
 
                -- Control operations
-               defStash, defGlobal, defCond,
+               defStash, defGlobal,
+               defAssign, defUpdate,
+               defCond,
 
                -- Stack operations
                defDrop,  defSwap,  defRot,  defLRot,  defOver,  defDup, defClear, defDepth,
@@ -305,6 +307,12 @@ defStash = stash ";" insertEnv
 defGlobal :: Value
 defGlobal = stash "global" insertEnvGlobal
 
+defAssign :: Value
+defAssign = stash ";=;" updateEnv
+
+defUpdate :: Value
+defUpdate = stash "UPDATE" updateEnvGlobal
+            
 --
 -- Stash a value using the provided insert function.
 --
@@ -784,7 +792,7 @@ findModule name pos cxt handler =
 
 defEnv :: Value
 defEnv = ValOp noPos "env" $ \cxt@Cxt{envs = e0} ->
-         do putStrLn $ unlines $ map (\(k,v) -> show k ++ " : " ++ show v) $ concat e0
+         do putStrLn $ unlines $ map (\(k,v,_) -> show k ++ " : " ++ show v) $ concat e0
             return $ Right cxt
 
 -------------------------------------------------------------------------------------------------------
@@ -929,8 +937,8 @@ pos2val pos = ValList pos [ValString pos (fileName pos),
 --
 -- Create an entry in the environment based on the given operation's name.
 --
-defBI :: Value -> (Name, Value)
-defBI op@(ValOp _ name _) = (name, op)
+defBI :: Value -> (Name, Value, Bool)
+defBI op@(ValOp _ name _) = (name, op, False)
 defBI op                  = error $ "INTERNAL ERROR: A builtin is not a ValOp: '" ++ show op ++ "'"
 
 -------------------------------------------------------------------------------------------------------

@@ -17,6 +17,7 @@ module CoreTypes (
                   ---- Env ----
                   Env,
                   insertEnv, insertEnvGlobal,
+                  updateEnv, updateEnvGlobal,
                   lookupEnv,
                   pushLocal, popLocal,
 
@@ -76,7 +77,7 @@ initCxt initEnv = Cxt{ stack = newStack
 --  Env - The interpreter name bindings
 -------------------------------------------------------------------------------------------------------
 
-type Env = [(Name, Value)]
+type Env = [(Name, Value, Bool)]
 
 -------------------------------------------------------------------------------------------------------
 
@@ -103,15 +104,44 @@ insertEnvGlobal _ _ _ =
 
 insertToEnv :: Env -> Name -> Value -> Result Env
 insertToEnv env key _   | key `isIn` env = newError ValNoop $ "Redefining name: '" ++ key ++ "'"
-insertToEnv env key val                  = Right $ (key, val) : env
+insertToEnv env key val                  = Right $ (key, val, False) : env
 
 isIn :: Name -> Env -> Bool
-isIn key env = key `elem` map fst env
+isIn key env = key `elem` map (\(k,_,_)->k) env
+
+-------------------------------------------------------------------------------------------------------
+
+updateEnv :: Cxt -> Name -> Value -> Result Cxt
+updateEnv cxt@Cxt{envs = e : es} key val =
+    do e' <- updateToEnv e key val
+       return $ cxt{envs = e' : es}
+updateEnv _ _ _ =
+    error "UPDATEENV CALLED WITH EMPTY ENV STACK! THIS SHOULD NEVER HAPPEN!"
+
+updateEnvGlobal :: Cxt -> Name -> Value -> Result Cxt
+updateEnvGlobal cxt@Cxt{envs = es0@(_:_)} key val =
+    do e' <- updateToEnv e key val
+       return $ cxt{envs = es ++ [e']}
+    where es = init es0
+          e  = last es0
+updateEnvGlobal _ _ _ =
+    error "UPDATEENVGLOBAL CALLED WITH EMPTY ENV STACK! THIS SHOULD NEVER HAPPEN!"
+
+updateToEnv :: Env -> Name -> Value -> Result Env
+updateToEnv (kv@(k,_,flg) : kvs) key value
+    | k == key  = if flg then
+                      Right $ (key, value, True) : kvs
+                  else
+                      newError ValNoop $ "Read-only name: '" ++ key ++ "'"
+    | otherwise = do kvs' <- updateToEnv kvs key value
+                     return $ kv : kvs'
+updateToEnv [] key value =
+    return [(key, value, True)]
 
 -------------------------------------------------------------------------------------------------------
 
 lookupEnv :: Cxt -> Name -> Maybe Value
-lookupEnv Cxt{envs = es} key = lookup key (concat es)
+lookupEnv Cxt{envs = es} key = lookup key [ (k,v) | env <- es, (k,v,_) <- env ]
 
 -------------------------------------------------------------------------------------------------------
 

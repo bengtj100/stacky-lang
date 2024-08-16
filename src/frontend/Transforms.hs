@@ -49,7 +49,7 @@ tCmds _  []                                              = []
 -- Perform transformations on individual commands
 --
 tCmd :: Env -> Value -> Value
-tCmd bi (ValAtom p atom) = case lookup atom bi of
+tCmd bi (ValAtom p atom) = case lookup atom $ map (\(k,v,_) -> (k,v)) bi of
                                Nothing                -> ValAtom p atom
                                Just (ValOp _ name op) -> ValOp p name op
                                Just op                -> intError op
