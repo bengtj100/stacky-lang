@@ -35,6 +35,8 @@ Implementation:
 [
     'pred; 'desc; 'pos;
 
+    clear
+    
     [pred]
         ^pred toStr
         __mt_report
@@ -82,8 +84,8 @@ Implementation:
     "" putLn
     "Suite " name ++ " " ++ 80 "-" __mt_left putLn 
 
-    clear
-    0
+    0 '__mt_passedTests UPDATE
+
     [
         suite
         
@@ -96,7 +98,7 @@ Implementation:
     ]
     catch
     
-    "Sucessful tests: " put putLn
+    "Sucessful tests: " put  __mt_passedTests putLn
     "" 80 "-" __mt_left putLn
 ] 'mt_suite global
 
@@ -147,8 +149,8 @@ __mt_report : [ predResult:truthiness predStr:string <] --> [ .. <]
     `Evaluated predicate already on the stack
         [
             desc __mt_repPass
-            __mt_clear
-            1 +
+
+            __mt_passedTests 1 + '__mt_passedTests UPDATE
         ]
         [
             ^pos desc predStr __mt_repFail
@@ -185,16 +187,6 @@ Used by `__mt_report` to report a failing test.
 ```
 
 ### Suite helpers
-
-#### `__mt_clear`
-
-Clear the stack for the test, all but the test counter.
-
-```
-[
-    depth 1 - ndrop
-] '__mt_clear global
-```
 
 #### `__mt_putPos`
 

@@ -26,7 +26,9 @@ located in the top directory of said project.
 
 ## Helper operations
 
+```
 [ - abs 0.00000001 < ] 'nearZ;
+```
 
 ## Basic interpreter tests
 
@@ -320,13 +322,59 @@ located in the top directory of said project.
     __POS__ "Stash defined"   [ 42 'x;                           42 x =          ] mt_assert
     __POS__ "Stash local"     [ 42 'x; [ 33 'x; x ] @            33 = 42 x = and ] mt_assert
     
+    __POS__ "Stash update"    [ 33 'x ;=;                        33 x =
+                                42 'x ;=;                        42 x = and      ] mt_assert
+
     __POS__ "Global"          [ [ "foo" 'bar global ] @          "foo" bar =     ] mt_assert
     
+    __POS__ "Global update"   [ [ 33 'x UPDATE ] @               33 x =
+                                [ 42 'x UPDATE ] @               42 x = and      ] mt_assert
+
+    __POS__ "Redefine name"   [ 42 'x;    33 'x;                                 ] mt_assertError
+    __POS__ "Update readonly" [ 42 'x;    33 'x ;=;                              ] mt_assertError
+
     __POS__ "Cond true"       [ [33 42 =] ["then"] ["else"] ?    "else" =        ] mt_assert
     __POS__ "Cond false"      [ [42 42 =] ["then"] ["else"] ?    "then" =        ] mt_assert
 ] mt_suite
 ```
 
+### Stack
+
+```
+"Built-in operations: Stack"
+[
+    __POS__ "Drop error" [ clear drop ] mt_assertError
+    __POS__ "Drop"       [ clear 1 2 3 drop   depth 2 = ] mt_assert
+
+    __POS__ "Swap error 0" [ clear   swap ] mt_assertError
+    __POS__ "Swap error 1" [ clear 1 swap ] mt_assertError
+    __POS__ "Swap"       [ clear 1 2 swap   depth toList [2 1] = ] mt_assert
+
+    __POS__ "Rot error 0" [ clear     rot ] mt_assertError
+    __POS__ "Rot error 1" [ clear 1   rot ] mt_assertError
+    __POS__ "Rot error 2" [ clear 1 2 rot ] mt_assertError
+    __POS__ "Rot"         [ clear 1 2 3 rot   depth toList [2 3 1] = ] mt_assert
+
+    __POS__ "Lrot error 0" [ clear     lrot ] mt_assertError
+    __POS__ "Lrot error 1" [ clear 1   lrot ] mt_assertError
+    __POS__ "Lrot error 2" [ clear 1 2 lrot ] mt_assertError
+    __POS__ "Lrot"         [ clear 1 2 3 lrot   depth toList [3 1 2] = ] mt_assert
+
+    __POS__ "Over error 0" [ clear   over ] mt_assertError
+    __POS__ "Over error 1" [ clear 1 over ] mt_assertError
+    __POS__ "Over"       [ clear 1 2 over   depth toList [1 2 1] = ] mt_assert
+
+    __POS__ "Dup error 0" [ clear   dup ] mt_assertError
+    __POS__ "Dup"       [ clear 1 dup   depth toList [1 1] = ] mt_assert
+
+    __POS__ "Clear" [ 1 2 3 4 clear   depth 0 = ] mt_assert
+
+    __POS__ "Depth 0" [ clear   depth 0 = ] mt_assert
+    __POS__ "Depth 1" [ clear 42  depth 1 = ] mt_assert
+    __POS__ "Depth 2" [ clear 42 33  depth 2 = ] mt_assert
+
+] mt_suite
+```
 
 ## Prelude operations
 

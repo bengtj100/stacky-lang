@@ -13,6 +13,7 @@
 * Added the `catch` operation to handle run-time errors.
 * Positions now count from line and char one (1) and not zero (0) as before.
 * Unit test framework MiniTest.sy released.
+* Added variables that can be updated using the `;=;` and `UPDATE` operations.
 
 ## 0.2.2 -- 2024-08-11
 

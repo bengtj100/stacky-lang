@@ -325,7 +325,7 @@ stash name insert =
                      key : _ : _ ->
                          typeError1 key name "an atom as key for" key
                      _ ->
-                         stackUnderflowError ValNoop ";"
+                         stackUnderflowError ValNoop name
 
 -------------------------------------------------------------------------------------------------------
 
