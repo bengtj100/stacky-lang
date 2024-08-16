@@ -1,0 +1,12 @@
+
+[comment]: # (-*-Markdown-*-  First line intentionally left blank! -----------------------------------)
+
+# Test file for importing
+
+This file use used by `InterpreterTest.sy` to test that import can import a file.
+
+**DO NOT CHANGE OR REMOVE IT!!**
+
+```
+42 'importVal UPDATE
+```

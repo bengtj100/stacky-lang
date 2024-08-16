@@ -21,6 +21,16 @@ located in the top directory of said project.
 
 These operations are part of the public API of MiniTest and will stay quite stable
 
+### `mt_init` - Set up MiniTest
+
+**NOTE:** This operation must be the first operation of a test session!
+
+```
+[
+    0 '__mt_totNoOfTests UPDATE
+] 'mt_init global
+```
+
 ### `mt_assert` - Perform a test and report if it failed.
 
 This operation takes a position, a short description and a predicate. If the predicate evaluates to true, the test is passed, otherwise it fails with an error message.
@@ -120,7 +130,7 @@ Conclude the tests and report an error if there were errors in the suites
             ["THERE WERE ERRORS IN ONE OR MORE OF THE SUITES!" "mt_conclude"] throw
         ]
         [
-            "ALL PASS" putLn
+            "ALL PASS: Total successful tests: " put __mt_totNoOfTests putLn
         ]
         ?
 
@@ -153,6 +163,7 @@ __mt_report : [ predResult:truthiness predStr:string <] --> [ .. <]
             desc __mt_repPass
 
             __mt_passedTests 1 + '__mt_passedTests UPDATE
+            __mt_totNoOfTests 1 + '__mt_totNoOfTests UPDATE
         ]
         [
             ^pos desc predStr __mt_repFail
