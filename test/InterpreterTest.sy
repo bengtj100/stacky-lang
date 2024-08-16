@@ -166,6 +166,115 @@ located in the top directory of said project.
     
 ] mt_suite
 ```
+
+### Comparisons
+
+```
+"Built-in operations: Comparisons"
+[
+    __POS__ "EQ int    int     1"  [ 4   5   =   0 = ] mt_assert
+    __POS__ "EQ int    int     2"  [ 5   5   =   1 = ] mt_assert
+    __POS__ "EQ float  float   1"  [ 4.0 5.0 =   0 = ] mt_assert
+    __POS__ "EQ float  float   2"  [ 5.0 5.0 =   1 = ] mt_assert
+    __POS__ "EQ float  int     1"  [ 4   4.0 =   1 = ] mt_assert
+    __POS__ "EQ float  int     2"  [ 5.0 5   =   1 = ] mt_assert
+    __POS__ "EQ int    atom"       [ 42    'foo   =  ] mt_assertError
+    __POS__ "EQ int    string"     [ 42    "foo"  =  ] mt_assertError
+    __POS__ "EQ int    list"       [ 42    [42]   =  ] mt_assertError
+    __POS__ "EQ float  atom"       [ 42.0  'foo   =  ] mt_assertError
+    __POS__ "EQ float  string"     [ 42.0  "foo"  =  ] mt_assertError
+    __POS__ "EQ float  list"       [ 42.0  [42.0] =  ] mt_assertError
+    __POS__ "EQ atom   string"     [ 'foo  "foo" =   ] mt_assertError
+    __POS__ "EQ atom   list"       [ 'foo  "foo" =   ] mt_assertError
+    __POS__ "EQ string list"       [ "foo" ["foo"] = ] mt_assertError
+        
+    __POS__ "NEQ int    int     1"  [ 4   5   <>   1 = ] mt_assert
+    __POS__ "NEQ int    int     2"  [ 5   5   <>   0 = ] mt_assert
+    __POS__ "NEQ float  float   1"  [ 4.0 5.0 <>   1 = ] mt_assert
+    __POS__ "NEQ float  float   2"  [ 5.0 5.0 <>   0 = ] mt_assert
+    __POS__ "NEQ float  int     1"  [ 4   5.0 <>   1 = ] mt_assert
+    __POS__ "NEQ float  int     2"  [ 5.0 4   <>   1 = ] mt_assert
+    __POS__ "NEQ int    atom"       [ 42    'foo   <>  ] mt_assertError
+    __POS__ "NEQ int    string"     [ 42    "foo"  <>  ] mt_assertError
+    __POS__ "NEQ int    list"       [ 42    [42]   <>  ] mt_assertError
+    __POS__ "NEQ float  atom"       [ 42.0  'foo   <>  ] mt_assertError
+    __POS__ "NEQ float  string"     [ 42.0  "foo"  <>  ] mt_assertError
+    __POS__ "NEQ float  list"       [ 42.0  [42.0] <>  ] mt_assertError
+    __POS__ "NEQ atom   string"     [ 'foo  "foo" <>   ] mt_assertError
+    __POS__ "NEQ atom   list"       [ 'foo  "foo" <>   ] mt_assertError
+    __POS__ "NEQ string list"       [ "foo" ["foo"] <> ] mt_assertError
+        
+    __POS__ "LT int    int     1"  [ 4   5   <   1 = ] mt_assert
+    __POS__ "LT int    int     2"  [ 5   5   <   0 = ] mt_assert
+    __POS__ "LT float  float   1"  [ 4.0 5.0 <   1 = ] mt_assert
+    __POS__ "LT float  float   2"  [ 5.0 5.0 <   0 = ] mt_assert
+    __POS__ "LT float  int     1"  [ 4   5.0 <   1 = ] mt_assert
+    __POS__ "LT float  int     2"  [ 5.0 4   <   0 = ] mt_assert
+    __POS__ "LT int    atom"       [ 42    'foo   <  ] mt_assertError
+    __POS__ "LT int    string"     [ 42    "foo"  <  ] mt_assertError
+    __POS__ "LT int    list"       [ 42    [42]   <  ] mt_assertError
+    __POS__ "LT float  atom"       [ 42.0  'foo   <  ] mt_assertError
+    __POS__ "LT float  string"     [ 42.0  "foo"  <  ] mt_assertError
+    __POS__ "LT float  list"       [ 42.0  [42.0] <  ] mt_assertError
+    __POS__ "LT atom   string"     [ 'foo  "foo" <   ] mt_assertError
+    __POS__ "LT atom   list"       [ 'foo  "foo" <   ] mt_assertError
+    __POS__ "LT string list"       [ "foo" ["foo"] < ] mt_assertError
+        
+    __POS__ "GT int    int     1"  [ 5   4   >   1 = ] mt_assert
+    __POS__ "GT int    int     2"  [ 5   5   >   0 = ] mt_assert
+    __POS__ "GT float  float   1"  [ 5.0 4.0 >   1 = ] mt_assert
+    __POS__ "GT float  float   2"  [ 5.0 5.0 >   0 = ] mt_assert
+    __POS__ "GT float  int     1"  [ 5   4.0 >   1 = ] mt_assert
+    __POS__ "GT float  int     2"  [ 5.0 4   >   1 = ] mt_assert
+    __POS__ "GT int    atom"       [ 42    'foo   >  ] mt_assertError
+    __POS__ "GT int    string"     [ 42    "foo"  >  ] mt_assertError
+    __POS__ "GT int    list"       [ 42    [42]   >  ] mt_assertError
+    __POS__ "GT float  atom"       [ 42.0  'foo   >  ] mt_assertError
+    __POS__ "GT float  string"     [ 42.0  "foo"  >  ] mt_assertError
+    __POS__ "GT float  list"       [ 42.0  [42.0] >  ] mt_assertError
+    __POS__ "GT atom   string"     [ 'foo  "foo" >   ] mt_assertError
+    __POS__ "GT atom   list"       [ 'foo  "foo" >   ] mt_assertError
+    __POS__ "GT string list"       [ "foo" ["foo"] > ] mt_assertError
+        
+    __POS__ "LE int    int     1"  [ 4   5   <=   1 = ] mt_assert
+    __POS__ "LE int    int     2"  [ 5   5   <=   1 = ] mt_assert
+    __POS__ "LE int    int     3"  [ 6   5   <=   0 = ] mt_assert
+    __POS__ "LE float  float   1"  [ 4.0 5.0 <=   1 = ] mt_assert
+    __POS__ "LE float  float   2"  [ 5.0 5.0 <=   1 = ] mt_assert
+    __POS__ "LE float  float   3"  [ 6.0 5.0 <=   0 = ] mt_assert
+    __POS__ "LE float  int     1"  [ 4   5.0 <=   1 = ] mt_assert
+    __POS__ "LE float  int     2"  [ 4.0 5   <=   1 = ] mt_assert
+    __POS__ "LE int    atom"       [ 42    'foo   <=  ] mt_assertError
+    __POS__ "LE int    string"     [ 42    "foo"  <=  ] mt_assertError
+    __POS__ "LE int    list"       [ 42    [42]   <=  ] mt_assertError
+    __POS__ "LE float  atom"       [ 42.0  'foo   <=  ] mt_assertError
+    __POS__ "LE float  string"     [ 42.0  "foo"  <=  ] mt_assertError
+    __POS__ "LE float  list"       [ 42.0  [42.0] <=  ] mt_assertError
+    __POS__ "LE atom   string"     [ 'foo  "foo" <=   ] mt_assertError
+    __POS__ "LE atom   list"       [ 'foo  "foo" <=   ] mt_assertError
+    __POS__ "LE string list"       [ "foo" ["foo"] <= ] mt_assertError
+        
+    __POS__ "GE int    int     1"  [ 5   4   >=   1 = ] mt_assert
+    __POS__ "GE int    int     2"  [ 5   5   >=   1 = ] mt_assert
+    __POS__ "GE int    int     3"  [ 5   6   >=   0 = ] mt_assert
+    __POS__ "GE float  float   1"  [ 5.0 4.0 >=   1 = ] mt_assert
+    __POS__ "GE float  float   2"  [ 5.0 5.0 >=   1 = ] mt_assert
+    __POS__ "GE float  float   2"  [ 5.0 6.0 >=   0 = ] mt_assert
+    __POS__ "GE float  int     1"  [ 5   4.0 >=   1 = ] mt_assert
+    __POS__ "GE float  int     2"  [ 5.0 4   >=   1 = ] mt_assert
+    __POS__ "GE int    atom"       [ 42    'foo   >=  ] mt_assertError
+    __POS__ "GE int    string"     [ 42    "foo"  >=  ] mt_assertError
+    __POS__ "GE int    list"       [ 42    [42]   >=  ] mt_assertError
+    __POS__ "GE float  atom"       [ 42.0  'foo   >=  ] mt_assertError
+    __POS__ "GE float  string"     [ 42.0  "foo"  >=  ] mt_assertError
+    __POS__ "GE float  list"       [ 42.0  [42.0] >=  ] mt_assertError
+    __POS__ "GE atom   string"     [ 'foo  "foo" >=   ] mt_assertError
+    __POS__ "GE atom   list"       [ 'foo  "foo" >=   ] mt_assertError
+    __POS__ "GE string list"       [ "foo" ["foo"] >= ] mt_assertError
+        
+] mt_suite
+```
+
 ## Prelude operations
 
 
