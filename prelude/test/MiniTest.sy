@@ -222,7 +222,7 @@ __mt_fill : [ s:string(l) n:integer char:string(1) <] --> [ s2:string(l + n) <]
 ```
 [
     'f;
-    [ [dup 0 >] [swap f ++ swap 1 - fill] [] ?]'fill;
+    [ [dup 0 >] [swap f swap ++ swap 1 - fill] [] ?]'fill;
     fill drop
 ] '__mt_fill global
 ```

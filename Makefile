@@ -17,12 +17,14 @@ DOC                = ./doc
 PDF		   = ./pdf
 TEST               = ./test
 
+SRC_FULL           = $(shell readlink -f $(SRC))
+TEST_FULL          = $(shell readlink -f $(TEST))
+
 DOC_FILES          = $(wildcard $(DOC)/*.md)
 
 PDF_FILES	   = $(DOC_FILES:.md=.pdf)
 PDF_FILES	  += $(DOC)/Prelude.pdf
 
-SRC_FULL           = $(shell readlink -f $(SRC))
 CABAL              = cd $(SRC_FULL) && ~/.cabal/bin/cabal
 
 PROJECT            = stacky
@@ -68,7 +70,9 @@ test: build
 	@echo ">>>>>>>>>>>>    Running Haskell unit tests ..."
 	@$(CABAL) test
 	@echo ">>>>>>>>>>>>    Running Stacky unit tests ..."
-	@$(EXECUTABLE) $(EXE_ARGS) -b -IA "." $(TEST)/InterpreterTest
+	@echo 'Entering directory `'$(TEST_FULL)"'"
+	@$(EXECUTABLE) $(EXE_ARGS) -b -IA $(TEST_FULL) 'InterpreterTest'
+	@echo 'Leaving directory `'$(TEST_FULL)"'"
 
 ## ----------------------------------------------------------------------------------------------------
 

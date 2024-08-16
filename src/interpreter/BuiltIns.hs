@@ -68,6 +68,8 @@ builtIns =
                defBinOp "pow" valPow,
                defUnOp  "floor" valFloor,
                defUnOp  "float" valFloat,
+               defUnOp  "abs"   valAbs,
+               defUnOp  "sign"  valSign,
                defMath "exp" exp,
                defMath "sqrt" sqrt,
                defMath "log" log,
@@ -137,6 +139,9 @@ defMath name f = defUnOp name $ valFloatFun name f
 type IntOp   = Integer -> Integer -> Integer
 type FloatOp = Double  -> Double  -> Double
 
+type IntFun   = Integer -> Integer
+type FloatFun = Double  -> Double
+
 valAdd :: Value -> Value -> Result Value
 valAdd x y = valOp "+" (+) (+) x y
 
@@ -164,11 +169,16 @@ valPow :: Value -> Value -> Result Value
 valPow x y = valOp "pow" intPow (**) x y
 
 intPow :: Integer -> Integer -> Integer
-intPow x n | n < 1          = 1
+intPow x n | n < 0          = 0
+           | n < 1          = 1
            | n `rem` 2 == 1 = x * intPow x (n-1)
            | otherwise      = x2 * x2
            where
                x2 = intPow x (n `div` 2)
+
+valAbs, valSign :: Value -> Result Value
+valAbs  = valFun "abs"  abs    abs
+valSign = valFun "sign" signum signum
 
 valOp :: Name -> IntOp -> FloatOp -> Value -> Value -> Result Value
 valOp _    iop _   (ValInt pos x)   (ValInt _ y)   = Right $ ValInt   pos (x `iop` y)
@@ -176,6 +186,11 @@ valOp _    _   fop (ValFloat pos x) (ValFloat _ y) = Right $ ValFloat pos (x `fo
 valOp _    _   fop (ValInt pos x)   (ValFloat _ y) = Right $ ValFloat pos (fromIntegral x `fop` y)
 valOp _    _   fop (ValFloat pos x) (ValInt _ y)   = Right $ ValFloat pos (x `fop` fromIntegral y)
 valOp name _   _   vx               vy             = typeError2 vx name "numerical arguments" vx vy
+
+valFun :: Name -> IntFun -> FloatFun -> Value -> Result Value
+valFun _    iFun _    (ValInt pos x)   = Right $ ValInt   pos (iFun x)
+valFun _    _    fFun (ValFloat pos x) = Right $ ValFloat pos (fFun x)
+valFun name _    _    vx               = typeError1 vx name "numerical argument" vx
 
 valFloatFun :: Name -> (Double -> Double) -> Value -> Result Value
 valFloatFun _    f (ValInt pos val)   = Right $ ValFloat pos (f $ fromIntegral val)

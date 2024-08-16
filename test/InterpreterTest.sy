@@ -24,6 +24,10 @@ located in the top directory of said project.
 "test/MiniTest" import
 ```
 
+## Helper operations
+
+[ - abs 0.00000001 < ] 'nearZ;
+
 ## Basic interpreter tests
 
 ```
@@ -111,6 +115,55 @@ located in the top directory of said project.
     __POS__ "Rem type 1"     [ 20.0 1   % typeOf "float"   = ] mt_assert
     __POS__ "Rem type 2"     [ 20   1.0 % typeOf "float"   = ] mt_assert
     __POS__ "Rem type 3"     [ 20.0 1.0 % typeOf "float"   = ] mt_assert
+    
+    __POS__ "Int   pow  -16" [ 2   -16   pow                 0 = ] mt_assert
+    __POS__ "Int   pow   -1" [ 2    -1   pow                 0 = ] mt_assert
+    __POS__ "Int   pow    0" [ 2     0   pow                 1 = ] mt_assert
+    __POS__ "Int   pow   16" [ 2    16   pow             65536 = ] mt_assert
+    __POS__ "Float pow  -16" [ 2.0 -16.0 pow     1.0 65536.0 / = ] mt_assert
+    __POS__ "Float pow   -1" [ 2.0 -1.0  pow               0.5 = ] mt_assert
+    __POS__ "Float pow    0" [ 2.0  0.0  pow               1.0 = ] mt_assert
+    __POS__ "Float pow   16" [ 2.0 16.0  pow           65536.0 = ] mt_assert
+    __POS__ "Int   pow type" [ 2   16    pow  typeOf "integer" = ] mt_assert
+    __POS__ "Float pow type" [ 2.0 16.0  pow  typeOf "float"   = ] mt_assert
+    
+    __POS__ "Floor int"  [ 42           floor               42 = ] mt_assert
+    __POS__ "Floor 1"    [ 41.999999999 floor               41 = ] mt_assert
+    __POS__ "Floor 1"    [ 42.0         floor               42 = ] mt_assert
+    __POS__ "Floor 1"    [ 42.000000001 floor               42 = ] mt_assert
+    __POS__ "Floor type" [ 42.000000001 floor typeOf "integer" = ] mt_assert
+    
+    __POS__ "Abs int 1"      [  33   abs                33 = ] mt_assert
+    __POS__ "Abs int 2"      [ -33   abs                33 = ] mt_assert
+    __POS__ "Abs int type"   [ -33   abs  typeOf "integer" = ] mt_assert
+    __POS__ "Abs float 1"    [  33.0 abs              33.0 = ] mt_assert
+    __POS__ "Abs float 2"    [ -33.0 abs              33.0 = ] mt_assert
+    __POS__ "Abs float type" [ -33.0 abs    typeOf "float" = ] mt_assert
+    
+    __POS__ "Sign int 1"      [  33   sign                 1 = ] mt_assert
+    __POS__ "Sign int 2"      [ -33   sign                -1 = ] mt_assert
+    __POS__ "Sign int type"   [ -33   sign  typeOf "integer" = ] mt_assert
+    __POS__ "Sign float 1"    [  33.0 sign               1.0 = ] mt_assert
+    __POS__ "Sign float 2"    [ -33.0 sign              -1.0 = ] mt_assert
+    __POS__ "Sign float type" [ -33.0 sign    typeOf "float" = ] mt_assert
+    
+    __POS__ "Log exp   1" [   0 log exp   0.0 nearZ ] mt_assert
+    __POS__ "Log exp 100" [ 100 log exp 100.0 nearZ ] mt_assert
+
+    __POS__ "Log2 pow   1" [ 2   0 log2 pow   0.0 nearZ ] mt_assert
+    __POS__ "Log2 pow 100" [ 2 100 log2 pow 100.0 nearZ ] mt_assert
+
+    __POS__ "Log10 pow   1" [ 10   0 log10 pow   0.0 nearZ ] mt_assert
+    __POS__ "Log10 pow 100" [ 10 100 log10 pow 100.0 nearZ ] mt_assert
+    
+    __POS__ "Factorial 0"      [  0   !                1 = ] mt_assert
+    __POS__ "Factorial 1"      [  1   !                1 = ] mt_assert
+    __POS__ "Factorial 2"      [  2   !                2 = ] mt_assert
+    __POS__ "Factorial 3"      [  3   !                6 = ] mt_assert
+    __POS__ "Factorial 10"     [ 10   !          3628800 = ] mt_assert
+    __POS__ "Factorial type 1" [ 10   ! typeOf "integer" = ] mt_assert
+    __POS__ "Factorial type 2" [ 10.0 ! typeOf "integer" = ] mt_assert
+    
 ] mt_suite
 ```
 ## Prelude operations
