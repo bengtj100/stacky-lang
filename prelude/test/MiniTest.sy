@@ -59,6 +59,8 @@ Implementation:
 [
     'test; 'desc; 'pos;
 
+    clear 
+    
     [test 0] [1] catch
         "EXPECTED TO FAIL WITH ERROR! DID NOT!"
         __mt_report
