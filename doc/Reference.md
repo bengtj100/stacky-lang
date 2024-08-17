@@ -1117,6 +1117,8 @@ The following I/O operations are currently available:
 
 Read a line from *standard input* and store it on the stack as a string. To notify the user it prints the prompt "? ". This is equivalent to `"? " prompt`.
 
+If an IO error occurs, an error will be thrown.
+
 ```
 input : [ <] ---> [ line:string <]
 ```
@@ -1163,6 +1165,8 @@ Example:
 #### The `prompt` operation
 
 Read a line from *standard input* and store it on the stack as a string. To inform the user as to what is to be read, it takes a string from the top of the stack and uses it as a prompt.
+
+If an IO error occurs, an error will be thrown.
 
 Example:
 

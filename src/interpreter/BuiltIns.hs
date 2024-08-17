@@ -698,12 +698,15 @@ defPrompt :: Value
 defPrompt = ValOp noPos "prompt" $ \cxt@Cxt{stack = s0} ->
             case s0 of
                 ValString p prompt : s1 ->
-                    do str <- getLines prompt
-                       return $ Right cxt{stack = ValString p str : s1}
+                    (do str <- getLines prompt
+                        return $ Right cxt{stack = ValString p str : s1}) `catch` (promptError p)
                 val : _ ->
                     return $ typeError1 val "prompt" "a string to use as a prompt" val
                 _ ->
                     return $ stackUnderflowError ValNoop "prompt"
+
+promptError :: Position -> IOError -> IO (Result a)
+promptError pos err = return $ newErrPos pos $ show err
 
 -------------------------------------------------------------------------------------------------------
 
