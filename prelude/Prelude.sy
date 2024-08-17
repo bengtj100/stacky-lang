@@ -435,6 +435,14 @@ Implementation:
 ] 'implode;
 ```
 
+## Input/output operations
+
+### `input`
+
+```
+[ "? " prompt ] 'input;
+```
+
 # THAT'S ALL FOLKS!!
 
 ```

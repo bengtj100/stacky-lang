@@ -119,7 +119,7 @@ builtIns =
                defChr, defOrd,
                        
                -- Input/output operations
-               defPrint, defPut, defPutLn, defInput, defPrompt, defReadFile,
+               defPrint, defPut, defPutLn, defPrompt, defReadFile,
 
                -- Reflection/introspection operations
                defApply, defApplyList, defEval, defImport, defEnv, defTypeOf,
@@ -691,13 +691,6 @@ putVal f n = ValOp noPos n $ \cxt@Cxt{stack = s0} ->
                         return $  Right cxt{stack = s1}
                  _  ->
                      return $ stackUnderflowError ValNoop n
-
--------------------------------------------------------------------------------------------------------
-
-defInput :: Value
-defInput = ValOp noPos "input" $ \cxt@Cxt{stack = s0} ->
-           do str <- getLines "? "
-              return $ Right cxt{stack = ValString noPos str : s0}
 
 -------------------------------------------------------------------------------------------------------
 
