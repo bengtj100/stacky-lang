@@ -109,8 +109,8 @@ mkList = ok (\(p, _, _) xs -> ValList p xs)
 
 mkPos :: Parser PosTok Error (PosTok -> Value)
 mkPos = ok (\(p, _, _) -> ValList p [ValString p $ fileName p,
-                                     ValInt p $ toInteger $ (1 + linePos p),
-                                     ValInt p $ toInteger $ (1 + charPos p)])
+                                     ValInt p $ toInteger $ linePos p,
+                                     ValInt p $ toInteger $ charPos p])
         
 pPos       = mkPos                   `ap` pMatch Ident "__POS__"
 

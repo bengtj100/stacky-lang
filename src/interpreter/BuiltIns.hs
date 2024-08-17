@@ -123,7 +123,8 @@ builtIns =
 
                -- Reflection/introspection operations
                defApply, defApplyList, defEval, defImport, defEnv, defTypeOf,
-               defTypeInfo, defExpectType, defExpectDepth, defThrow, defCatch
+               defTypeInfo, defExpectType, defExpectDepth, defThrow, defCatch,
+               defCallPos
               ]
 
 -------------------------------------------------------------------------------------------------------
@@ -929,6 +930,13 @@ pos2val :: Position -> Value
 pos2val pos = ValList pos [ValString pos (fileName pos),
                            ValInt    pos (toInteger $ linePos pos),
                            ValInt    pos (toInteger $ charPos pos)]
+
+-------------------------------------------------------------------------------------------------------
+
+defCallPos :: Value
+defCallPos =
+    ValOp noPos "__CALLPOS__" $ \cxt@Cxt{stack = s0, callPos = cPos} ->
+        return $ Right cxt{stack = pos2val cPos : s0}
 
 -------------------------------------------------------------------------------------------------------
 --  Local helper functions

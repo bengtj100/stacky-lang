@@ -15,6 +15,8 @@
 * Unit test framework MiniTest.sy released.
 * Added variables that can be updated using the `;=;` and `UPDATE` operations.
 * Automated language tests added. Will run on `make test` and important operations like `release`
+* Added the `__CALLPOS__` operation that gives the location the current operation was called from.
+  - Modified MiniTest to take advantage of this, thus no more `__POS__` in assert statements.
 
 ## 0.2.2 -- 2024-08-11
 

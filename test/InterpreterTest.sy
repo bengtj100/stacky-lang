@@ -45,12 +45,12 @@ mt_init
 ```
 "Basic interpreter tests"
 [
-    __POS__ "Push"             [ depth 'd1; 1 2 3 depth 'd2; d2 d1 - 3 =] mt_assert
-    __POS__ "Auto apply"       [ [1 2 3 + +]'f;  f             6 =]       mt_assert
-    __POS__ "Inihibit"         [ [1 2 3 + +]'f; 'f            'f =]       mt_assert
-    __POS__ "Load Inihibit"    [ [1 2 3 + +]'f; ^f   [1 2 3 + +] =]       mt_assert
-    __POS__ "Explicit apply 1" [ [1 2 3 + +]'f; 'f @           6 =]       mt_assert
-    __POS__ "Explicit apply 2" [ [1 2 3 + +]'f; ^f @           6 =]       mt_assert
+    "Push"             [ depth 'd1; 1 2 3 depth 'd2; d2 d1 - 3 =] mt_assert
+    "Auto apply"       [ [1 2 3 + +]'f;  f             6 =]       mt_assert
+    "Inihibit"         [ [1 2 3 + +]'f; 'f            'f =]       mt_assert
+    "Load Inihibit"    [ [1 2 3 + +]'f; ^f   [1 2 3 + +] =]       mt_assert
+    "Explicit apply 1" [ [1 2 3 + +]'f; 'f @           6 =]       mt_assert
+    "Explicit apply 2" [ [1 2 3 + +]'f; ^f @           6 =]       mt_assert
 ] mt_suite
 ```
 
@@ -59,13 +59,13 @@ mt_init
 ```
 "Truthiness"
 [
-    __POS__ "0       is false"   [ 0   ~ ] mt_assert
-    __POS__ "0.0     is false"   [ 0.0 ~ ] mt_assert
-    __POS__ "[]      is false"   [ []  ~ ] mt_assert
-    __POS__ "\"\"      is false" [ ""  ~ ] mt_assert
+    "0       is false"   [ 0   ~ ] mt_assert
+    "0.0     is false"   [ 0.0 ~ ] mt_assert
+    "[]      is false"   [ []  ~ ] mt_assert
+    "\"\"      is false" [ ""  ~ ] mt_assert
     
-    __POS__ "'false  is false" [ 'false  ~ ] mt_assert
-    __POS__ "false   is false" [ 'false  ~ ] mt_assert
+    "'false  is false" [ 'false  ~ ] mt_assert
+    "false   is false" [ 'false  ~ ] mt_assert
 ] mt_suite
 ```
 
@@ -76,120 +76,120 @@ mt_init
 ```
 "Built-in operations: Arithmetic"
 [
-    __POS__ "Add zero 1"     [   0   0 +    0 = ] mt_assert
-    __POS__ "Add zero 2"     [   0   1 +    1 = ] mt_assert
-    __POS__ "Add zero 3"     [   1   0 +    1 = ] mt_assert
-    __POS__ "Add positive"   [  42  33 +   75 = ] mt_assert
-    __POS__ "Add negative 1" [  42 -33 +    9 = ] mt_assert
-    __POS__ "Add negative 2" [ -42 -33 +  -75 = ] mt_assert
-    __POS__ "Add float 1a"   [ 1.0 2.0 +  3.0 = ] mt_assert
-    __POS__ "Add float 2a"   [ 1   2.0 +  3.0 = ] mt_assert
-    __POS__ "Add float 3a"   [ 1.0 2   +  3.0 = ] mt_assert
-    __POS__ "Add type 0b"    [ 1   2   + typeOf "integer" = ] mt_assert
-    __POS__ "Add type 1b"    [ 1.0 2.0 + typeOf "float"   = ] mt_assert
-    __POS__ "Add type 2b"    [ 1   2.0 + typeOf "float"   = ] mt_assert
-    __POS__ "Add type 3b"    [ 1.0 2   + typeOf "float"   = ] mt_assert
+    "Add zero 1"     [   0   0 +    0 = ] mt_assert
+    "Add zero 2"     [   0   1 +    1 = ] mt_assert
+    "Add zero 3"     [   1   0 +    1 = ] mt_assert
+    "Add positive"   [  42  33 +   75 = ] mt_assert
+    "Add negative 1" [  42 -33 +    9 = ] mt_assert
+    "Add negative 2" [ -42 -33 +  -75 = ] mt_assert
+    "Add float 1a"   [ 1.0 2.0 +  3.0 = ] mt_assert
+    "Add float 2a"   [ 1   2.0 +  3.0 = ] mt_assert
+    "Add float 3a"   [ 1.0 2   +  3.0 = ] mt_assert
+    "Add type 0b"    [ 1   2   + typeOf "integer" = ] mt_assert
+    "Add type 1b"    [ 1.0 2.0 + typeOf "float"   = ] mt_assert
+    "Add type 2b"    [ 1   2.0 + typeOf "float"   = ] mt_assert
+    "Add type 3b"    [ 1.0 2   + typeOf "float"   = ] mt_assert
 
-    __POS__ "Sub zero 1"     [   0   0 -    0 = ] mt_assert
-    __POS__ "Sub zero 2"     [   0   1 -   -1 = ] mt_assert
-    __POS__ "Sub zero 3"     [   1   0 -    1 = ] mt_assert
-    __POS__ "Sub positive"   [  42  33 -    9 = ] mt_assert
-    __POS__ "Sub negative 1" [  42 -33 -   75 = ] mt_assert
-    __POS__ "Sub negative 2" [ -42 -33 -   -9 = ] mt_assert
-    __POS__ "Sub float 1a"   [ 1.0 2.0 -  -1.0 = ] mt_assert
-    __POS__ "Sub float 2a"   [ 1   2.0 -  -1.0 = ] mt_assert
-    __POS__ "Sub float 3a"   [ 1.0 2   -  -1.0 = ] mt_assert
-    __POS__ "Sub type 0b"    [ 1   2   - typeOf "integer" = ] mt_assert
-    __POS__ "Sub type 1b"    [ 1.0 2.0 - typeOf "float"   = ] mt_assert
-    __POS__ "Sub type 2b"    [ 1   2.0 - typeOf "float"   = ] mt_assert
-    __POS__ "Sub type 3b"    [ 1.0 2   - typeOf "float"   = ] mt_assert
+    "Sub zero 1"     [   0   0 -    0 = ] mt_assert
+    "Sub zero 2"     [   0   1 -   -1 = ] mt_assert
+    "Sub zero 3"     [   1   0 -    1 = ] mt_assert
+    "Sub positive"   [  42  33 -    9 = ] mt_assert
+    "Sub negative 1" [  42 -33 -   75 = ] mt_assert
+    "Sub negative 2" [ -42 -33 -   -9 = ] mt_assert
+    "Sub float 1a"   [ 1.0 2.0 -  -1.0 = ] mt_assert
+    "Sub float 2a"   [ 1   2.0 -  -1.0 = ] mt_assert
+    "Sub float 3a"   [ 1.0 2   -  -1.0 = ] mt_assert
+    "Sub type 0b"    [ 1   2   - typeOf "integer" = ] mt_assert
+    "Sub type 1b"    [ 1.0 2.0 - typeOf "float"   = ] mt_assert
+    "Sub type 2b"    [ 1   2.0 - typeOf "float"   = ] mt_assert
+    "Sub type 3b"    [ 1.0 2   - typeOf "float"   = ] mt_assert
 
-    __POS__ "Mul zero 1"     [   0   0 *      0 = ] mt_assert
-    __POS__ "Mul zero 2"     [   0   1 *      0 = ] mt_assert
-    __POS__ "Mul zero 3"     [   1   0 *      0 = ] mt_assert
-    __POS__ "Mul positive"   [  42  33 *   1386 = ] mt_assert
-    __POS__ "Mul negative 1" [  42 -33 *  -1386 = ] mt_assert
-    __POS__ "Mul negative 2" [ -42 -33 *   1386 = ] mt_assert
-    __POS__ "Mul float 1a"   [ 1.0 2.0 *  2.0 = ] mt_assert
-    __POS__ "Mul float 2a"   [ 1   2.0 *  2.0 = ] mt_assert
-    __POS__ "Mul float 2a"   [ 1.0 2   *  2.0 = ] mt_assert
-    __POS__ "Mul type 0b"    [ 1   2   * typeOf "integer" = ] mt_assert
-    __POS__ "Mul type 1b"    [ 1.0 2.0 * typeOf "float"   = ] mt_assert
-    __POS__ "Mul type 2b"    [ 1   2.0 * typeOf "float"   = ] mt_assert
-    __POS__ "Mul type 3b"    [ 1.0 2   * typeOf "float"   = ] mt_assert
+    "Mul zero 1"     [   0   0 *      0 = ] mt_assert
+    "Mul zero 2"     [   0   1 *      0 = ] mt_assert
+    "Mul zero 3"     [   1   0 *      0 = ] mt_assert
+    "Mul positive"   [  42  33 *   1386 = ] mt_assert
+    "Mul negative 1" [  42 -33 *  -1386 = ] mt_assert
+    "Mul negative 2" [ -42 -33 *   1386 = ] mt_assert
+    "Mul float 1a"   [ 1.0 2.0 *  2.0 = ] mt_assert
+    "Mul float 2a"   [ 1   2.0 *  2.0 = ] mt_assert
+    "Mul float 2a"   [ 1.0 2   *  2.0 = ] mt_assert
+    "Mul type 0b"    [ 1   2   * typeOf "integer" = ] mt_assert
+    "Mul type 1b"    [ 1.0 2.0 * typeOf "float"   = ] mt_assert
+    "Mul type 2b"    [ 1   2.0 * typeOf "float"   = ] mt_assert
+    "Mul type 3b"    [ 1.0 2   * typeOf "float"   = ] mt_assert
 
-    __POS__ "Div zero 1"     [   0   0 /       ] mt_assertError
-    __POS__ "Div zero 2"     [   0   1 /   0 = ] mt_assert
-    __POS__ "Div zero 3"     [   1   0 /       ] mt_assertError
-    __POS__ "Div positive"   [  20   5 /   4 = ] mt_assert
-    __POS__ "Div negative 1" [  20  -5 /  -4 = ] mt_assert
-    __POS__ "Div negative 2" [ -20  -5 /   4 = ] mt_assert
-    __POS__ "Div float 1a"   [ 1.0 2.0 /  0.5 = ] mt_assert
-    __POS__ "Div float 2a"   [ 1   2.0 /  0.5 = ] mt_assert
-    __POS__ "Div float 2a"   [ 1.0 2   /  0.5 = ] mt_assert
-    __POS__ "Div type 0b"    [ 1   2   / typeOf "integer" = ] mt_assert
-    __POS__ "Div type 1b"    [ 1.0 2.0 / typeOf "float"   = ] mt_assert
-    __POS__ "Div type 2b"    [ 1   2.0 / typeOf "float"   = ] mt_assert
-    __POS__ "Div type 3b"    [ 1.0 2   / typeOf "float"   = ] mt_assert
+    "Div zero 1"     [   0   0 /       ] mt_assertError
+    "Div zero 2"     [   0   1 /   0 = ] mt_assert
+    "Div zero 3"     [   1   0 /       ] mt_assertError
+    "Div positive"   [  20   5 /   4 = ] mt_assert
+    "Div negative 1" [  20  -5 /  -4 = ] mt_assert
+    "Div negative 2" [ -20  -5 /   4 = ] mt_assert
+    "Div float 1a"   [ 1.0 2.0 /  0.5 = ] mt_assert
+    "Div float 2a"   [ 1   2.0 /  0.5 = ] mt_assert
+    "Div float 2a"   [ 1.0 2   /  0.5 = ] mt_assert
+    "Div type 0b"    [ 1   2   / typeOf "integer" = ] mt_assert
+    "Div type 1b"    [ 1.0 2.0 / typeOf "float"   = ] mt_assert
+    "Div type 2b"    [ 1   2.0 / typeOf "float"   = ] mt_assert
+    "Div type 3b"    [ 1.0 2   / typeOf "float"   = ] mt_assert
 
-    __POS__ "Rem 1"          [ 20   2   %   0 = ] mt_assert
-    __POS__ "Rem 2"          [ 21   2   %   1 = ] mt_assert
-    __POS__ "Rem zero"       [ 20   0   %       ] mt_assertError
-    __POS__ "Rem float 1"    [ 20.0 2.0 % 0.0 = ] mt_assert
-    __POS__ "Rem float 2"    [ 21.0 2.0 % 1.0 = ] mt_assert
-    __POS__ "Rem float zero" [ 20.0 0.0 %       ] mt_assertError
-    __POS__ "Rem type 0"     [ 20   1   % typeOf "integer" = ] mt_assert
-    __POS__ "Rem type 1"     [ 20.0 1   % typeOf "float"   = ] mt_assert
-    __POS__ "Rem type 2"     [ 20   1.0 % typeOf "float"   = ] mt_assert
-    __POS__ "Rem type 3"     [ 20.0 1.0 % typeOf "float"   = ] mt_assert
+    "Rem 1"          [ 20   2   %   0 = ] mt_assert
+    "Rem 2"          [ 21   2   %   1 = ] mt_assert
+    "Rem zero"       [ 20   0   %       ] mt_assertError
+    "Rem float 1"    [ 20.0 2.0 % 0.0 = ] mt_assert
+    "Rem float 2"    [ 21.0 2.0 % 1.0 = ] mt_assert
+    "Rem float zero" [ 20.0 0.0 %       ] mt_assertError
+    "Rem type 0"     [ 20   1   % typeOf "integer" = ] mt_assert
+    "Rem type 1"     [ 20.0 1   % typeOf "float"   = ] mt_assert
+    "Rem type 2"     [ 20   1.0 % typeOf "float"   = ] mt_assert
+    "Rem type 3"     [ 20.0 1.0 % typeOf "float"   = ] mt_assert
     
-    __POS__ "Int   pow  -16" [ 2   -16   pow                 0 = ] mt_assert
-    __POS__ "Int   pow   -1" [ 2    -1   pow                 0 = ] mt_assert
-    __POS__ "Int   pow    0" [ 2     0   pow                 1 = ] mt_assert
-    __POS__ "Int   pow   16" [ 2    16   pow             65536 = ] mt_assert
-    __POS__ "Float pow  -16" [ 2.0 -16.0 pow     1.0 65536.0 / = ] mt_assert
-    __POS__ "Float pow   -1" [ 2.0 -1.0  pow               0.5 = ] mt_assert
-    __POS__ "Float pow    0" [ 2.0  0.0  pow               1.0 = ] mt_assert
-    __POS__ "Float pow   16" [ 2.0 16.0  pow           65536.0 = ] mt_assert
-    __POS__ "Int   pow type" [ 2   16    pow  typeOf "integer" = ] mt_assert
-    __POS__ "Float pow type" [ 2.0 16.0  pow  typeOf "float"   = ] mt_assert
+    "Int   pow  -16" [ 2   -16   pow                 0 = ] mt_assert
+    "Int   pow   -1" [ 2    -1   pow                 0 = ] mt_assert
+    "Int   pow    0" [ 2     0   pow                 1 = ] mt_assert
+    "Int   pow   16" [ 2    16   pow             65536 = ] mt_assert
+    "Float pow  -16" [ 2.0 -16.0 pow     1.0 65536.0 / = ] mt_assert
+    "Float pow   -1" [ 2.0 -1.0  pow               0.5 = ] mt_assert
+    "Float pow    0" [ 2.0  0.0  pow               1.0 = ] mt_assert
+    "Float pow   16" [ 2.0 16.0  pow           65536.0 = ] mt_assert
+    "Int   pow type" [ 2   16    pow  typeOf "integer" = ] mt_assert
+    "Float pow type" [ 2.0 16.0  pow  typeOf "float"   = ] mt_assert
     
-    __POS__ "Floor int"  [ 42           floor               42 = ] mt_assert
-    __POS__ "Floor 1"    [ 41.999999999 floor               41 = ] mt_assert
-    __POS__ "Floor 1"    [ 42.0         floor               42 = ] mt_assert
-    __POS__ "Floor 1"    [ 42.000000001 floor               42 = ] mt_assert
-    __POS__ "Floor type" [ 42.000000001 floor typeOf "integer" = ] mt_assert
+    "Floor int"  [ 42           floor               42 = ] mt_assert
+    "Floor 1"    [ 41.999999999 floor               41 = ] mt_assert
+    "Floor 1"    [ 42.0         floor               42 = ] mt_assert
+    "Floor 1"    [ 42.000000001 floor               42 = ] mt_assert
+    "Floor type" [ 42.000000001 floor typeOf "integer" = ] mt_assert
     
-    __POS__ "Abs int 1"      [  33   abs                33 = ] mt_assert
-    __POS__ "Abs int 2"      [ -33   abs                33 = ] mt_assert
-    __POS__ "Abs int type"   [ -33   abs  typeOf "integer" = ] mt_assert
-    __POS__ "Abs float 1"    [  33.0 abs              33.0 = ] mt_assert
-    __POS__ "Abs float 2"    [ -33.0 abs              33.0 = ] mt_assert
-    __POS__ "Abs float type" [ -33.0 abs    typeOf "float" = ] mt_assert
+    "Abs int 1"      [  33   abs                33 = ] mt_assert
+    "Abs int 2"      [ -33   abs                33 = ] mt_assert
+    "Abs int type"   [ -33   abs  typeOf "integer" = ] mt_assert
+    "Abs float 1"    [  33.0 abs              33.0 = ] mt_assert
+    "Abs float 2"    [ -33.0 abs              33.0 = ] mt_assert
+    "Abs float type" [ -33.0 abs    typeOf "float" = ] mt_assert
     
-    __POS__ "Sign int 1"      [  33   sign                 1 = ] mt_assert
-    __POS__ "Sign int 2"      [ -33   sign                -1 = ] mt_assert
-    __POS__ "Sign int type"   [ -33   sign  typeOf "integer" = ] mt_assert
-    __POS__ "Sign float 1"    [  33.0 sign               1.0 = ] mt_assert
-    __POS__ "Sign float 2"    [ -33.0 sign              -1.0 = ] mt_assert
-    __POS__ "Sign float type" [ -33.0 sign    typeOf "float" = ] mt_assert
+    "Sign int 1"      [  33   sign                 1 = ] mt_assert
+    "Sign int 2"      [ -33   sign                -1 = ] mt_assert
+    "Sign int type"   [ -33   sign  typeOf "integer" = ] mt_assert
+    "Sign float 1"    [  33.0 sign               1.0 = ] mt_assert
+    "Sign float 2"    [ -33.0 sign              -1.0 = ] mt_assert
+    "Sign float type" [ -33.0 sign    typeOf "float" = ] mt_assert
     
-    __POS__ "Log exp   1" [   0 log exp   0.0 nearZ ] mt_assert
-    __POS__ "Log exp 100" [ 100 log exp 100.0 nearZ ] mt_assert
+    "Log exp   1" [   0 log exp   0.0 nearZ ] mt_assert
+    "Log exp 100" [ 100 log exp 100.0 nearZ ] mt_assert
 
-    __POS__ "Log2 pow   1" [ 2   0 log2 pow   0.0 nearZ ] mt_assert
-    __POS__ "Log2 pow 100" [ 2 100 log2 pow 100.0 nearZ ] mt_assert
+    "Log2 pow   1" [ 2   0 log2 pow   0.0 nearZ ] mt_assert
+    "Log2 pow 100" [ 2 100 log2 pow 100.0 nearZ ] mt_assert
 
-    __POS__ "Log10 pow   1" [ 10   0 log10 pow   0.0 nearZ ] mt_assert
-    __POS__ "Log10 pow 100" [ 10 100 log10 pow 100.0 nearZ ] mt_assert
+    "Log10 pow   1" [ 10   0 log10 pow   0.0 nearZ ] mt_assert
+    "Log10 pow 100" [ 10 100 log10 pow 100.0 nearZ ] mt_assert
     
-    __POS__ "Factorial 0"      [  0   !                1 = ] mt_assert
-    __POS__ "Factorial 1"      [  1   !                1 = ] mt_assert
-    __POS__ "Factorial 2"      [  2   !                2 = ] mt_assert
-    __POS__ "Factorial 3"      [  3   !                6 = ] mt_assert
-    __POS__ "Factorial 10"     [ 10   !          3628800 = ] mt_assert
-    __POS__ "Factorial type 1" [ 10   ! typeOf "integer" = ] mt_assert
-    __POS__ "Factorial type 2" [ 10.0 ! typeOf "integer" = ] mt_assert
+    "Factorial 0"      [  0   !                1 = ] mt_assert
+    "Factorial 1"      [  1   !                1 = ] mt_assert
+    "Factorial 2"      [  2   !                2 = ] mt_assert
+    "Factorial 3"      [  3   !                6 = ] mt_assert
+    "Factorial 10"     [ 10   !          3628800 = ] mt_assert
+    "Factorial type 1" [ 10   ! typeOf "integer" = ] mt_assert
+    "Factorial type 2" [ 10.0 ! typeOf "integer" = ] mt_assert
     
 ] mt_suite
 ```
@@ -199,105 +199,105 @@ mt_init
 ```
 "Built-in operations: Comparisons"
 [
-    __POS__ "EQ int    int     1"  [ 4   5   =   0 = ] mt_assert
-    __POS__ "EQ int    int     2"  [ 5   5   =   1 = ] mt_assert
-    __POS__ "EQ float  float   1"  [ 4.0 5.0 =   0 = ] mt_assert
-    __POS__ "EQ float  float   2"  [ 5.0 5.0 =   1 = ] mt_assert
-    __POS__ "EQ float  int     1"  [ 4   4.0 =   1 = ] mt_assert
-    __POS__ "EQ float  int     2"  [ 5.0 5   =   1 = ] mt_assert
-    __POS__ "EQ int    atom"       [ 42    'foo   =  ] mt_assertError
-    __POS__ "EQ int    string"     [ 42    "foo"  =  ] mt_assertError
-    __POS__ "EQ int    list"       [ 42    [42]   =  ] mt_assertError
-    __POS__ "EQ float  atom"       [ 42.0  'foo   =  ] mt_assertError
-    __POS__ "EQ float  string"     [ 42.0  "foo"  =  ] mt_assertError
-    __POS__ "EQ float  list"       [ 42.0  [42.0] =  ] mt_assertError
-    __POS__ "EQ atom   string"     [ 'foo  "foo" =   ] mt_assertError
-    __POS__ "EQ atom   list"       [ 'foo  "foo" =   ] mt_assertError
-    __POS__ "EQ string list"       [ "foo" ["foo"] = ] mt_assertError
+    "EQ int    int     1"  [ 4   5   =   0 = ] mt_assert
+    "EQ int    int     2"  [ 5   5   =   1 = ] mt_assert
+    "EQ float  float   1"  [ 4.0 5.0 =   0 = ] mt_assert
+    "EQ float  float   2"  [ 5.0 5.0 =   1 = ] mt_assert
+    "EQ float  int     1"  [ 4   4.0 =   1 = ] mt_assert
+    "EQ float  int     2"  [ 5.0 5   =   1 = ] mt_assert
+    "EQ int    atom"       [ 42    'foo   =  ] mt_assertError
+    "EQ int    string"     [ 42    "foo"  =  ] mt_assertError
+    "EQ int    list"       [ 42    [42]   =  ] mt_assertError
+    "EQ float  atom"       [ 42.0  'foo   =  ] mt_assertError
+    "EQ float  string"     [ 42.0  "foo"  =  ] mt_assertError
+    "EQ float  list"       [ 42.0  [42.0] =  ] mt_assertError
+    "EQ atom   string"     [ 'foo  "foo" =   ] mt_assertError
+    "EQ atom   list"       [ 'foo  "foo" =   ] mt_assertError
+    "EQ string list"       [ "foo" ["foo"] = ] mt_assertError
         
-    __POS__ "NEQ int    int     1"  [ 4   5   <>   1 = ] mt_assert
-    __POS__ "NEQ int    int     2"  [ 5   5   <>   0 = ] mt_assert
-    __POS__ "NEQ float  float   1"  [ 4.0 5.0 <>   1 = ] mt_assert
-    __POS__ "NEQ float  float   2"  [ 5.0 5.0 <>   0 = ] mt_assert
-    __POS__ "NEQ float  int     1"  [ 4   5.0 <>   1 = ] mt_assert
-    __POS__ "NEQ float  int     2"  [ 5.0 4   <>   1 = ] mt_assert
-    __POS__ "NEQ int    atom"       [ 42    'foo   <>  ] mt_assertError
-    __POS__ "NEQ int    string"     [ 42    "foo"  <>  ] mt_assertError
-    __POS__ "NEQ int    list"       [ 42    [42]   <>  ] mt_assertError
-    __POS__ "NEQ float  atom"       [ 42.0  'foo   <>  ] mt_assertError
-    __POS__ "NEQ float  string"     [ 42.0  "foo"  <>  ] mt_assertError
-    __POS__ "NEQ float  list"       [ 42.0  [42.0] <>  ] mt_assertError
-    __POS__ "NEQ atom   string"     [ 'foo  "foo" <>   ] mt_assertError
-    __POS__ "NEQ atom   list"       [ 'foo  "foo" <>   ] mt_assertError
-    __POS__ "NEQ string list"       [ "foo" ["foo"] <> ] mt_assertError
+    "NEQ int    int     1"  [ 4   5   <>   1 = ] mt_assert
+    "NEQ int    int     2"  [ 5   5   <>   0 = ] mt_assert
+    "NEQ float  float   1"  [ 4.0 5.0 <>   1 = ] mt_assert
+    "NEQ float  float   2"  [ 5.0 5.0 <>   0 = ] mt_assert
+    "NEQ float  int     1"  [ 4   5.0 <>   1 = ] mt_assert
+    "NEQ float  int     2"  [ 5.0 4   <>   1 = ] mt_assert
+    "NEQ int    atom"       [ 42    'foo   <>  ] mt_assertError
+    "NEQ int    string"     [ 42    "foo"  <>  ] mt_assertError
+    "NEQ int    list"       [ 42    [42]   <>  ] mt_assertError
+    "NEQ float  atom"       [ 42.0  'foo   <>  ] mt_assertError
+    "NEQ float  string"     [ 42.0  "foo"  <>  ] mt_assertError
+    "NEQ float  list"       [ 42.0  [42.0] <>  ] mt_assertError
+    "NEQ atom   string"     [ 'foo  "foo" <>   ] mt_assertError
+    "NEQ atom   list"       [ 'foo  "foo" <>   ] mt_assertError
+    "NEQ string list"       [ "foo" ["foo"] <> ] mt_assertError
         
-    __POS__ "LT int    int     1"  [ 4   5   <   1 = ] mt_assert
-    __POS__ "LT int    int     2"  [ 5   5   <   0 = ] mt_assert
-    __POS__ "LT float  float   1"  [ 4.0 5.0 <   1 = ] mt_assert
-    __POS__ "LT float  float   2"  [ 5.0 5.0 <   0 = ] mt_assert
-    __POS__ "LT float  int     1"  [ 4   5.0 <   1 = ] mt_assert
-    __POS__ "LT float  int     2"  [ 5.0 4   <   0 = ] mt_assert
-    __POS__ "LT int    atom"       [ 42    'foo   <  ] mt_assertError
-    __POS__ "LT int    string"     [ 42    "foo"  <  ] mt_assertError
-    __POS__ "LT int    list"       [ 42    [42]   <  ] mt_assertError
-    __POS__ "LT float  atom"       [ 42.0  'foo   <  ] mt_assertError
-    __POS__ "LT float  string"     [ 42.0  "foo"  <  ] mt_assertError
-    __POS__ "LT float  list"       [ 42.0  [42.0] <  ] mt_assertError
-    __POS__ "LT atom   string"     [ 'foo  "foo" <   ] mt_assertError
-    __POS__ "LT atom   list"       [ 'foo  "foo" <   ] mt_assertError
-    __POS__ "LT string list"       [ "foo" ["foo"] < ] mt_assertError
+    "LT int    int     1"  [ 4   5   <   1 = ] mt_assert
+    "LT int    int     2"  [ 5   5   <   0 = ] mt_assert
+    "LT float  float   1"  [ 4.0 5.0 <   1 = ] mt_assert
+    "LT float  float   2"  [ 5.0 5.0 <   0 = ] mt_assert
+    "LT float  int     1"  [ 4   5.0 <   1 = ] mt_assert
+    "LT float  int     2"  [ 5.0 4   <   0 = ] mt_assert
+    "LT int    atom"       [ 42    'foo   <  ] mt_assertError
+    "LT int    string"     [ 42    "foo"  <  ] mt_assertError
+    "LT int    list"       [ 42    [42]   <  ] mt_assertError
+    "LT float  atom"       [ 42.0  'foo   <  ] mt_assertError
+    "LT float  string"     [ 42.0  "foo"  <  ] mt_assertError
+    "LT float  list"       [ 42.0  [42.0] <  ] mt_assertError
+    "LT atom   string"     [ 'foo  "foo" <   ] mt_assertError
+    "LT atom   list"       [ 'foo  "foo" <   ] mt_assertError
+    "LT string list"       [ "foo" ["foo"] < ] mt_assertError
         
-    __POS__ "GT int    int     1"  [ 5   4   >   1 = ] mt_assert
-    __POS__ "GT int    int     2"  [ 5   5   >   0 = ] mt_assert
-    __POS__ "GT float  float   1"  [ 5.0 4.0 >   1 = ] mt_assert
-    __POS__ "GT float  float   2"  [ 5.0 5.0 >   0 = ] mt_assert
-    __POS__ "GT float  int     1"  [ 5   4.0 >   1 = ] mt_assert
-    __POS__ "GT float  int     2"  [ 5.0 4   >   1 = ] mt_assert
-    __POS__ "GT int    atom"       [ 42    'foo   >  ] mt_assertError
-    __POS__ "GT int    string"     [ 42    "foo"  >  ] mt_assertError
-    __POS__ "GT int    list"       [ 42    [42]   >  ] mt_assertError
-    __POS__ "GT float  atom"       [ 42.0  'foo   >  ] mt_assertError
-    __POS__ "GT float  string"     [ 42.0  "foo"  >  ] mt_assertError
-    __POS__ "GT float  list"       [ 42.0  [42.0] >  ] mt_assertError
-    __POS__ "GT atom   string"     [ 'foo  "foo" >   ] mt_assertError
-    __POS__ "GT atom   list"       [ 'foo  "foo" >   ] mt_assertError
-    __POS__ "GT string list"       [ "foo" ["foo"] > ] mt_assertError
+    "GT int    int     1"  [ 5   4   >   1 = ] mt_assert
+    "GT int    int     2"  [ 5   5   >   0 = ] mt_assert
+    "GT float  float   1"  [ 5.0 4.0 >   1 = ] mt_assert
+    "GT float  float   2"  [ 5.0 5.0 >   0 = ] mt_assert
+    "GT float  int     1"  [ 5   4.0 >   1 = ] mt_assert
+    "GT float  int     2"  [ 5.0 4   >   1 = ] mt_assert
+    "GT int    atom"       [ 42    'foo   >  ] mt_assertError
+    "GT int    string"     [ 42    "foo"  >  ] mt_assertError
+    "GT int    list"       [ 42    [42]   >  ] mt_assertError
+    "GT float  atom"       [ 42.0  'foo   >  ] mt_assertError
+    "GT float  string"     [ 42.0  "foo"  >  ] mt_assertError
+    "GT float  list"       [ 42.0  [42.0] >  ] mt_assertError
+    "GT atom   string"     [ 'foo  "foo" >   ] mt_assertError
+    "GT atom   list"       [ 'foo  "foo" >   ] mt_assertError
+    "GT string list"       [ "foo" ["foo"] > ] mt_assertError
         
-    __POS__ "LE int    int     1"  [ 4   5   <=   1 = ] mt_assert
-    __POS__ "LE int    int     2"  [ 5   5   <=   1 = ] mt_assert
-    __POS__ "LE int    int     3"  [ 6   5   <=   0 = ] mt_assert
-    __POS__ "LE float  float   1"  [ 4.0 5.0 <=   1 = ] mt_assert
-    __POS__ "LE float  float   2"  [ 5.0 5.0 <=   1 = ] mt_assert
-    __POS__ "LE float  float   3"  [ 6.0 5.0 <=   0 = ] mt_assert
-    __POS__ "LE float  int     1"  [ 4   5.0 <=   1 = ] mt_assert
-    __POS__ "LE float  int     2"  [ 4.0 5   <=   1 = ] mt_assert
-    __POS__ "LE int    atom"       [ 42    'foo   <=  ] mt_assertError
-    __POS__ "LE int    string"     [ 42    "foo"  <=  ] mt_assertError
-    __POS__ "LE int    list"       [ 42    [42]   <=  ] mt_assertError
-    __POS__ "LE float  atom"       [ 42.0  'foo   <=  ] mt_assertError
-    __POS__ "LE float  string"     [ 42.0  "foo"  <=  ] mt_assertError
-    __POS__ "LE float  list"       [ 42.0  [42.0] <=  ] mt_assertError
-    __POS__ "LE atom   string"     [ 'foo  "foo" <=   ] mt_assertError
-    __POS__ "LE atom   list"       [ 'foo  "foo" <=   ] mt_assertError
-    __POS__ "LE string list"       [ "foo" ["foo"] <= ] mt_assertError
+    "LE int    int     1"  [ 4   5   <=   1 = ] mt_assert
+    "LE int    int     2"  [ 5   5   <=   1 = ] mt_assert
+    "LE int    int     3"  [ 6   5   <=   0 = ] mt_assert
+    "LE float  float   1"  [ 4.0 5.0 <=   1 = ] mt_assert
+    "LE float  float   2"  [ 5.0 5.0 <=   1 = ] mt_assert
+    "LE float  float   3"  [ 6.0 5.0 <=   0 = ] mt_assert
+    "LE float  int     1"  [ 4   5.0 <=   1 = ] mt_assert
+    "LE float  int     2"  [ 4.0 5   <=   1 = ] mt_assert
+    "LE int    atom"       [ 42    'foo   <=  ] mt_assertError
+    "LE int    string"     [ 42    "foo"  <=  ] mt_assertError
+    "LE int    list"       [ 42    [42]   <=  ] mt_assertError
+    "LE float  atom"       [ 42.0  'foo   <=  ] mt_assertError
+    "LE float  string"     [ 42.0  "foo"  <=  ] mt_assertError
+    "LE float  list"       [ 42.0  [42.0] <=  ] mt_assertError
+    "LE atom   string"     [ 'foo  "foo" <=   ] mt_assertError
+    "LE atom   list"       [ 'foo  "foo" <=   ] mt_assertError
+    "LE string list"       [ "foo" ["foo"] <= ] mt_assertError
         
-    __POS__ "GE int    int     1"  [ 5   4   >=   1 = ] mt_assert
-    __POS__ "GE int    int     2"  [ 5   5   >=   1 = ] mt_assert
-    __POS__ "GE int    int     3"  [ 5   6   >=   0 = ] mt_assert
-    __POS__ "GE float  float   1"  [ 5.0 4.0 >=   1 = ] mt_assert
-    __POS__ "GE float  float   2"  [ 5.0 5.0 >=   1 = ] mt_assert
-    __POS__ "GE float  float   2"  [ 5.0 6.0 >=   0 = ] mt_assert
-    __POS__ "GE float  int     1"  [ 5   4.0 >=   1 = ] mt_assert
-    __POS__ "GE float  int     2"  [ 5.0 4   >=   1 = ] mt_assert
-    __POS__ "GE int    atom"       [ 42    'foo   >=  ] mt_assertError
-    __POS__ "GE int    string"     [ 42    "foo"  >=  ] mt_assertError
-    __POS__ "GE int    list"       [ 42    [42]   >=  ] mt_assertError
-    __POS__ "GE float  atom"       [ 42.0  'foo   >=  ] mt_assertError
-    __POS__ "GE float  string"     [ 42.0  "foo"  >=  ] mt_assertError
-    __POS__ "GE float  list"       [ 42.0  [42.0] >=  ] mt_assertError
-    __POS__ "GE atom   string"     [ 'foo  "foo" >=   ] mt_assertError
-    __POS__ "GE atom   list"       [ 'foo  "foo" >=   ] mt_assertError
-    __POS__ "GE string list"       [ "foo" ["foo"] >= ] mt_assertError
+    "GE int    int     1"  [ 5   4   >=   1 = ] mt_assert
+    "GE int    int     2"  [ 5   5   >=   1 = ] mt_assert
+    "GE int    int     3"  [ 5   6   >=   0 = ] mt_assert
+    "GE float  float   1"  [ 5.0 4.0 >=   1 = ] mt_assert
+    "GE float  float   2"  [ 5.0 5.0 >=   1 = ] mt_assert
+    "GE float  float   2"  [ 5.0 6.0 >=   0 = ] mt_assert
+    "GE float  int     1"  [ 5   4.0 >=   1 = ] mt_assert
+    "GE float  int     2"  [ 5.0 4   >=   1 = ] mt_assert
+    "GE int    atom"       [ 42    'foo   >=  ] mt_assertError
+    "GE int    string"     [ 42    "foo"  >=  ] mt_assertError
+    "GE int    list"       [ 42    [42]   >=  ] mt_assertError
+    "GE float  atom"       [ 42.0  'foo   >=  ] mt_assertError
+    "GE float  string"     [ 42.0  "foo"  >=  ] mt_assertError
+    "GE float  list"       [ 42.0  [42.0] >=  ] mt_assertError
+    "GE atom   string"     [ 'foo  "foo" >=   ] mt_assertError
+    "GE atom   list"       [ 'foo  "foo" >=   ] mt_assertError
+    "GE string list"       [ "foo" ["foo"] >= ] mt_assertError
         
 ] mt_suite
 ```
@@ -307,18 +307,18 @@ mt_init
 ```
 "Built-in operations: Booleans"
 [
-    __POS__ "not (~)  0" [ 0 ~   1 = ] mt_assert
-    __POS__ "not (~)  1" [ 1 ~   0 = ] mt_assert
+    "not (~)  0" [ 0 ~   1 = ] mt_assert
+    "not (~)  1" [ 1 ~   0 = ] mt_assert
 
-    __POS__ "and     00" [ 0 0 and   0 = ] mt_assert
-    __POS__ "and     01" [ 0 1 and   0 = ] mt_assert
-    __POS__ "and     10" [ 1 0 and   0 = ] mt_assert
-    __POS__ "and     11" [ 1 1 and   1 = ] mt_assert
+    "and     00" [ 0 0 and   0 = ] mt_assert
+    "and     01" [ 0 1 and   0 = ] mt_assert
+    "and     10" [ 1 0 and   0 = ] mt_assert
+    "and     11" [ 1 1 and   1 = ] mt_assert
 
-    __POS__ "or      00" [ 0 0 or    0 = ] mt_assert
-    __POS__ "or      01" [ 0 1 or    1 = ] mt_assert
-    __POS__ "or      10" [ 1 0 or    1 = ] mt_assert
-    __POS__ "or      11" [ 1 1 or    1 = ] mt_assert
+    "or      00" [ 0 0 or    0 = ] mt_assert
+    "or      01" [ 0 1 or    1 = ] mt_assert
+    "or      10" [ 1 0 or    1 = ] mt_assert
+    "or      11" [ 1 1 or    1 = ] mt_assert
     
 ] mt_suite
 ```
@@ -328,23 +328,23 @@ mt_init
 ```
 "Built-in operations: Control"
 [
-    __POS__ "Stash undefined" [ undefined                        'undefined =    ] mt_assert
-    __POS__ "Stash defined"   [ 42 'x;                           42 x =          ] mt_assert
-    __POS__ "Stash local"     [ 42 'x; [ 33 'x; x ] @            33 = 42 x = and ] mt_assert
+    "Stash undefined" [ undefined                        'undefined =    ] mt_assert
+    "Stash defined"   [ 42 'x;                           42 x =          ] mt_assert
+    "Stash local"     [ 42 'x; [ 33 'x; x ] @            33 = 42 x = and ] mt_assert
     
-    __POS__ "Stash update"    [ 33 'x ;=;                        33 x =
-                                42 'x ;=;                        42 x = and      ] mt_assert
+    "Stash update"    [ 33 'x ;=;                        33 x =
+                        42 'x ;=;                        42 x = and      ] mt_assert
 
-    __POS__ "Global"          [ [ "foo" 'bar global ] @          "foo" bar =     ] mt_assert
+    "Global"          [ [ "foo" 'bar global ] @          "foo" bar =     ] mt_assert
     
-    __POS__ "Global update"   [ [ 33 'x UPDATE ] @               33 x =
-                                [ 42 'x UPDATE ] @               42 x = and      ] mt_assert
+    "Global update"   [ [ 33 'x UPDATE ] @               33 x =
+                        [ 42 'x UPDATE ] @               42 x = and      ] mt_assert
 
-    __POS__ "Redefine name"   [ 42 'x;    33 'x;                                 ] mt_assertError
-    __POS__ "Update readonly" [ 42 'x;    33 'x ;=;                              ] mt_assertError
+    "Redefine name"   [ 42 'x;    33 'x;                                 ] mt_assertError
+    "Update readonly" [ 42 'x;    33 'x ;=;                              ] mt_assertError
 
-    __POS__ "Cond true"       [ [33 42 =] ["then"] ["else"] ?    "else" =        ] mt_assert
-    __POS__ "Cond false"      [ [42 42 =] ["then"] ["else"] ?    "then" =        ] mt_assert
+    "Cond true"       [ [33 42 =] ["then"] ["else"] ?    "else" =        ] mt_assert
+    "Cond false"      [ [42 42 =] ["then"] ["else"] ?    "then" =        ] mt_assert
 ] mt_suite
 ```
 
@@ -354,71 +354,71 @@ mt_init
 
 "Built-in operations: Stack"
 [
-    __POS__ "Drop error"   [          drop                             ] mt_assertError
-    __POS__ "Drop"         [ 1 2 3    drop        depth 2 =            ] mt_assert
+    "Drop error"   [          drop                             ] mt_assertError
+    "Drop"         [ 1 2 3    drop        depth 2 =            ] mt_assert
 
-    __POS__ "Swap error 0" [          swap                             ] mt_assertError
-    __POS__ "Swap error 1" [ 1        swap                             ] mt_assertError
-    __POS__ "Swap"         [ 1 2      swap        [2 1] stackIs        ] mt_assert
+    "Swap error 0" [          swap                             ] mt_assertError
+    "Swap error 1" [ 1        swap                             ] mt_assertError
+    "Swap"         [ 1 2      swap        [2 1] stackIs        ] mt_assert
 
-    __POS__ "Rot error 0"  [          rot                              ] mt_assertError
-    __POS__ "Rot error 1"  [ 1        rot                              ] mt_assertError
-    __POS__ "Rot error 2"  [ 1 2      rot                              ] mt_assertError
-    __POS__ "Rot"          [ 1 2 3    rot         [2 3 1] stackIs      ] mt_assert
+    "Rot error 0"  [          rot                              ] mt_assertError
+    "Rot error 1"  [ 1        rot                              ] mt_assertError
+    "Rot error 2"  [ 1 2      rot                              ] mt_assertError
+    "Rot"          [ 1 2 3    rot         [2 3 1] stackIs      ] mt_assert
 
-    __POS__ "Lrot error 0" [          lrot                             ] mt_assertError
-    __POS__ "Lrot error 1" [ 1        lrot                             ] mt_assertError
-    __POS__ "Lrot error 2" [ 1 2      lrot                             ] mt_assertError
-    __POS__ "Lrot"         [ 1 2 3    lrot        [3 1 2] stackIs      ] mt_assert
+    "Lrot error 0" [          lrot                             ] mt_assertError
+    "Lrot error 1" [ 1        lrot                             ] mt_assertError
+    "Lrot error 2" [ 1 2      lrot                             ] mt_assertError
+    "Lrot"         [ 1 2 3    lrot        [3 1 2] stackIs      ] mt_assert
 
-    __POS__ "Over error 0" [          over                             ] mt_assertError
-    __POS__ "Over error 1" [ 1        over                             ] mt_assertError
-    __POS__ "Over"         [ 1 2      over        [1 2 1] stackIs      ] mt_assert
+    "Over error 0" [          over                             ] mt_assertError
+    "Over error 1" [ 1        over                             ] mt_assertError
+    "Over"         [ 1 2      over        [1 2 1] stackIs      ] mt_assert
 
-    __POS__ "Dup error 0"  [          dup                              ] mt_assertError
-    __POS__ "Dup"          [ 1        dup         [1 1] stackIs        ] mt_assert
+    "Dup error 0"  [          dup                              ] mt_assertError
+    "Dup"          [ 1        dup         [1 1] stackIs        ] mt_assert
 
-    __POS__ "Clear"        [ 1 2 3 4  clear       depth 0 =            ] mt_assert
+    "Clear"        [ 1 2 3 4  clear       depth 0 =            ] mt_assert
 
-    __POS__ "Depth 0"      [          depth       0 =                  ] mt_assert
-    __POS__ "Depth 1"      [ 42       depth       1 =                  ] mt_assert
-    __POS__ "Depth 2"      [ 42 33    depth       2 =                  ] mt_assert
+    "Depth 0"      [          depth       0 =                  ] mt_assert
+    "Depth 1"      [ 42       depth       1 =                  ] mt_assert
+    "Depth 2"      [ 42 33    depth       2 =                  ] mt_assert
 
-    __POS__ "NDrop 0"      [ 1 2 3    0 ndrop     [1 2 3] stackIs      ] mt_assert
-    __POS__ "NDrop 1"      [ 1 2 3    1 ndrop     [1 2]   stackIs      ] mt_assert
-    __POS__ "NDrop 2"      [ 1 2 3    2 ndrop     [1]     stackIs      ] mt_assert
-    __POS__ "NDrop 3"      [ 1 2 3    3 ndrop     []      stackIs      ] mt_assert
-    __POS__ "NDrop 4"      [ 1 2 3    4 ndrop                          ] mt_assertError
+    "NDrop 0"      [ 1 2 3    0 ndrop     [1 2 3] stackIs      ] mt_assert
+    "NDrop 1"      [ 1 2 3    1 ndrop     [1 2]   stackIs      ] mt_assert
+    "NDrop 2"      [ 1 2 3    2 ndrop     [1]     stackIs      ] mt_assert
+    "NDrop 3"      [ 1 2 3    3 ndrop     []      stackIs      ] mt_assert
+    "NDrop 4"      [ 1 2 3    4 ndrop                          ] mt_assertError
     
-    __POS__ "NSwap 0"      [ 1 2 3    0 nswap     [1 2 3] stackIs      ] mt_assert
-    __POS__ "NSwap 1"      [ 1 2 3    1 nswap     [1 2 3] stackIs      ] mt_assert
-    __POS__ "NSwap 2"      [ 1 2 3    2 nswap     [1 3 2] stackIs      ] mt_assert
-    __POS__ "NSwap 3"      [ 1 2 3    3 nswap     [3 2 1] stackIs      ] mt_assert
-    __POS__ "NSwap 4"      [ 1 2 3    4 nswap                          ] mt_assertError
+    "NSwap 0"      [ 1 2 3    0 nswap     [1 2 3] stackIs      ] mt_assert
+    "NSwap 1"      [ 1 2 3    1 nswap     [1 2 3] stackIs      ] mt_assert
+    "NSwap 2"      [ 1 2 3    2 nswap     [1 3 2] stackIs      ] mt_assert
+    "NSwap 3"      [ 1 2 3    3 nswap     [3 2 1] stackIs      ] mt_assert
+    "NSwap 4"      [ 1 2 3    4 nswap                          ] mt_assertError
 
-    __POS__ "NRot 0"       [ 1 2 3    0 nrot      [1 2 3] stackIs      ] mt_assert
-    __POS__ "NRot 1"       [ 1 2 3    1 nrot      [1 2 3] stackIs      ] mt_assert
-    __POS__ "NRot 2"       [ 1 2 3    2 nrot      [1 3 2] stackIs      ] mt_assert
-    __POS__ "NRot 3"       [ 1 2 3    3 nrot      [2 3 1] stackIs      ] mt_assert
-    __POS__ "NRot 4"       [ 1 2 3    4 nrot                           ] mt_assertError
+    "NRot 0"       [ 1 2 3    0 nrot      [1 2 3] stackIs      ] mt_assert
+    "NRot 1"       [ 1 2 3    1 nrot      [1 2 3] stackIs      ] mt_assert
+    "NRot 2"       [ 1 2 3    2 nrot      [1 3 2] stackIs      ] mt_assert
+    "NRot 3"       [ 1 2 3    3 nrot      [2 3 1] stackIs      ] mt_assert
+    "NRot 4"       [ 1 2 3    4 nrot                           ] mt_assertError
 
-    __POS__ "NLrot 0"      [ 1 2 3    0 nlrot     [1 2 3] stackIs      ] mt_assert
-    __POS__ "NLrot 1"      [ 1 2 3    1 nlrot     [1 2 3] stackIs      ] mt_assert
-    __POS__ "NLrot 2"      [ 1 2 3    2 nlrot     [1 3 2] stackIs      ] mt_assert
-    __POS__ "NLrot 3"      [ 1 2 3    3 nlrot     [3 1 2] stackIs      ] mt_assert
-    __POS__ "NLrot 4"      [ 1 2 3    4 nlrot                          ] mt_assertError
+    "NLrot 0"      [ 1 2 3    0 nlrot     [1 2 3] stackIs      ] mt_assert
+    "NLrot 1"      [ 1 2 3    1 nlrot     [1 2 3] stackIs      ] mt_assert
+    "NLrot 2"      [ 1 2 3    2 nlrot     [1 3 2] stackIs      ] mt_assert
+    "NLrot 3"      [ 1 2 3    3 nlrot     [3 1 2] stackIs      ] mt_assert
+    "NLrot 4"      [ 1 2 3    4 nlrot                          ] mt_assertError
 
-    __POS__ "Nover 0"      [ 1 2 3    0 nover     [1 2 3]   stackIs    ] mt_assert
-    __POS__ "Nover 1"      [ 1 2 3    1 nover     [1 2 3 3] stackIs    ] mt_assert
-    __POS__ "Nover 2"      [ 1 2 3    2 nover     [1 2 3 2] stackIs    ] mt_assert
-    __POS__ "Nover 3"      [ 1 2 3    3 nover     [1 2 3 1] stackIs    ] mt_assert
-    __POS__ "Nover 4"      [ 1 2 3    4 nover                          ] mt_assertError
+    "Nover 0"      [ 1 2 3    0 nover     [1 2 3]   stackIs    ] mt_assert
+    "Nover 1"      [ 1 2 3    1 nover     [1 2 3 3] stackIs    ] mt_assert
+    "Nover 2"      [ 1 2 3    2 nover     [1 2 3 2] stackIs    ] mt_assert
+    "Nover 3"      [ 1 2 3    3 nover     [1 2 3 1] stackIs    ] mt_assert
+    "Nover 4"      [ 1 2 3    4 nover                          ] mt_assertError
 
-    __POS__ "Ndup 0"       [ 1 2 3    0 ndup     [1 2 3]       stackIs ] mt_assert
-    __POS__ "Ndup 1"       [ 1 2 3    1 ndup     [1 2 3 3]     stackIs ] mt_assert
-    __POS__ "Ndup 2"       [ 1 2 3    2 ndup     [1 2 3 2 3]   stackIs ] mt_assert
-    __POS__ "Ndup 3"       [ 1 2 3    3 ndup     [1 2 3 1 2 3] stackIs ] mt_assert
-    __POS__ "Ndup 4"       [ 1 2 3    4 ndup                           ] mt_assertError
+    "Ndup 0"       [ 1 2 3    0 ndup     [1 2 3]       stackIs ] mt_assert
+    "Ndup 1"       [ 1 2 3    1 ndup     [1 2 3 3]     stackIs ] mt_assert
+    "Ndup 2"       [ 1 2 3    2 ndup     [1 2 3 2 3]   stackIs ] mt_assert
+    "Ndup 3"       [ 1 2 3    3 ndup     [1 2 3 1 2 3] stackIs ] mt_assert
+    "Ndup 4"       [ 1 2 3    4 ndup                           ] mt_assertError
 
 ] mt_suite
 ```
@@ -428,62 +428,62 @@ mt_init
 ```
 "Built-in operations: Stack"
 [
-    __POS__ "(++) 0 0 list"     [ []      []      ++            [] =                 ] mt_assert
-    __POS__ "(++) 0 n list"     [ []      [1 2 3] ++            [1 2 3] =            ] mt_assert
-    __POS__ "(++) m n list"     [ [1 2 3] []      ++            [1 2 3] =            ] mt_assert
-    __POS__ "(++) 0 n list"     [ [1 2 3] [4 5 6] ++            [1 2 3 4 5 6] =      ] mt_assert
-    __POS__ "(++) 0 0 str"      [ ""      ""      ++            "" =                 ] mt_assert
-    __POS__ "(++) 0 n str"      [ ""      "bar"   ++            "bar" =              ] mt_assert
-    __POS__ "(++) m n str"      [ "foo"   ""      ++            "foo" =              ] mt_assert
-    __POS__ "(++) 0 n str"      [ "foo"   "bar"   ++            "foobar" =           ] mt_assert
-    __POS__ "(++) int list err" [ 43      "hello" ++                                 ] mt_assertError
-    __POS__ "(++) str list err" [ "hello" [1 2 3] ++                                 ] mt_assertError
+    "(++) 0 0 list"     [ []      []      ++            [] =                 ] mt_assert
+    "(++) 0 n list"     [ []      [1 2 3] ++            [1 2 3] =            ] mt_assert
+    "(++) m n list"     [ [1 2 3] []      ++            [1 2 3] =            ] mt_assert
+    "(++) 0 n list"     [ [1 2 3] [4 5 6] ++            [1 2 3 4 5 6] =      ] mt_assert
+    "(++) 0 0 str"      [ ""      ""      ++            "" =                 ] mt_assert
+    "(++) 0 n str"      [ ""      "bar"   ++            "bar" =              ] mt_assert
+    "(++) m n str"      [ "foo"   ""      ++            "foo" =              ] mt_assert
+    "(++) 0 n str"      [ "foo"   "bar"   ++            "foobar" =           ] mt_assert
+    "(++) int list err" [ 43      "hello" ++                                 ] mt_assertError
+    "(++) str list err" [ "hello" [1 2 3] ++                                 ] mt_assertError
     
-    __POS__ "length 0 list"     [ []              length        0 =                  ] mt_assert
-    __POS__ "length n list"     [ [1 2 3]         length        3 =                  ] mt_assert
-    __POS__ "length 0 str"      [ ""              length        0 =                  ] mt_assert
-    __POS__ "length n str"      [ "world"         length        5 =                  ] mt_assert
-    __POS__ "length atom"       [ 'foo            length                             ] mt_assertError
+    "length 0 list"     [ []              length        0 =                  ] mt_assert
+    "length n list"     [ [1 2 3]         length        3 =                  ] mt_assert
+    "length 0 str"      [ ""              length        0 =                  ] mt_assert
+    "length n str"      [ "world"         length        5 =                  ] mt_assert
+    "length atom"       [ 'foo            length                             ] mt_assertError
 
-    __POS__ "toList 0"          [                 0 toList      [] =                 ] mt_assert
-    __POS__ "toList m"          [ 33 42 6         3 toList      [33 42 6] =          ] mt_assert
-    __POS__ "toList err"        [ 33 42 6         4 toList                           ] mt_assertError
+    "toList 0"          [                 0 toList      [] =                 ] mt_assert
+    "toList m"          [ 33 42 6         3 toList      [33 42 6] =          ] mt_assert
+    "toList err"        [ 33 42 6         4 toList                           ] mt_assertError
 
-    __POS__ "fromList 0"        [ []              fromList      [0]       stackIs    ] mt_assert
-    __POS__ "fromList n"        [ [9 4 1]         fromList      [9 4 1 3] stackIs    ] mt_assert
-    __POS__ "fromList err 1"    [ 9               fromList                           ] mt_assertError
-    __POS__ "fromList err 2"    [                 fromList                           ] mt_assertError
+    "fromList 0"        [ []              fromList      [0]       stackIs    ] mt_assert
+    "fromList n"        [ [9 4 1]         fromList      [9 4 1 3] stackIs    ] mt_assert
+    "fromList err 1"    [ 9               fromList                           ] mt_assertError
+    "fromList err 2"    [                 fromList                           ] mt_assertError
 
-    __POS__ "toStr 0"           [                 0 toString    "" =                 ] mt_assert
-    __POS__ "toStr n"           [ "X=" 42.0 [a]   3 toString    "X=42.0[a]" =        ] mt_assert
-    __POS__ "toStr err"         [                 3 toString                         ] mt_assertError
+    "toStr 0"           [                 0 toString    "" =                 ] mt_assert
+    "toStr n"           [ "X=" 42.0 [a]   3 toString    "X=42.0[a]" =        ] mt_assert
+    "toStr err"         [                 3 toString                         ] mt_assertError
 
-    __POS__ "fromStr 0"         [ ""              fromString    [0]          stackIs ] mt_assert
-    __POS__ "fromStr n"         [ "foo"           fromString    ["f""o""o"3] stackIs ] mt_assert
-    __POS__ "fromStr err"       [                 fromString                         ] mt_assertError
+    "fromStr 0"         [ ""              fromString    [0]          stackIs ] mt_assert
+    "fromStr n"         [ "foo"           fromString    ["f""o""o"3] stackIs ] mt_assert
+    "fromStr err"       [                 fromString                         ] mt_assertError
 
-    __POS__ "reverse 0 list"    [ []              reverse       [] =                 ] mt_assert
-    __POS__ "reverse n list"    [ [1 2 3]         reverse       [3 2 1] =            ] mt_assert
-    __POS__ "reverse 0 str"     [ ""              reverse       "" =                 ] mt_assert
-    __POS__ "reverse n str"     [ "hello"         reverse       "olleh" =            ] mt_assert 
-    __POS__ "reverse err 1"     [                 reverse                            ] mt_assertError
-    __POS__ "reverse err 2"     [ 33.33           reverse                            ] mt_assertError
+    "reverse 0 list"    [ []              reverse       [] =                 ] mt_assert
+    "reverse n list"    [ [1 2 3]         reverse       [3 2 1] =            ] mt_assert
+    "reverse 0 str"     [ ""              reverse       "" =                 ] mt_assert
+    "reverse n str"     [ "hello"         reverse       "olleh" =            ] mt_assert 
+    "reverse err 1"     [                 reverse                            ] mt_assertError
+    "reverse err 2"     [ 33.33           reverse                            ] mt_assertError
    
-    __POS__ "toStr 1"           [ 42              toStr         "42" =               ] mt_assert
-    __POS__ "toStr 2"           [ [42 55]         toStr         "[42 55]" =          ] mt_assert
-    __POS__ "toStr err"         [                 toStr                              ] mt_assertError
+    "toStr 1"           [ 42              toStr         "42" =               ] mt_assert
+    "toStr 2"           [ [42 55]         toStr         "[42 55]" =          ] mt_assert
+    "toStr err"         [                 toStr                              ] mt_assertError
     
-    __POS__ "slice 0"           [ "hello world"   0 -1 slice    "hello world" =      ] mt_assert
-    __POS__ "slice 1"           [ "hello world"   0  5 slice    "hello" =            ] mt_assert
-    __POS__ "slice 2"           [ "hello world"   6 -1 slice    "world" =            ] mt_assert
-    __POS__ "slice 3"           [ "hello world"   5  6 slice    " " =                ] mt_assert
-    __POS__ "slice 4"           [ ""              0 -1 slice    "" =                 ] mt_assert
-    __POS__ "slice 5"           [ "hello world"   0 -7 slice    "hello" =            ] mt_assert
-    __POS__ "slice err 1"       [ "hello world"   0 99 slice                         ] mt_assertError
-    __POS__ "slice err 2"       [                 0 99 slice                         ] mt_assertError
+    "slice 0"           [ "hello world"   0 -1 slice    "hello world" =      ] mt_assert
+    "slice 1"           [ "hello world"   0  5 slice    "hello" =            ] mt_assert
+    "slice 2"           [ "hello world"   6 -1 slice    "world" =            ] mt_assert
+    "slice 3"           [ "hello world"   5  6 slice    " " =                ] mt_assert
+    "slice 4"           [ ""              0 -1 slice    "" =                 ] mt_assert
+    "slice 5"           [ "hello world"   0 -7 slice    "hello" =            ] mt_assert
+    "slice err 1"       [ "hello world"   0 99 slice                         ] mt_assertError
+    "slice err 2"       [                 0 99 slice                         ] mt_assertError
 
-    __POS__ "chr 1"             [ 64             chr            "@" =                ] mt_assert
-    __POS__ "ord 1"             [ "@"            ord            64 =                 ] mt_assert
+    "chr 1"             [ 64             chr            "@" =                ] mt_assert
+    "ord 1"             [ "@"            ord            64 =                 ] mt_assert
 ] mt_suite
 ```
 
@@ -496,37 +496,37 @@ I/O operations are difficult to test automatically as long as Stacky lacks good 
 ```
 "Built-in operations: Reflection/introspection"
 [
-    __POS__ "(@) 1"        [ 42                                     @           42 =                      ] mt_assert
-    __POS__ "(@) 2"        [ [ 42 33 + ]                            @           75 =                      ] mt_assert
-    __POS__ "(@) 3"        [ 42 'x; 'x                              @           42 =                      ] mt_assert
-    __POS__ "(@) err"      [                                        @                                     ] mt_assertError
+    "(@) 1"        [ 42                                     @           42 =                      ] mt_assert
+    "(@) 2"        [ [ 42 33 + ]                            @           75 =                      ] mt_assert
+    "(@) 3"        [ 42 'x; 'x                              @           42 =                      ] mt_assert
+    "(@) err"      [                                        @                                     ] mt_assertError
 
-    __POS__ "($) 1"        [ 1'x; 2'y; 3'z; [x y z]                 $           [1 2 3] =                 ] mt_assert
-    __POS__ "($) err"      [                                        $                                     ] mt_assertError
+    "($) 1"        [ 1'x; 2'y; 3'z; [x y z]                 $           [1 2 3] =                 ] mt_assert
+    "($) err"      [                                        $                                     ] mt_assertError
 
-    __POS__ "eval 0"       [ ""                                     eval        depth 0 =                 ] mt_assert
-    __POS__ "eval 1"       [ "1 2 3 + +"                            eval        6 =                       ] mt_assert
-    __POS__ "eval 2"       [ "1 2 3"                                eval        depth 3 =                 ] mt_assert
+    "eval 0"       [ ""                                     eval        depth 0 =                 ] mt_assert
+    "eval 1"       [ "1 2 3 + +"                            eval        6 =                       ] mt_assert
+    "eval 2"       [ "1 2 3"                                eval        depth 3 =                 ] mt_assert
 
-    __POS__ "import 1"     [ 0 'importVal UPDATE "./test/import.sy" import      importVal 42 =            ] mt_assert
-    __POS__ "import err"   [ "/tmp/fgklsdksdsdfksdklfj.sy"          import                                ] mt_assertError
+    "import 1"     [ 0 'importVal UPDATE "./test/import.sy" import      importVal 42 =            ] mt_assert
+    "import err"   [ "/tmp/fgklsdksdsdfksdklfj.sy"          import                                ] mt_assertError
     
-    __POS__ "typeOf 1"     [ 42                                     typeOf      "integer" =               ] mt_assert
-    __POS__ "typeOf 2"     [ "42"                                   typeOf      "string" =                ] mt_assert
-    __POS__ "typeOf err"   [                                        typeOf                                ] mt_assertError
+    "typeOf 1"     [ 42                                     typeOf      "integer" =               ] mt_assert
+    "typeOf 2"     [ "42"                                   typeOf      "string" =                ] mt_assert
+    "typeOf err"   [                                        typeOf                                ] mt_assertError
 
-    __POS__ "typeInfo 1"   [ 42                                     typeInfo    ["integer" 1] stackIs     ] mt_assert
-    __POS__ "typeInfo 2"   [ "42"                                   typeInfo    ["string" 2] stackIs      ] mt_assert
-    __POS__ "typeInfo 3"   [ [a b c]                                typeInfo    ["list" 3] stackIs        ] mt_assert
-    __POS__ "typeInfo err" [ typeInfo ] mt_assertError
+    "typeInfo 1"   [ 42                                     typeInfo    ["integer" 1] stackIs     ] mt_assert
+    "typeInfo 2"   [ "42"                                   typeInfo    ["string" 2] stackIs      ] mt_assert
+    "typeInfo 3"   [ [a b c]                                typeInfo    ["list" 3] stackIs        ] mt_assert
+    "typeInfo err" [ typeInfo ] mt_assertError
     
-    __POS__ "expectType 1" [ 42                                     ["integer" 1 2] expectType    42 =    ] mt_assert
-    __POS__ "expectType 2" [ "foo"                                  ["string" 1 10] expectType    "foo" = ] mt_assert
-    __POS__ "expectType 3" [ 42.0                                   ["string" 1 10] expectType            ] mt_assertError
+    "expectType 1" [ 42                                     ["integer" 1 2] expectType    42 =    ] mt_assert
+    "expectType 2" [ "foo"                                  ["string" 1 10] expectType    "foo" = ] mt_assert
+    "expectType 3" [ 42.0                                   ["string" 1 10] expectType            ] mt_assertError
     
-    __POS__ "throw 1"      [ ["foo" "bar"]                          throw                                 ] mt_assertError
+    "throw 1"      [ ["foo" "bar"]                          throw                                 ] mt_assertError
     
-    __POS__ "catch 1"      [ [1 0 / 100] [42]                       catch       42 =                      ] mt_assert
+    "catch 1"      [ [1 0 / 100] [42]                       catch       42 =                      ] mt_assert
 ] mt_suite
 ```
 

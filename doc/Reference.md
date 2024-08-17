@@ -1266,6 +1266,7 @@ As of now, there are no operations for *type introspection*, but such will be ad
 | [`throw`](#the-throw-operation)             | Unconditionally throws an error with supplied message.                      |
 | [`catch`](#the-catch-operation)             | Catches and handles run-time errors.                                        |
 | [`__POS__`](#the-pos-operation)             | Meta operation that reports current position in the source file             |
+| [`__CALLPOS__`](#the-pos-operation)         | Operation that reports from where the current operation was called.         |
 
 
 #### The apply operation
@@ -1593,6 +1594,14 @@ This is a meta operation that is replaced with the actual position in the source
 
 ```
 __POS__ : [ <] --> [ [fname:string line:integer char:integer] <]
+```
+
+#### The `__CALLPOS__` operation
+
+This is a operation that returns a list with the file-name, the line and character of the location the cuttent function was called.
+
+```
+__CALLPOS__ : [ <] --> [ [fname:string line:integer char:integer] <]
 ```
 
 ## Syntax description

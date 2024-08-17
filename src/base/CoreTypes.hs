@@ -64,12 +64,14 @@ import Position(Position, fmtPosition, noPos)
 data Cxt = Cxt{ stack :: Stack
               , envs  :: [Env]
               , libPath :: [String]
+              , callPos :: Position
               }
 
 initCxt :: Env -> Cxt
-initCxt initEnv = Cxt{ stack = newStack
-                     , envs = [newEnv ++ initEnv]
+initCxt initEnv = Cxt{ stack   = newStack
+                     , envs    = [newEnv ++ initEnv]
                      , libPath = []
+                     , callPos = noPos
                      }
 
 

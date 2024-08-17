@@ -11,11 +11,17 @@ located in the top directory of said project.
 
 ## Introduction
 
+`MiniTest.sy` implements a barebones unit-test framework for Stacky.
+
+<!--
 ## Begin Guard
+
+The guard allows this module to be included multiple times.
 
 ```
 ['defined ^__MiniTest_Guard__ =] [] [ 'defined __MiniTest_Guard__ global
 ```
+-->
 
 ## Public API Operations
 
@@ -33,17 +39,19 @@ These operations are part of the public API of MiniTest and will stay quite stab
 
 ### `mt_assert` - Perform a test and report if it failed.
 
-This operation takes a position, a short description and a predicate. If the predicate evaluates to true, the test is passed, otherwise it fails with an error message.
+This operation takes a short description and a predicate. If the predicate evaluates to true, the test is passed, otherwise it fails with an error message.
 
 ~~~
-mt_assert : [ position description:string predicate <] --> [ <]
+mt_assert : [ description:string predicate <] --> [ <]
 ~~~
 
 Implementation:
 
 ```
 [
-    'pred; 'desc; 'pos;
+    'pred; 'desc; 
+    
+    __CALLPOS__ 'pos;
 
     clear
     
@@ -60,14 +68,16 @@ This operation is similar to `mt_assert`, but will only succeed if the test subj
 `mt_assertError` is typically used to ensure that parameters are checked correctly in functions.
 
 ~~~
-mt_assertError : [ position description:string subject <] --> [ <]
+mt_assertError : [ description:string subject <] --> [ <]
 ~~~
 
 Implementation:
 
 ```
 [
-    'test; 'desc; 'pos;
+    'test; 'desc;
+    
+    __CALLPOS__ 'pos;
 
     clear 
     
@@ -209,8 +219,8 @@ Print a position on the stack on stdout.
 [
     reverse fromList drop
     put ":"  put
-    put ":"  put
-    put ": " put
+    1 + put ":"  put
+    1 + put ": " put
 ] '__mt_putPos global
 ```
 
@@ -254,17 +264,17 @@ __mt_left : [ s:string(l) n:integer char:string(1) <] --> [ s2:string(max(l,n)) 
 ```
 [
     "MiniTest1 (Should pass)" [
-        __POS__ "Test success"        [1 1 =]     mt_assert
-        __POS__ "A very long success" [123 123 =] mt_assert
+        "Test success"        [1 1 =]     mt_assert
+        "A very long success" [123 123 =] mt_assert
     ] mt_suite
     
     "MiniTest2 (Should fail)" [
-        __POS__ "Test failure"        [1 1 <>]    mt_assert
+        "Test failure"        [1 1 <>]    mt_assert
     ] mt_suite
     
     "MiniTest3 (Last should fail)" [
-        __POS__ "Division by zero"        [1 0 /]    mt_assertError
-        __POS__ "Division by one"         [1 1 /]    mt_assertError
+        "Division by zero"        [1 0 /]    mt_assertError
+        "Division by one"         [1 1 /]    mt_assertError
     ] mt_suite
     
     mt_conclude
@@ -273,7 +283,8 @@ __mt_left : [ s:string(l) n:integer char:string(1) <] --> [ s2:string(max(l,n)) 
 
 
 ## End guard
-
+<!--
 ```
 ]?
 ```
+-->
