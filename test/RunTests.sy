@@ -1,0 +1,35 @@
+
+[comment]: # (-*-Markdown-*-  First line intentionally left blank! -----------------------------------)
+
+# Main Stacky Test program
+
+## *Copyright (c) 2024 Bengt Johansson <bengtj100 at gmail dot com> - All rights reserved.*
+
+This software is part of the stacky project and its use is
+regulated by the conditions stipulated in the file named 'LICENCE',
+located in the top directory of said project.
+
+## Dependencies
+
+```
+"test/MiniTest" import
+```
+
+## Test system initialization
+
+```
+mt_init
+```
+
+## Running the individual test suites
+
+```
+"InterpreterTest" import
+```
+
+## This is the end
+
+```
+mt_conclude
+```
+

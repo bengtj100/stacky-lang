@@ -71,7 +71,7 @@ test: build
 	@$(CABAL) test
 	@echo ">>>>>>>>>>>>    Running Stacky unit tests ..."
 	@echo 'Entering directory `'$(TEST_FULL)"'"
-	@$(EXECUTABLE) $(EXE_ARGS) -b -IA $(TEST_FULL) 'InterpreterTest'
+	@$(EXECUTABLE) $(EXE_ARGS) -b -IA $(TEST_FULL) 'RunTests'
 	@echo 'Leaving directory `'$(TEST_FULL)"'"
 
 ## ----------------------------------------------------------------------------------------------------

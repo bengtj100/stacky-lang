@@ -34,12 +34,6 @@ located in the top directory of said project.
 [ depth toList dup print fromList drop] 'dbgStack;
 ```
 
-## Test system initialization
-
-```
-mt_init
-```
-
 ## Basic interpreter tests
 
 ```
@@ -534,8 +528,3 @@ I/O operations are difficult to test automatically as long as Stacky lacks good 
 
 
 ## This is the end
-
-```
-mt_conclude
-```
-
