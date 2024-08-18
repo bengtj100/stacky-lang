@@ -435,6 +435,38 @@ Implementation:
 ] 'implode;
 ```
 
+## Control operations
+
+### `forever`
+
+~~~
+forever : [ body <] --> [ ... <]
+~~~
+```
+[
+    '___body;
+    
+    [___body ___loop]'___loop;
+    
+    ___loop
+]'forever;
+```
+
+### `while`
+
+~~~
+while : [ pred body <] --> [ ... <]
+~~~
+```
+[
+    '___body; '___pred;
+    
+    [ ^___pred [___body ___loop] [] ? ]'___loop;
+    
+    ___loop
+]'while;
+```
+
 ## Input/output operations
 
 ### `input`

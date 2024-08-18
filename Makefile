@@ -39,10 +39,11 @@ HASKTAGS_ARGS      = -e .
 INST_BIN           = /usr/local/bin
 INST_LIB           = /usr/local/lib/$(PROJECT)
 
-VERSION_FILE       = $(SRC)/main/Version.hs
+VERSION_FILE_HS    = $(SRC)/main/Version.hs
+VERSION_FILE_SY    = $(PRELUDE)/Version.sy
 MAKE_VERSION_PATH  = ./tools/make-version-file
 
-MAKE_VERSION_ARGS  = $(CABAL_FILE) $(VERSION_FILE)
+MAKE_VERSION_ARGS  = $(CABAL_FILE) $(VERSION_FILE_HS) $(VERSION_FILE_SY)
 
 BUILD_RELEASE      = $(TOOLS)/build-release
 
@@ -52,7 +53,7 @@ all: build
 
 ## ----------------------------------------------------------------------------------------------------
 
-build:  tags $(VERSION_FILE)
+build:  tags $(VERSION_FILE_HS) $(VERSION_FILE_SY)
 	@echo ">>>>>>>>>>>>    Building executable ..."
 	@echo 'Entering directory `'"$(SRC_FULL)'"
 	$(CABAL) build
@@ -76,7 +77,7 @@ test: build
 
 ## ----------------------------------------------------------------------------------------------------
 
-.PHONY: ghci
+.PHONY: ghciInput/output
 ghci:
 	ghci $(shell find src -maxdepth 1 -type d -exec printf '-i%s ' '{}' +)
 
@@ -86,7 +87,7 @@ ghci:
 clean:
 	@echo ">>>>>>>>>>>>    Taking out the trash ..."
 	$(CABAL) clean
-	rm -rf TAGS $(VERSION_FILE) $(RELEASES)/ $(PDF_FILES)
+	rm -rf TAGS $(VERSION_FILE_HS) $(VERSION_FILE_SY) $(RELEASES)/ $(PDF_FILES)
 
 ## ----------------------------------------------------------------------------------------------------
 
@@ -130,8 +131,12 @@ version:
 
 ## ----------------------------------------------------------------------------------------------------
 
-$(VERSION_FILE): $(VERSION_TEMPLATE) $(CABAL_FILE)
-	@echo ">>>>>>>>>>>>    Initializing build versioning ..."
+$(VERSION_FILE_HS): $(VERSION_TEMPLATE) $(CABAL_FILE)
+	@echo ">>>>>>>>>>>>    Initializing build versioning for Haskell ..."
+	$(MAKE_VERSION_PATH) $(MAKE_VERSION_ARGS)
+
+$(VERSION_FILE_SY): $(VERSION_TEMPLATE) $(CABAL_FILE)
+	@echo ">>>>>>>>>>>>    Initializing build versioning for Stacky..."
 	$(MAKE_VERSION_PATH) $(MAKE_VERSION_ARGS)
 
 ## ====================================================================================================

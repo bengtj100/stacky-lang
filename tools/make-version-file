@@ -19,7 +19,9 @@ readonly PHOME=$(dirname  "$0")
 
 readonly VERSION_FORMAT='%Y-%m-%d.%H-%M-%S'
 
-function template
+## ====================================================================================================
+
+function template_hs
 {
     cat <<EOF_vFile
 
@@ -40,6 +42,22 @@ EOF_vFile
 }
 
 ## ====================================================================================================
+
+function template_sy
+{
+    cat <<EOF_vFile2
+
+# This is an auto-generated file. Do not edit!
+
+\`\`\`
+"$CABAL_VERSION" '__STACKY_VERSION;
+"$VERSION" '__STACKY_BUILD;
+"v${CABAL_VERSION}.${VERSION}" '__STACKY_GIT_TAG;
+\`\`\`
+EOF_vFile2
+}
+
+## ====================================================================================================
 ##     CODE SECTION
 ## ====================================================================================================
 
@@ -53,7 +71,7 @@ function errorExit
 
 function getCabalVersion
 {
-    [[ -r "$CABAL_FILE" ]] || errorExit "Could not read the Cabal file: '$TEMPLATE'"
+    [[ -r "$CABAL_FILE" ]] || errorExit "Could not read the Cabal file: '$CABAL_FILE'"
 
     awk '/^version:/ {print $2}' "$CABAL_FILE"
 }
@@ -68,10 +86,11 @@ function setupTemplateVars
 
 ## ----------------------------------------------------------------------------------------------------
 
-function makeVersionFile
+function makeVersionFiles
 {
     setupTemplateVars
-    template > "${OUTPUT_FILE}"
+    template_hs > "${OUTPUT_FILE_HS}"
+    template_sy > "${OUTPUT_FILE_SY}"
 }
 
 ## ====================================================================================================
@@ -80,7 +99,7 @@ function usage
 {
     cat <<EOF_usage
 
-Usage: ${PNAME} <CABAL-FILE> <OUTPUT-FILE>
+Usage: ${PNAME} <CABAL-FILE> <OUTPUT-FILE-HS> <OUTPUT-FILE-SY>
 
 This program takes input from the Cabal-file on program version and
 creates a Haskell module with this information for inclusion into the
@@ -93,13 +112,14 @@ EOF_usage
 
 function parseArgs
 {
-    if (( $# < 2 )) ; then
+    if (( $# < 3 )) ; then
         usage
         exit 1
     fi
 
     readonly CABAL_FILE="$1"
-    readonly OUTPUT_FILE="$2"
+    readonly OUTPUT_FILE_HS="$2"
+    readonly OUTPUT_FILE_SY="$3"
 }
 
 ## ----------------------------------------------------------------------------------------------------
@@ -107,7 +127,7 @@ function parseArgs
 function main
 {
     parseArgs "$@"
-    makeVersionFile
+    makeVersionFiles
 }
 
 main "$@"
