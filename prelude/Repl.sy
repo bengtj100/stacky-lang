@@ -1,0 +1,82 @@
+
+[comment]: # (-*-Markdown-*-  First line intentionally left blank! -----------------------------------)
+
+# The Stacky REPL
+
+## Print greeting
+```
+[
+    "Version" import
+    "" putLn
+    "Stacky, version: " __STACKY_VERSION ++ ", build: " ++ __STACKY_BUILD ++ putLn
+    "Copyright (c) 2024 Bengt Johansson -- All rights reserved" putLn
+    "NEW REPL" putLn
+    "" putLn
+]'__greeting;
+```
+
+## Print the stack
+```
+[
+    [depth 0 =]
+        [
+            "[  <]" putLn
+        ]
+        [
+            [ [dup 0 >] [dup 1 + nover " " put toStr put 1 - pstack][]?]'pstack;
+            "[" put depth pstack drop " <]" putLn
+        ]
+        ?
+]'__printStack;
+```
+
+## Print error messages
+```
+[
+    swap reverse fromList drop
+    put ":"  put
+    1 + put ":"  put
+    1 + put ": " put
+    putLn
+]'__printError;
+```
+
+## Run the main loop and handle any errors
+```
+[
+    "> " prompt
+    
+    ` Add a 1 to the stack if we succeed and a 0 if we fail
+    "   1" ++ 'eval [0] catch
+        [
+            __printStack
+        ]
+        [
+            __printError
+            ` If the eval fails, its argument lingers on the stack.
+            drop
+        ]
+        ?
+    __loop
+]'__loop;
+```
+
+### Main entrypoint
+```
+[
+    __greeting
+    __printStack
+    __loop
+]
+    [
+        [dup "<stdin>: hGetLine: end of file" =]
+        [
+            "\nLeaving stacky interpreter (new repl)\nBye!\n" putLn
+        ]
+        [
+            "\nstacky: ERROR: " put putLn
+        ]
+        ?
+    ]
+    catch
+```
