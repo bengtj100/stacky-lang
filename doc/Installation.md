@@ -156,6 +156,7 @@ If you plan to use an editor that uses TAGS, then install hasktags:
 
 The build system will automatically build the TAGS file, if hasktags is installed and skip that stage if not.
 
+    
 ### Build a release
 
 **This is only for building on a build server.**
