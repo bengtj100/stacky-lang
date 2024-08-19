@@ -1,0 +1,18 @@
+
+[comment]: # (-*-Markdown-*-  First line intentionally left blank! -----------------------------------)
+
+# The Stacky startup greeting
+
+## Print greeting if interactive
+```
+isInteractive
+    [
+        "Version" import
+        "" putLn
+        "Stacky, version: " __STACKY_VERSION ++ ", build: " ++ __STACKY_BUILD ++ putLn
+        "Copyright (c) 2024 Bengt Johansson -- All rights reserved" putLn
+        "" putLn
+    ]
+    []
+    ?
+```

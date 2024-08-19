@@ -18,17 +18,23 @@
 module Main(main) where
 
 -- System modules
-import System.IO.Error(isEOFError)
 import System.Exit(exitWith, ExitCode(..))
-import System.Environment(getArgs, getProgName)
-import Control.Exception(catch)
+import System.Environment(getArgs)
 
 -- Base modules
-import CoreTypes(Cxt)
+import Position(noPos)
+import CoreTypes( Cxt, initCxt
+                , printError
+                , Value(..)
+                )
+
+-- Interpreter modules
+import Interpreter(interpreter)
+import BuiltIns(builtIns)
 
 -- Local modules
-import Repl(repl, runPrelude)
-import CommandLine(CmdRes(..), parseArguments, printGreeting)
+import CommandLine(CmdRes(..), parseArguments)
+import LibraryPath(loadLibPath)
 
 -------------------------------------------------------------------------------------------------------
 --  The main function
@@ -43,51 +49,62 @@ main =
     do
         args <- getArgs
         opts <- parseArguments args
-        if interactive opts then
-            do
-                printGreeting
-                mainBody opts $ runRepl
-        else
-            do
-                mainBody opts $ \_ -> return ()
+        res  <- runPrelude opts
+        case res of
+            Nothing ->
+                exitWith (ExitFailure 1)
+            Just _ ->
+                return ()
 
 -------------------------------------------------------------------------------------------------------
 --  Helper functions
 -------------------------------------------------------------------------------------------------------
 
 --
--- Main body helper. This is the same no matter whether interactive or
--- not. It just runs the prelude and hands the context over either to
--- the REPL or to a null handler.
+--  Create a list of commands to run before running the REPL and run it
 --
-mainBody :: CmdRes -> (Cxt -> IO ()) -> IO ()
-mainBody opts handler =
-    do
-        res <- runPrelude opts
-        case res of
-            Nothing ->
-                exitWith (ExitFailure 1)
-            Just cxt ->
-                handler cxt
+-- This is the entry point. It:
+--   1) Initializes the context w.r.t. load paths
+--   2) Creates a list of commands to evaluate
+--   3) Runs the interpreter on that list
+--   4) Hands the updated Context to the caller
+--
+runPrelude :: CmdRes -> IO (Maybe Cxt)
+runPrelude opts =
+    do let cxt0 =  initCxt builtIns
+       cxt      <- loadLibPath (incPrePaths opts) (incAppPaths opts) cxt0
+       prl      <- makePrelude opts
+       result   <- interpreter cxt prl
+       case result of
+           Left  err  -> do printError err
+                            return $ Nothing
+           Right cxt' -> return $ Just cxt'
+                   
+--
+-- Create the prelude commands. It contains commands that:
+--   1) It defines `isInteractive` to either true or false
+--   2) It imports the Prelude.sy module
+--   3) Execute any previously defined otions. (--eval or module names)
+--   4) Import the Repl
+--
+makePrelude :: CmdRes -> IO [Value]
+makePrelude opts =
+    let name          = preludeFile opts
+        path          = if name == "" then "Prelude" else name
+        isInteractive = setDef "isInteractive" $ ValInt noPos (if interactive opts then 1 else 0)
+    in return (isInteractive
+               ++ [ValString noPos "Greeting", ValAtom noPos "import"]
+               ++ [ValString noPos path, ValAtom noPos "import"]
+               ++ prelude opts
+               ++ [ValString noPos "Repl", ValAtom noPos "import"])
+    
+--
+-- Create a variable definition
+--
+setDef :: String -> Value -> [Value]
+setDef name val = [val, ValAtom noPos "'", ValAtom noPos name, ValAtom noPos ";"]
 
---
--- Helper functions that catches errors from the REPL so they does not
--- get exposed to the outer layers.
---
-runRepl :: Cxt -> IO ()
-runRepl cxt = repl cxt `catch` handleError
+-------------------------------------------------------------------------------------------------------
+--  That's all folks!!
+-------------------------------------------------------------------------------------------------------
 
-handleError :: IOError -> IO ()
-handleError err =
-    if isEOFError err then
-        do putStrLn ""
-           putStrLn "Leaving stacky interpreter"
-           putStrLn "Bye!"
-           putStrLn ""
-           exitWith ExitSuccess
-    else
-        do pname <- getProgName
-           putStrLn ""
-           putStrLn $ pname ++ ": " ++ show err
-           putStrLn "Terminating!"
-           exitWith (ExitFailure 1)

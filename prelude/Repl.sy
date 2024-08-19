@@ -3,18 +3,6 @@
 
 # The Stacky REPL
 
-## Print greeting
-```
-[
-    "Version" import
-    "" putLn
-    "Stacky, version: " __STACKY_VERSION ++ ", build: " ++ __STACKY_BUILD ++ putLn
-    "Copyright (c) 2024 Bengt Johansson -- All rights reserved" putLn
-    "NEW REPL" putLn
-    "" putLn
-]'__greeting;
-```
-
 ## Print the stack
 ```
 [
@@ -61,22 +49,29 @@
 ]'__loop;
 ```
 
-### Main entrypoint
+### The main entrypoint
 ```
 [
-    __greeting
-    __printStack
-    __loop
-]
     [
-        [dup "<stdin>: hGetLine: end of file" =]
-        [
-            "\nLeaving stacky interpreter (new repl)\nBye!\n" putLn
-        ]
-        [
-            "\nstacky: ERROR: " put putLn
-        ]
-        ?
+        __printStack
+        __loop
     ]
-    catch
+        [
+            [dup "<stdin>: hGetLine: end of file" =]
+            [
+                "\nLeaving stacky interpreter.\nBye!\n" putLn
+            ]
+            [
+                "\nstacky: ERROR: " put putLn
+                "Terminating!" putLn
+            ]
+            ?
+        ]
+        catch
+] '__repl;
+```
+
+### Run only if interactive
+```
+[__repl] ifInteractive
 ```

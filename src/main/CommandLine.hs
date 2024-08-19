@@ -18,8 +18,7 @@
 
 module CommandLine(
                    CmdRes(..),
-                   parseArguments,
-                   printGreeting
+                   parseArguments
                    ) where
 
 -- System modules
@@ -64,14 +63,6 @@ parseArguments args =
         CmdArg res      -> return res
     where
         carg = parseArgs args newCmdArgs
-
--------------------------------------------------------------------------------------------------------
-
---
--- Print a startup greeting with Copyright, version etc.
---
-printGreeting :: IO ()
-printGreeting = printGreet
 
 -------------------------------------------------------------------------------------------------------
 --  Internal command-line parsing functions
@@ -242,21 +233,6 @@ printVersion =
        putStrLn $ "BUILD="   ++ build
        putStrLn $ "GIT_TAG=" ++ gitTag
        exitWith ExitSuccess
-
--------------------------------------------------------------------------------------------------------
-
---
--- Print the startup greeting.
---
--- Helper function to `printGreeting` placed here because of likeness
--- to `printVersion`.
---
-printGreet :: IO ()
-printGreet =
-    do putStrLn ""
-       putStrLn $ "Stacky, version: " ++ version ++", build: " ++ build
-       putStrLn $ "Copyright (c) 2024 Bengt Johansson -- All rights reserved"
-       putStrLn ""
 
 -------------------------------------------------------------------------------------------------------
 --  That's all folks!!

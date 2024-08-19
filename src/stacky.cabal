@@ -73,7 +73,6 @@ executable stacky
         ParseLib,
         Parser,
         Position,
-        Repl,
         Transforms,
         Version
 
