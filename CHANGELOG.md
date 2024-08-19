@@ -18,6 +18,7 @@
 * Added the `__CALLPOS__` operation that gives the location the current operation was called from.
   - Modified MiniTest to take advantage of this, thus no more `__POS__` in assert statements.
 * Operations 'input' and 'prompt' now throws catchable errors
+* Replaced REPL written in Haskell with one written in Stacky.
 
 ## 0.2.2 -- 2024-08-11
 
