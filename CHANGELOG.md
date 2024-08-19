@@ -19,6 +19,7 @@
   - Modified MiniTest to take advantage of this, thus no more `__POS__` in assert statements.
 * Operations 'input' and 'prompt' now throws catchable errors
 * Replaced REPL written in Haskell with one written in Stacky.
+* `throw` now takes its arguments as individual elements on the stack and is compatible with catch thus `[... throw] [throw] catch = ... throw`.
 
 ## 0.2.2 -- 2024-08-11
 

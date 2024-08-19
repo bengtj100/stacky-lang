@@ -137,7 +137,7 @@ Conclude the tests and report an error if there were errors in the suites
 
     ['yes ^__mt_suite_had_errors =]
         [
-            ["THERE WERE ERRORS IN ONE OR MORE OF THE SUITES!" "mt_conclude"] throw
+            "mt_conclude" "THERE WERE ERRORS IN ONE OR MORE OF THE SUITES!" throw
         ]
         [
             "ALL PASS: Total successful tests: " put __mt_totNoOfTests putLn
@@ -205,7 +205,7 @@ Used by `__mt_report` to report a failing test.
     toStr
     " : " swap ++
     ++
-    "mt_assert" 3 toList throw
+    "mt_assert" swap throw
 ] '__mt_repFail global
 ```
 

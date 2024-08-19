@@ -890,11 +890,11 @@ defThrow :: Value
 defThrow =
     ValOp noPos "throw" $ \Cxt{stack = s0} ->
         case s0 of
-            (ValList _ [ValList _ [ValString _ fn, ValInt _ l, ValInt _ c]
-                       ,ValString _ msg
-                       ,ValString _ name]) : _ ->
+            ValString _ msg : ValString _ name : ValList _ [ValString _ fn, ValInt _ l, ValInt _ c] : _ ->
                 return $ newErrPos (mk_pos fn l c) ("In '" ++ name ++ "': " ++ msg)
-            (ValList pos [ValString _ msg, ValString _ name]) : _ ->
+            ValString _ msg : ValList _ [ValString _ fn, ValInt _ l, ValInt _ c] : _ ->
+                return $ newErrPos (mk_pos fn l c) msg
+            ValString pos msg : ValString _ name : _ ->
                 return $ newErrPos pos ("In '" ++ name ++ "': " ++ msg)
             other : _ ->
                 return $ typeError1 other "throw" "an optional position, message and name" other

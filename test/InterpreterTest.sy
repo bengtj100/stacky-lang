@@ -14,7 +14,7 @@ located in the top directory of said project.
 ```
 [depth 0 =]
     []
-    [[__POS__ "Stack not empty after loading prelude!" "-"] throw]
+    [__POS__ "-" "Stack not empty after loading prelude!" throw]
     ?
 ```
 
@@ -32,6 +32,13 @@ located in the top directory of said project.
 [ 'eVal; depth toList ^eVal = ] 'stackIs;
 
 [ depth toList dup print fromList drop] 'dbgStack;
+
+[
+    'p;
+    ^p 0 index isString
+    ^p 1 index isInteger and
+    ^p 2 index isInteger and
+]'isPos;
 ```
 
 ## Basic interpreter tests
@@ -518,7 +525,10 @@ I/O operations are difficult to test automatically as long as Stacky lacks good 
     "expectType 2" [ "foo"                                  ["string" 1 10] expectType    "foo" = ] mt_assert
     "expectType 3" [ 42.0                                   ["string" 1 10] expectType            ] mt_assertError
     
-    "throw 1"      [ ["foo" "bar"]                          throw                                 ] mt_assertError
+    "throw 1"      [ "foo" "bar"                            throw                                 ] mt_assertError
+    "throw 2"      [ ["foo" "bar" throw] [] catch           isString swap isPos and               ] mt_assert
+    "throw 3"      [ [["foo" 10 20] "bar" throw] [] catch   "bar" = swap ["foo" 10 20]= and       ] mt_assert
+    "throw 4"      [ [["Q" 1 2] "f" "b" throw] [] catch     "In 'f': b" = swap ["Q" 1 2]= and     ] mt_assert
     
     "catch 1"      [ [1 0 / 100] [42]                       catch       42 =                      ] mt_assert
 ] mt_suite

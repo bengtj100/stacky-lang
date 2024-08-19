@@ -22,10 +22,10 @@
 ```
 [
     swap reverse fromList drop
-    put ":"  put
-    1 + put ":"  put
-    1 + put ": " put
-    putLn
+    [dup "" =] [drop "-"] [] ?  put ":"  put
+    1 +                         put ":"  put
+    1 +                         put ": " put
+    "ERROR: " swap ++           putLn
 ]'__printError;
 ```
 

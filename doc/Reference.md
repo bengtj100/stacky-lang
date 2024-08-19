@@ -1552,9 +1552,11 @@ Examples:
 This operating throws an error, given a message and an operation's name.
 
 ```
-throw : [ [message:string name:string] <] ---> ERROR
+throw : [ position name:string message:string] <] ---> ERROR
         or
-        [ [position message:string name:string] <] ---> ERROR
+        [ position message:string] <] ---> ERROR
+        or
+        [ name:string message:string] <] ---> ERROR
 ```
 
 $position$ is a file position as returned by `__POS__`
@@ -1562,7 +1564,7 @@ $position$ is a file position as returned by `__POS__`
 Example:
 
 ```
-> ["This is an error" "foo"] throw
+> "foo" "This is an error"] throw
 ERROR: In 'foo': This is an error
 > 
 ```
