@@ -1,0 +1,34 @@
+#!/bin/bash -eu
+## ====================================================================================================
+##
+## Copyright (c) 2024 Bengt Johansson <bengtj100 at gmail dot com>.
+## All rights reserved.
+##
+## This software is part of the stacky project and its use is
+## regulated by the conditions stipulated in the file named 'LICENCE',
+## located in the top directory of said project.
+##
+## ====================================================================================================
+
+readonly PNAME=$(basename "$0")
+readonly PHOME=$(dirname  "$0")
+
+## ====================================================================================================
+##     CONFIG SECTION
+## ====================================================================================================
+
+readonly HASKTAGS=~/.cabal/bin/hasktags
+
+
+## ====================================================================================================
+##     CODE SECTION
+## ====================================================================================================
+
+if [[ -x $HASKTAGS ]] ; then
+    echo ">>>>>>>>>>>>    (Re)generating TAGS file ..."
+
+    cd "$1"
+    shift
+
+    $HASKTAGS "$@"
+fi

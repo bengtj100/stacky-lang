@@ -33,8 +33,8 @@ CABAL_FILE         = $(SRC)/$(PROJECT).cabal
 EXECUTABLE         = $(shell $(CABAL) list-bin $(PROJECT))
 EXE_ARGS           = -IA $(PRELUDE)
 
-HASKTAGS           = cd $(SRC) && ~/.cabal/bin/hasktags
-HASKTAGS_ARGS      = -e .
+MKTAGS             = $(TOOLS)/mktags
+MKTAGS_ARGS        = $(SRC) -e .
 
 INST_BIN           = /usr/local/bin
 INST_LIB           = /usr/local/lib/$(PROJECT)
@@ -107,8 +107,7 @@ release: version all test doc
 ## ----------------------------------------------------------------------------------------------------
 
 tags:
-	@echo ">>>>>>>>>>>>    (Re)generating TAGS file ..."
-	$(HASKTAGS) $(HASKTAGS_ARGS)
+	$(MKTAGS) $(MKTAGS_ARGS)
 
 ## ----------------------------------------------------------------------------------------------------
 

@@ -143,13 +143,18 @@ git clone https://github.com/bengtj100/stacky-lang.git
 As a non-root user do:
 
 ```
-
 cabal update
 
 cabal install cabal-install
+```
 
+If you plan to use an editor that uses TAGS, then install hasktags:
+
+```
 ~/.cabal/bin/cabal install hasktags
 ```
+
+The build system will automatically build the TAGS file, if hasktags is installed and skip that stage if not.
 
 ### Build a release
 
