@@ -467,6 +467,12 @@ while : [ pred body <] --> [ ... <]
 ]'while;
 ```
 
+### `quit`
+
+```
+[ 0 exit ] 'quit;
+```
+
 ## Input/output operations
 
 ### `input`

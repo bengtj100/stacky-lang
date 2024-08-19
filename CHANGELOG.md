@@ -20,6 +20,7 @@
 * Operations 'input' and 'prompt' now throws catchable errors
 * Replaced REPL written in Haskell with one written in Stacky.
 * `throw` now takes its arguments as individual elements on the stack and is compatible with catch thus `[... throw] [throw] catch = ... throw`.
+  * Added the 'quit', 'exit', and 'error' operations to terminate execution.
 
 ## 0.2.2 -- 2024-08-11
 

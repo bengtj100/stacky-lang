@@ -30,7 +30,7 @@ module BuiltIns (
 -- System modules
 import Data.Char(chr, ord)
 import Text.Read(readMaybe)
-
+import System.Exit(ExitCode(..), die, exitWith)
 import Control.Exception(catch)
 
 -- Base modules
@@ -124,7 +124,7 @@ builtIns =
                -- Reflection/introspection operations
                defApply, defApplyList, defEval, defImport, defEnv, defTypeOf,
                defTypeInfo, defExpectType, defExpectDepth, defThrow, defCatch,
-               defCallPos
+               defCallPos, defError, defExit
               ]
 
 -------------------------------------------------------------------------------------------------------
@@ -933,6 +933,32 @@ defCallPos :: Value
 defCallPos =
     ValOp noPos "__CALLPOS__" $ \cxt@Cxt{stack = s0, callPos = cPos} ->
         return $ Right cxt{stack = pos2val cPos : s0}
+
+-------------------------------------------------------------------------------------------------------
+
+defError :: Value
+defError =
+    ValOp noPos "error" $ \Cxt{stack = s0} ->
+           case s0 of
+            ValString _ msg : _ ->
+                die msg
+            other : _ ->
+                return $ typeError1 other "error" "a string" other
+            _ ->
+                return $ stackUnderflowError ValNoop "error"
+
+-------------------------------------------------------------------------------------------------------
+
+defExit :: Value
+defExit =
+    ValOp noPos "exit" $ \Cxt{stack = s0} ->
+           case s0 of
+            ValInt _ code : _  | code == 0 -> exitWith $ ExitSuccess
+                               | otherwise -> exitWith $ ExitFailure (fromInteger code)
+            other : _ ->
+                return $ typeError1 other "exit" "an integer" other
+            _ ->
+                return $ stackUnderflowError ValNoop "exit"
 
 -------------------------------------------------------------------------------------------------------
 --  Local helper functions

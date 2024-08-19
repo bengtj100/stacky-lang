@@ -1594,6 +1594,22 @@ Example:
 [ 1 <]
 ```
 
+#### The `error` operation
+
+This operation prints the supplied message and then terminates the interpreter with a > 0 exit-code.
+
+```
+error : [ message:string <] --> 
+```
+
+#### The `exit` operation
+
+This operation terminates the interpreter with the supplied error code as exit-code
+
+```
+exit : [ exit-code:integer <] --> 
+```
+
 #### The `__POS__` operation
 
 This is a meta operation that is replaced with the actual position in the source file. It returns a list with the file-name, the line and character in the file.
