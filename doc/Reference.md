@@ -1,10 +1,10 @@
 # Stacky - A simple stack language
 ## Language Reference
-### Version 0.2
+### Version 0.2.x
 
 ## Disclaimer
 
-The Stacky language is still in beta version 0.2, so things are moving fast and all versions below 1.0 may break **backwards compatibility without notice**!
+The Stacky language is still in beta version 0.2.x, so things are moving fast and all versions below 1.0 may break **backwards compatibility without notice**!
 
 **USE THIS LANGUAGE AT YOUR OWN RISK!**
 
@@ -1640,6 +1640,17 @@ __CALLPOS__ : [ <] --> [ [fname:string line:integer char:integer] <]
 
 ### Execution environment operations
 
+This section contains operations that interact with the environment the interpreter is running in.
+
+| Operation                                 | Comment                                                                            |
+|:------------------------------------------|:-----------------------------------------------------------------------------------|
+| [`error`](#the-error-operation)           | Print a message and terminate execution with a non-zero exit code.                 |
+| [`exit`](#the-exit-operation)             | Terminate execution with a given exit code.                                        |
+| [`argv`](#the-argv-operation)             | Get list of supplied commmand-line arguments.                                      |
+| [`getEnv`](#the-getenv-operation)         | Get the value of the given system environment variable, if it exists.              |
+| [`getEnvSafe`](#the-getenvsafe-operation) | Get the value of the given system environment variable, or return a default value. |
+| [`setEnv`](#the-setenv-operation)         | Set the given system environment variable to the given value.                      |
+
 #### The `error` operation
 
 This operation prints the supplied message and then terminates the interpreter with a > 0 exit-code.
@@ -1655,8 +1666,6 @@ This operation terminates the interpreter with the supplied error code as exit-c
 ```
 exit : [ exit-code:integer <] --> 
 ```
-
-
 
 #### The `argv` operation
 
@@ -1677,6 +1686,69 @@ Stacky, version: ...
 > argv
 [ ["foo" "bar" "42"] <]
 > 
+```
+
+#### The `getEnv` operation
+
+This operation returns the value of a given system environment variable. If it is not defined, an error is thrown.
+
+```
+getEnv : [ varName:string <] --> [ string <]
+```
+
+Examples:
+
+```
+> "SHELL" getEnv
+[ "/bin/bash" <]
+
+> "GULF" getEnv
+-:1:1: ERROR: getEnv: Undefined environment variable: 'GULF'
+```
+
+#### The `getEnvSafe` operation
+
+This operation returns the value of a given system environment variable. If it is not defined, the provided default value is returned.
+
+```
+getEnvSafe : [ default:string varName:string <] --> [ string <]
+```
+
+Examples:
+
+```
+> "gas" "SHELL" getEnvSafe
+[ "/bin/bash" <]
+
+> "gas" "GULF" getEnvSafe
+[ "gas" <]
+```
+
+#### The `setEnv` operation
+
+This operation sets a system environment variable to the given value. Setting it to the value `""` will unset the variable. Attempting to set an empty variable name, or one with an equal sign in it will lead to an error.
+
+```
+setEnv : [ value:string varName:string <] --> [  <]
+```
+
+Examples:
+
+```
+> "LINGO" getEnv
+-:1:1: ERROR: getEnv: Undefined environment variable: 'LINGO'
+
+> "Stacky" "LINGO" setEnv
+[  <]
+
+> "LINGO" getEnv
+[ "Stacky" <]
+
+> "" "LINGO" setEnv
+[  <]
+
+> "LINGO" getEnv
+-:1:1: ERROR: getEnv: Undefined environment variable: 'LINGO'
 ```
 
 ## Syntax description

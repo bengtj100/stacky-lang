@@ -6,6 +6,7 @@
 
 * Added the find operation that find substrings in strings.
 * Added the operation 'argv' that returns a list of command-line arguments given to the interpreter.
+* Added the `getEnv`, `getEnvSafe`, and `setEnv` operations to handle system environment variables.
 
 ### Implementation changes
 

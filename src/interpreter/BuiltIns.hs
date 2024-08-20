@@ -32,7 +32,8 @@ import Data.Char(chr, ord)
 import Data.List(isPrefixOf)
 import Text.Read(readMaybe)
 import System.Exit(ExitCode(..), die, exitWith)
-import Control.Exception(catch)
+import Control.Exception(IOException, catch)
+import System.Environment(lookupEnv, setEnv)
 
 -- Base modules
 import CoreTypes(Cxt(..), insertEnv, insertEnvGlobal, updateEnv, updateEnvGlobal,
@@ -128,7 +129,7 @@ builtIns =
                defTypeInfo, defExpectType, defExpectDepth, defCallPos,
 
               -- Execution environment operations
-              defError, defExit, defArgv
+              defError, defExit, defArgv, defGetEnv, defGetEnvSafe, defSetEnv
               ]
 
 -------------------------------------------------------------------------------------------------------
@@ -1002,6 +1003,62 @@ defArgv =
         in
             Right cxt{stack = argvals : s0}
 
+-------------------------------------------------------------------------------------------------------
+
+defGetEnv :: Value
+defGetEnv =
+    ValOp noPos "getEnv" $ \cxt@Cxt{stack = s0} ->
+        case s0 of
+            ValString pos name : s1 ->
+                do res <- lookupEnv name
+                   case res of
+                       Just value ->
+                           return $ Right cxt{stack = ValString pos value : s1}
+                       Nothing ->
+                           return $ undefVarErr pos name
+            other : _ ->
+                return $ typeError1 other "getEnv" "a string" other
+            _ ->
+                return $ stackUnderflowError ValNoop "getEnv"
+
+undefVarErr :: Position -> String -> Result a
+undefVarErr pos name =
+    newErrPos pos ("getEnv: Undefined environment variable: '" ++ name ++ "'")
+
+-------------------------------------------------------------------------------------------------------
+
+defGetEnvSafe :: Value
+defGetEnvSafe = 
+    ValOp noPos "getEnvSafe" $ \cxt@Cxt{stack = s0} ->
+        case s0 of
+            ValString _ name : ValString pos defVal : s1 ->
+                do res <- lookupEnv name
+                   case res of
+                       Just value ->
+                           return $ Right cxt{stack = ValString pos value : s1}
+                       Nothing ->
+                           return $ Right cxt{stack = ValString pos defVal : s1}
+            other1 : other2 : _ ->
+                return $ typeError2 other1 "getEnvSafe" "two strings" other2 other1
+            _ ->
+                return $ stackUnderflowError ValNoop "getEnvSafe"
+
+-------------------------------------------------------------------------------------------------------
+
+defSetEnv :: Value
+defSetEnv =
+    ValOp noPos "setEnv" $ \cxt@Cxt{stack = s0} ->
+        case s0 of
+            ValString _ name : ValString pos str : s1 ->
+                (do setEnv name str
+                    return $ Right cxt{stack = s1}) `catch` (badVarErr pos name)
+            other1 : other2 : _ ->
+                return $ typeError2 other1 "setEnv" "two strings" other2 other1
+            _ ->
+                return $ stackUnderflowError ValNoop "setEnv"
+
+badVarErr :: Position -> String -> IOException -> IO (Result a)
+badVarErr pos name err = return $ newErrPos pos (show err ++ ": \"" ++ name ++ "\"")
 
 -------------------------------------------------------------------------------------------------------
 --  Local helper functions
