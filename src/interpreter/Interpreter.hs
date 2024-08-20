@@ -68,8 +68,8 @@ runAtom :: Position -> Cxt -> Name -> IO (Result Cxt)
 runAtom pos cxt@Cxt{stack = s} atom =
     case s of
            (ValAtom _ "'") : s1 -> leaveVal cxt (ValAtom pos atom) s1
-           (ValAtom _ "^") : s1 -> lookupAtom cxt atom pos s1  $ \val -> leaveVal cxt val s1
-           _                    -> lookupAtom cxt atom noPos s $ \val -> runValue cxt{stack = val : s, callPos = pos} defApply
+           (ValAtom _ "^") : s1 -> lookupAtom cxt atom pos s1 $ \val -> leaveVal cxt val s1
+           _                    -> lookupAtom cxt atom pos s  $ \val -> runValue cxt{stack = val : s, callPos = pos} defApply
 
 -------------------------------------------------------------------------------------------------------
 -- Auxilliary public functions
@@ -84,11 +84,11 @@ defApply :: Value
 defApply =
     ValOp noPos "@" $ \cxt@Cxt{stack = s0} ->
            case s0 of
-              ValList _ cmds : s1 -> runLocalValues cxt{stack = s1} cmds
-              ValAtom p atom : s1 -> runAtom p cxt{stack = s1} atom
-              ValOp pos _ op : s1 -> injectPos pos $ op cxt{stack = s1}
-              _              : _  -> return $ Right cxt
-              _                   -> return $ stackUnderflowError ValNoop "@"
+              ValList _   cmds : s1 -> runLocalValues cxt{stack = s1} cmds
+              ValAtom pos atom : s1 -> runAtom pos cxt{stack = s1} atom
+              ValOp   pos _ op : s1 -> injectPos pos $ op cxt{stack = s1}
+              _                : _  -> return $ Right cxt
+              _                     -> return $ stackUnderflowError ValNoop "@"
 
 --
 -- Evaluate a list of operations in its own local environment, which
