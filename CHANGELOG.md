@@ -1,6 +1,6 @@
 # Revision history for Stacky
 
-## 0.3 -- PRELIMINARY
+## 0.3 -- 2024-08-20
 
 ### Language changes
 
