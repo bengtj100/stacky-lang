@@ -19,7 +19,7 @@ TEST               = ./test
 
 SRC_FULL           = $(shell readlink -f $(SRC))
 TEST_FULL          = $(shell readlink -f $(TEST))
-
+TEST_ARGS          = foo bar "cicada 3301"
 DOC_FILES          = $(wildcard $(DOC)/*.md)
 
 PDF_FILES	   = $(DOC_FILES:.md=.pdf)
@@ -72,7 +72,7 @@ test: build
 	@$(CABAL) test
 	@echo ">>>>>>>>>>>>    Running Stacky unit tests ..."
 	@echo 'Entering directory `'$(TEST_FULL)"'"
-	@$(EXECUTABLE) $(EXE_ARGS) -b -IA $(TEST_FULL) 'RunTests'
+	@$(EXECUTABLE) $(EXE_ARGS) -b -IA $(TEST_FULL) 'RunTests' -- $(TEST_ARGS)
 	@echo 'Leaving directory `'$(TEST_FULL)"'"
 
 ## ----------------------------------------------------------------------------------------------------

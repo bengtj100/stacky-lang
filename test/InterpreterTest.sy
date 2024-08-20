@@ -329,23 +329,30 @@ located in the top directory of said project.
 ```
 "Built-in operations: Control"
 [
-    "Stash undefined" [ undefined                        'undefined =    ] mt_assert
-    "Stash defined"   [ 42 'x;                           42 x =          ] mt_assert
-    "Stash local"     [ 42 'x; [ 33 'x; x ] @            33 = 42 x = and ] mt_assert
+    "Stash undefined" [ undefined                              'undefined =                      ] mt_assert
+    "Stash defined"   [ 42 'x;                                 42 x =                            ] mt_assert
+    "Stash local"     [ 42 'x; [ 33 'x; x ] @                  33 = 42 x = and                   ] mt_assert
     
-    "Stash update"    [ 33 'x ;=;                        33 x =
-                        42 'x ;=;                        42 x = and      ] mt_assert
+    "Stash update"    [ 33 'x ;=;                              33 x =
+                        42 'x ;=;                              42 x = and                        ] mt_assert
 
-    "Global"          [ [ "foo" 'bar global ] @          "foo" bar =     ] mt_assert
+    "Global"          [ [ "foo" 'bar global ] @                "foo" bar =                       ] mt_assert
     
-    "Global update"   [ [ 33 'x UPDATE ] @               33 x =
-                        [ 42 'x UPDATE ] @               42 x = and      ] mt_assert
+    "Global update"   [ [ 33 'x UPDATE ] @                     33 x =
+                        [ 42 'x UPDATE ] @                     42 x = and                        ] mt_assert
 
-    "Redefine name"   [ 42 'x;    33 'x;                                 ] mt_assertError
-    "Update readonly" [ 42 'x;    33 'x ;=;                              ] mt_assertError
+    "Redefine name"   [ 42 'x;    33 'x;                                                         ] mt_assertError
+    "Update readonly" [ 42 'x;    33 'x ;=;                                                      ] mt_assertError
 
-    "Cond true"       [ [33 42 =] ["then"] ["else"] ?    "else" =        ] mt_assert
-    "Cond false"      [ [42 42 =] ["then"] ["else"] ?    "then" =        ] mt_assert
+    "Cond true"       [ [33 42 =] ["then"] ["else"] ?          "else" =                          ] mt_assert
+    "Cond false"      [ [42 42 =] ["then"] ["else"] ?          "then" =                          ] mt_assert
+    
+    "throw 1"         [ "foo" "bar"                            throw                             ] mt_assertError
+    "throw 2"         [ ["foo" "bar" throw] [] catch           isString swap isPos and           ] mt_assert
+    "throw 3"         [ [["foo" 10 20] "bar" throw] [] catch   "bar" = swap ["foo" 10 20]= and   ] mt_assert
+    "throw 4"         [ [["Q" 1 2] "f" "b" throw] [] catch     "In 'f': b" = swap ["Q" 1 2]= and ] mt_assert
+    
+    "catch 1"         [ [1 0 / 100] [42]                       catch       42 =                  ] mt_assert
 ] mt_suite
 ```
 
@@ -532,13 +539,14 @@ I/O operations are difficult to test automatically as long as Stacky lacks good 
     "expectType 1" [ 42                                     ["integer" 1 2] expectType    42 =    ] mt_assert
     "expectType 2" [ "foo"                                  ["string" 1 10] expectType    "foo" = ] mt_assert
     "expectType 3" [ 42.0                                   ["string" 1 10] expectType            ] mt_assertError
-    
-    "throw 1"      [ "foo" "bar"                            throw                                 ] mt_assertError
-    "throw 2"      [ ["foo" "bar" throw] [] catch           isString swap isPos and               ] mt_assert
-    "throw 3"      [ [["foo" 10 20] "bar" throw] [] catch   "bar" = swap ["foo" 10 20]= and       ] mt_assert
-    "throw 4"      [ [["Q" 1 2] "f" "b" throw] [] catch     "In 'f': b" = swap ["Q" 1 2]= and     ] mt_assert
-    
-    "catch 1"      [ [1 0 / 100] [42]                       catch       42 =                      ] mt_assert
+] mt_suite
+```
+
+### Execution environment
+```
+"Built-in operations: Execution environment"
+[
+    "argv 1"       [ argv ["foo" "bar" "cicada 3301"] = ] mt_assert
 ] mt_suite
 ```
 

@@ -107,6 +107,7 @@ builtIns =
                defStash, defGlobal,
                defAssign, defUpdate,
                defCond,
+               defThrow, defCatch,
 
                -- Stack operations
                defDrop,  defSwap,  defRot,  defLRot,  defOver,  defDup, defClear, defDepth,
@@ -124,8 +125,10 @@ builtIns =
 
                -- Reflection/introspection operations
                defApply, defApplyList, defEval, defImport, defEnv, defTypeOf,
-               defTypeInfo, defExpectType, defExpectDepth, defThrow, defCatch,
-               defCallPos, defError, defExit
+               defTypeInfo, defExpectType, defExpectDepth, defCallPos,
+
+              -- Execution environment operations
+              defError, defExit, defArgv
               ]
 
 -------------------------------------------------------------------------------------------------------
@@ -359,6 +362,49 @@ safeHead (x:_) = x
 safeTail :: [Value] -> [Value]
 safeTail []     = []
 safeTail (_:xs) = xs
+
+-------------------------------------------------------------------------------------------------------
+
+defThrow :: Value
+defThrow =
+    ValOp noPos "throw" $ \Cxt{stack = s0} ->
+        case s0 of
+            ValString _ msg : ValString _ name : ValList _ [ValString _ fn, ValInt _ l, ValInt _ c] : _ ->
+                return $ newErrPos (mk_pos fn l c) ("In '" ++ name ++ "': " ++ msg)
+            ValString _ msg : ValList _ [ValString _ fn, ValInt _ l, ValInt _ c] : _ ->
+                return $ newErrPos (mk_pos fn l c) msg
+            ValString pos msg : ValString _ name : _ ->
+                return $ newErrPos pos ("In '" ++ name ++ "': " ++ msg)
+            other : _ ->
+                return $ typeError1 other "throw" "an optional position, message and name" other
+            _ ->
+                return $ stackUnderflowError ValNoop "throw"
+
+mk_pos :: String -> Integer -> Integer -> Position
+mk_pos fn l c = mkPos fn (fromInteger l) (fromInteger c)
+
+-------------------------------------------------------------------------------------------------------
+
+defCatch :: Value
+defCatch =
+    ValOp noPos "catch" $ \cxt@Cxt{stack = s0} ->
+           case s0 of
+            catchClause : tryClause : s1 ->
+                do res <- runValues cxt{stack = s1} [tryClause, defApply]
+                   case res of
+                       Right cxt' ->
+                           return $ Right cxt'
+                       Left (pos, msg) ->
+                           do let s2 = [ValString pos msg, pos2val pos] ++ s1
+                                  cs = [catchClause, defApply]
+                              runValues cxt{stack = s2} cs
+            _ ->
+                return $ stackUnderflowError ValNoop "catch"
+
+pos2val :: Position -> Value
+pos2val pos = ValList pos [ValString pos (fileName pos),
+                           ValInt    pos (toInteger $ linePos pos),
+                           ValInt    pos (toInteger $ charPos pos)]
 
 -------------------------------------------------------------------------------------------------------
 --  Stack operations
@@ -911,50 +957,6 @@ expectDepth cxt minDepth name s1 =
     then return $ Right cxt{stack = s1}
     else return $ stackUnderflowError ValNoop name
 
-
--------------------------------------------------------------------------------------------------------
-
-defThrow :: Value
-defThrow =
-    ValOp noPos "throw" $ \Cxt{stack = s0} ->
-        case s0 of
-            ValString _ msg : ValString _ name : ValList _ [ValString _ fn, ValInt _ l, ValInt _ c] : _ ->
-                return $ newErrPos (mk_pos fn l c) ("In '" ++ name ++ "': " ++ msg)
-            ValString _ msg : ValList _ [ValString _ fn, ValInt _ l, ValInt _ c] : _ ->
-                return $ newErrPos (mk_pos fn l c) msg
-            ValString pos msg : ValString _ name : _ ->
-                return $ newErrPos pos ("In '" ++ name ++ "': " ++ msg)
-            other : _ ->
-                return $ typeError1 other "throw" "an optional position, message and name" other
-            _ ->
-                return $ stackUnderflowError ValNoop "throw"
-
-mk_pos :: String -> Integer -> Integer -> Position
-mk_pos fn l c = mkPos fn (fromInteger l) (fromInteger c)
-
--------------------------------------------------------------------------------------------------------
-
-defCatch :: Value
-defCatch =
-    ValOp noPos "catch" $ \cxt@Cxt{stack = s0} ->
-           case s0 of
-            catchClause : tryClause : s1 ->
-                do res <- runValues cxt{stack = s1} [tryClause, defApply]
-                   case res of
-                       Right cxt' ->
-                           return $ Right cxt'
-                       Left (pos, msg) ->
-                           do let s2 = [ValString pos msg, pos2val pos] ++ s1
-                                  cs = [catchClause, defApply]
-                              runValues cxt{stack = s2} cs
-            _ ->
-                return $ stackUnderflowError ValNoop "catch"
-
-pos2val :: Position -> Value
-pos2val pos = ValList pos [ValString pos (fileName pos),
-                           ValInt    pos (toInteger $ linePos pos),
-                           ValInt    pos (toInteger $ charPos pos)]
-
 -------------------------------------------------------------------------------------------------------
 
 defCallPos :: Value
@@ -962,6 +964,8 @@ defCallPos =
     ValOp noPos "__CALLPOS__" $ \cxt@Cxt{stack = s0, callPos = cPos} ->
         return $ Right cxt{stack = pos2val cPos : s0}
 
+-------------------------------------------------------------------------------------------------------
+--  Execution environment operations
 -------------------------------------------------------------------------------------------------------
 
 defError :: Value
@@ -987,6 +991,17 @@ defExit =
                 return $ typeError1 other "exit" "an integer" other
             _ ->
                 return $ stackUnderflowError ValNoop "exit"
+
+-------------------------------------------------------------------------------------------------------
+
+defArgv :: Value
+defArgv =
+    defOp "argv" $ \cxt@Cxt{stack = s0, argv = args} ->
+        let
+            argvals = ValList noPos [ ValString noPos arg | arg <- args ]
+        in
+            Right cxt{stack = argvals : s0}
+
 
 -------------------------------------------------------------------------------------------------------
 --  Local helper functions

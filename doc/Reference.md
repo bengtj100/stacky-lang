@@ -570,6 +570,53 @@ So the `if <predicate> then <do-if-true> else <do-if-false>` becomes `<predicate
 
 More concise, but the readability may be affected...
 
+#### The `throw` operation
+
+This operating throws an error, given a message and an operation's name.
+
+```
+throw : [ position name:string message:string] <] ---> ERROR
+        or
+        [ position message:string] <] ---> ERROR
+        or
+        [ name:string message:string] <] ---> ERROR
+```
+
+$position$ is a file position as returned by `__POS__`
+
+Example:
+
+```
+> "foo" "This is an error"] throw
+ERROR: In 'foo': This is an error
+> 
+```
+
+#### The `catch` operation
+
+This catches run-time errors in the code and presents them on the stack for a handler to process.
+
+```
+catch : [ catchClause tryClause <] ---> [ ... <]
+```
+
+The try clause must fulfil:
+
+```
+catchClause : [ position msg:string <] ---> [ ... <]
+```
+
+$position$$ is a file position as returned by `__POS__`
+
+Example:
+
+```
+> clear [ 1 0 / ] [] catch
+[ ["" 0 10] "Division by zero" <]
+> clear [ 1 1 /] [] catch
+[ 1 <]
+```
+
 ### Stack operations
 
 The main purpose of stack operations is to manipulate the stack and/or gain information about the stack.
@@ -1575,52 +1622,23 @@ Examples:
 -:0:10: ERROR: Stack underflow in operation: 'foo'
 ```
 
-#### The `throw` operation
+#### The `__POS__` operation
 
-This operating throws an error, given a message and an operation's name.
-
-```
-throw : [ position name:string message:string] <] ---> ERROR
-        or
-        [ position message:string] <] ---> ERROR
-        or
-        [ name:string message:string] <] ---> ERROR
-```
-
-$position$ is a file position as returned by `__POS__`
-
-Example:
+This is a meta operation that is replaced with the actual position in the source file. It returns a list with the file-name, the line and character in the file.
 
 ```
-> "foo" "This is an error"] throw
-ERROR: In 'foo': This is an error
-> 
+__POS__ : [ <] --> [ [fname:string line:integer char:integer] <]
 ```
 
-#### The `catch` operation
+#### The `__CALLPOS__` operation
 
-This catches run-time errors in the code and presents them on the stack for a handler to process.
-
-```
-catch : [ catchClause tryClause <] ---> [ ... <]
-```
-
-The try clause must fulfil:
+This is a operation that returns a list with the file-name, the line and character of the location the cuttent function was called.
 
 ```
-catchClause : [ position msg:string <] ---> [ ... <]
+__CALLPOS__ : [ <] --> [ [fname:string line:integer char:integer] <]
 ```
 
-$position$$ is a file position as returned by `__POS__`
-
-Example:
-
-```
-> clear [ 1 0 / ] [] catch
-[ ["" 0 10] "Division by zero" <]
-> clear [ 1 1 /] [] catch
-[ 1 <]
-```
+### Execution environment operations
 
 #### The `error` operation
 
@@ -1638,20 +1656,27 @@ This operation terminates the interpreter with the supplied error code as exit-c
 exit : [ exit-code:integer <] --> 
 ```
 
-#### The `__POS__` operation
 
-This is a meta operation that is replaced with the actual position in the source file. It returns a list with the file-name, the line and character in the file.
 
+#### The `argv` operation
+
+This operation returns the command-line arguments passed to the interpreter.
 ```
-__POS__ : [ <] --> [ [fname:string line:integer char:integer] <]
+argv : [ <] --> [ args:list(string) <]
 ```
 
-#### The `__CALLPOS__` operation
-
-This is a operation that returns a list with the file-name, the line and character of the location the cuttent function was called.
-
+Example:
 ```
-__CALLPOS__ : [ <] --> [ [fname:string line:integer char:integer] <]
+$ stacky -- foo bar 42
+
+Stacky, version: ...
+
+...
+
+[  <]
+> argv
+[ ["foo" "bar" "42"] <]
+> 
 ```
 
 ## Syntax description

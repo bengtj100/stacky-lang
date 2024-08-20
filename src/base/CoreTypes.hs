@@ -65,6 +65,7 @@ data Cxt = Cxt{ stack :: Stack
               , envs  :: [Env]
               , libPath :: [String]
               , callPos :: Position
+              , argv :: [String]
               }
 
 initCxt :: Env -> Cxt
@@ -72,8 +73,8 @@ initCxt initEnv = Cxt{ stack   = newStack
                      , envs    = [newEnv ++ initEnv]
                      , libPath = []
                      , callPos = noPos
+                     , argv = []
                      }
-
 
 -------------------------------------------------------------------------------------------------------
 --  Env - The interpreter name bindings

@@ -23,7 +23,7 @@ import System.Environment(getArgs)
 
 -- Base modules
 import Position(noPos)
-import CoreTypes( Cxt, initCxt
+import CoreTypes( Cxt(..), initCxt
                 , printError
                 , Value(..)
                 )
@@ -72,14 +72,25 @@ main =
 runPrelude :: CmdRes -> IO (Maybe Cxt)
 runPrelude opts =
     do let cxt0 =  initCxt builtIns
-       cxt      <- loadLibPath (incPrePaths opts) (incAppPaths opts) cxt0
+           cxt1 =  loadArgv opts cxt0
+       cxt      <- loadLibPath (incPrePaths opts) (incAppPaths opts) cxt1
        prl      <- makePrelude opts
        result   <- interpreter cxt prl
        case result of
            Left  err  -> do printError err
                             return $ Nothing
            Right cxt' -> return $ Just cxt'
-                   
+
+-------------------------------------------------------------------------------------------------------
+
+--
+-- Move the argv component from the CmdRes to the Cxt.
+--
+loadArgv :: CmdRes -> Cxt -> Cxt
+loadArgv (CmdRes{cmdOpts = opts}) cxt = cxt{argv = opts}
+                                   
+-------------------------------------------------------------------------------------------------------
+
 --
 -- Create the prelude commands. It contains commands that:
 --   1) It defines `isInteractive` to either true or false
@@ -98,6 +109,8 @@ makePrelude opts =
                ++ prelude opts
                ++ [ValString noPos "Repl", ValAtom noPos "import"])
     
+-------------------------------------------------------------------------------------------------------
+
 --
 -- Create a variable definition
 --

@@ -47,6 +47,7 @@ data CmdRes = CmdRes{ interactive :: Bool      -- True = Interactive mode. Run t
                     , preludeFile :: String    -- Name of the Prelude file.
                     , incPrePaths :: [String]  -- List of paths to prepend to STACKY_INCLUDE_PATH
                     , incAppPaths :: [String]  -- List of paths to append to STACKY_INCLUDE_PATH
+                    , cmdOpts     :: [String]  -- Cmd-line args supplied to the program
                     }
 -------------------------------------------------------------------------------------------------------
 
@@ -87,6 +88,7 @@ newCmdArgs = CmdArg CmdRes{ interactive = True
                           , preludeFile = ""
                           , incPrePaths = []
                           , incAppPaths = []
+                          , cmdOpts     = []
                           }
 
 makeCA :: (CmdRes -> CmdRes) -> CmdArgs -> CmdArgs
@@ -132,6 +134,12 @@ makeInteractive :: Bool -> CmdArgs -> CmdArgs
 makeInteractive i = makeCA $ \res -> res{interactive = i}
 
 --
+-- Make mdOpts for the interpreted program
+--
+makeCmdOpts :: [String] -> CmdArgs -> CmdArgs
+makeCmdOpts args = makeCA $ \res -> res{cmdOpts = args}
+
+--
 -- Raise an error due to an unknown option.
 --
 unknownOptError :: String -> CmdArgs
@@ -162,6 +170,7 @@ parseArgs [opt] _
 parseArgs (opt : args) cargs
     | opt `elem` ["--interactive", "-i"] = parseArgs args $ makeInteractive True  cargs
     | opt `elem` ["--batch",       "-b"] = parseArgs args $ makeInteractive False cargs
+    | opt `elem` ["--"                 ] = makeCmdOpts args cargs
     | opt `elem` ["--version"          ] = CmdVersion
     | opt `elem` ["--help",        "-h"] = CmdUsage
 parseArgs (err@('-':_) : _   ) _          = unknownOptError err
@@ -199,6 +208,9 @@ Where option is one of:
 
 -IA <path>                  Append <path> to STACKY_INCLUDE_PATH.
 -IP <path>                  Prepend <path> to STACKY_INCLUDE_PATH.
+
+-- <argv>                   Pipe the rest of the options to the Stacky program.
+                            No options will be parsed after a double-dash!
 
 --version                   Print the current version and terminate.
 

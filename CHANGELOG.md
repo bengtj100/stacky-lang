@@ -5,6 +5,12 @@
 ### Language changes
 
 * Added the find operation that find substrings in strings.
+* Added the operation 'argv' that returns a list of command-line arguments given to the interpreter.
+
+### Implementation changes
+
+* Added the '--' option to allow command line arguments to be piped into the running program.
+
 
 ## 0.2.3 -- 2024-08-19
 
