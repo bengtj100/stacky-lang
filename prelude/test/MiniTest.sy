@@ -1,4 +1,4 @@
-
+mt
 [comment]: # (-*-Markdown-*-  First line intentionally left blank!)
 
 # MiniTest for Stacky
@@ -19,7 +19,7 @@ located in the top directory of said project.
 The guard allows this module to be included multiple times.
 
 ```
-['defined ^__MiniTest_Guard__ =] [] [ 'defined __MiniTest_Guard__ global
+['__MiniTest_Guard__ isDef] [] [ 1 '__MiniTest_Guard__ global
 ```
 -->
 
@@ -33,7 +33,8 @@ These operations are part of the public API of MiniTest and will stay quite stab
 
 ```
 [
-    0 '__mt_totNoOfTests UPDATE
+    0 '__mt_totNoOfTests     UPDATE
+    0 '__mt_suite_had_errors UPDATE
 ] 'mt_init global
 ```
 
@@ -55,7 +56,7 @@ Implementation:
 
     clear
     
-    [pred]
+    [pred] [swap drop ^pos swap throw] catch
         ^pred toStr
         __mt_report
 ] 'mt_assert global
@@ -116,7 +117,7 @@ Implementation:
     [
         swap __mt_putPos "ERROR: " put putLn
         "ERROR: " put
-        ['yes '__mt_suite_had_errors global] [2 ndrop] catch
+        1 '__mt_suite_had_errors UPDATE
     ]
     catch
     
@@ -135,9 +136,10 @@ Conclude the tests and report an error if there were errors in the suites
     "" putLn
     "" 80 "-" __mt_left putLn
 
-    ['yes ^__mt_suite_had_errors =]
+    __mt_suite_had_errors
         [
-            "mt_conclude" "THERE WERE ERRORS IN ONE OR MORE OF THE SUITES!" throw
+            "ERROR IN SUITES: Total successful tests: " put __mt_totNoOfTests putLn
+            "Terminating" error
         ]
         [
             "ALL PASS: Total successful tests: " put __mt_totNoOfTests putLn

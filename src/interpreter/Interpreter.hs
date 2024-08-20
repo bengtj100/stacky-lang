@@ -28,7 +28,7 @@ import CoreTypes( Cxt(..),     lookupEnv, pushLocal, popLocal
                 , Value(..)
                 , Result,      ifOk
                 , Name
-                , Error,       stackUnderflowError)
+                , Error,       newErrPos, stackUnderflowError)
 
 import Position(Position(..), noPos, isNoPos)
 
@@ -123,7 +123,8 @@ lookupAtom :: Cxt ->
               (Value -> IO (Either Error Cxt)) -> IO (Either Error Cxt)
 lookupAtom cxt atom pos s cont = 
     case lookupEnv cxt atom of
-        Nothing  -> leaveVal cxt (ValAtom pos atom) s
+        Nothing  | atom `elem` ["'", "^"] -> leaveVal cxt (ValAtom pos atom) s
+                 | otherwise           -> return $ newErrPos pos ("Undefined name: '" ++ atom ++ "'")
         Just val -> cont val
                             
 --

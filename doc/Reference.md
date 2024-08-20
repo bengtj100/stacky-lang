@@ -94,13 +94,13 @@ This makes it possible to define, e.g., user defined commands.
 
 ```
 ` Compute the square of an integer
-[ dup * ] sq;
+[ dup * ] 'sq;
 ```
 
 **NOTE:** Attempting to bind an atom more than once will lead to a run-time error!
 
 ```
-> 42 theAnswer;
+> 42 'theAnswer;
 [  <]
 > theAnswer
 [ 42 <]
@@ -112,15 +112,9 @@ ERROR: Redefining name: 'theAnswer'
 
 The first error arises from the fact that `theAnswer` is bound, so it will be replaced by the value 42 before the stash (`;`) command is executed.
 
-Putting a single quote (`'`) in front of an atom, will inhibit its evaluation. This is actually useful, when writing complex programs. 
+Putting a single quote (`'`) in front of an atom, will inhibit its evaluation. It will also prevent errors from occuring when defining new names. Had we written `42 theAnswer;` the interpreter would complain about `theAnswer` not being defined when we try to stash it.
 
 Another kind of inhibitor is the top (`^`) operation which, when placed just before an atom, will retrieve the stored value (if one exists) but will ensure that what is retrieved from storage is not immediately evaluated. This is useful since terms retrieved from the store will be evaluated by default.
-
-**NOTE:** It is considered best practice to *always* prefix a name with the quote when storing it in the environment. Thus, the correct code for storing `theAnswer` is:
-
-```
-42 'theAnswer;
-```
 
 Examples:
 
@@ -294,7 +288,7 @@ When an atom is encountered during evaluation, one of two things can happen. If 
 Example:
 
 ```
-19700101 epoch;                       `First year of the UNIX epoch is stored.
+19700101 'epoch;                      `First year of the UNIX epoch is stored.
 
 epoch                                 'Since epoch is defined, 19700101 is pushed onto
                                       `the stack.

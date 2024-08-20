@@ -324,7 +324,7 @@ We can start with the squaring operation:
 [dup *] 'square;
 ```
 
-The `[dup *]` is the body of the operation. `'square` pushes the name "square" onto the stack. (The `'` tells Stacky not to try to retrieve the name, should it exist in an outer scope. This isn't strictly neccessary in the top scope, but is good practice. Finally `;` stores the operation. 
+The `[dup *]` is the body of the operation. `'square` pushes the name "square" onto the stack. (The `'` tells Stacky not to try to look up and rewrite the name, should it exist in an outer scope. When using atoms as values they shall be prefixed by an inhibitor! Finally `;` stores the operation. 
 
 We kan now square integers:
 

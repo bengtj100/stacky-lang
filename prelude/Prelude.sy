@@ -481,6 +481,21 @@ while : [ pred body <] --> [ ... <]
 [ "? " prompt ] 'input;
 ```
 
+## Reflection/introspection operations
+
+### `isDef`
+
+This operation returns truth if a name is defined, false otherwise.
+
+~~~
+isDef : [ atom <] --> [ truthiness <]
+~~~
+
+```
+[ [ @ drop 1][3 ndrop 0] catch ]'isDef;
+```
+
+
 # THAT'S ALL FOLKS!!
 
 ```

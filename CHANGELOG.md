@@ -1,10 +1,12 @@
 # Revision history for Stacky
 
-## 0.2.4 -- PRELIMINARY
+## 0.3 -- PRELIMINARY
 
 ### Language changes
 
-* Added the find operation that find substrings in strings.
+* **BREAKING CHANGE:** There will be an error if you do apply on an unbound name! It is still possible to use atoms as values, just inhibit them with the single quite inhibitor.
+  * The prelude operation `isDef` can be used to determine if a name is bound or not
+* Added the 'find' operation that find substrings in strings.
 * Added the operation 'argv' that returns a list of command-line arguments given to the interpreter.
 * Added the `getEnv`, `getEnvSafe`, and `setEnv` operations to handle system environment variables.
 

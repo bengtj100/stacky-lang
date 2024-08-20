@@ -35,9 +35,9 @@ located in the top directory of said project.
 
 [
     'p;
-    ^p 0 index isString
-    ^p 1 index isInteger and
-    ^p 2 index isInteger and
+    ^p 0 index typeOf "string" =
+    ^p 1 index typeOf "integer" = and
+    ^p 2 index typeOf "integer" = and
 ]'isPos;
 ```
 
@@ -52,6 +52,7 @@ located in the top directory of said project.
     "Load Inihibit"    [ [1 2 3 + +]'f; ^f   [1 2 3 + +] =]       mt_assert
     "Explicit apply 1" [ [1 2 3 + +]'f; 'f @           6 =]       mt_assert
     "Explicit apply 2" [ [1 2 3 + +]'f; ^f @           6 =]       mt_assert
+    "Undefined name"   [ undefined                        ]       mt_assertError
 ] mt_suite
 ```
 
@@ -329,7 +330,6 @@ located in the top directory of said project.
 ```
 "Built-in operations: Control"
 [
-    "Stash undefined" [ undefined                              'undefined =                      ] mt_assert
     "Stash defined"   [ 42 'x;                                 42 x =                            ] mt_assert
     "Stash local"     [ 42 'x; [ 33 'x; x ] @                  33 = 42 x = and                   ] mt_assert
     
@@ -348,7 +348,7 @@ located in the top directory of said project.
     "Cond false"      [ [42 42 =] ["then"] ["else"] ?          "then" =                          ] mt_assert
     
     "throw 1"         [ "foo" "bar"                            throw                             ] mt_assertError
-    "throw 2"         [ ["foo" "bar" throw] [] catch           isString swap isPos and           ] mt_assert
+    "throw 2"         [ ["foo" "bar" throw] [] catch           typeOf "string" = swap isPos and  ] mt_assert
     "throw 3"         [ [["foo" 10 20] "bar" throw] [] catch   "bar" = swap ["foo" 10 20]= and   ] mt_assert
     "throw 4"         [ [["Q" 1 2] "f" "b" throw] [] catch     "In 'f': b" = swap ["Q" 1 2]= and ] mt_assert
     
