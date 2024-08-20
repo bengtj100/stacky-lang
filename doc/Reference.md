@@ -1057,9 +1057,37 @@ Examples:
 [ "LLO" <]
 ```
 
+#### The `find` operation
+
+This operation is used to find all instances of a given substring in a string. It returns a list with all indices the substring was found. If not found, it returns an empty list.
+
+**NOTE:** `find` keeps the text string on the stack, to simplify further processing. Empty substrings will cause an error!
+
+```
+slice : [ text:string substr:string(1,) <] --> [ text indices:list(integer) <]
+```
+
+Examples:
+```
+> clear "hello world" "l" find
+[ "hello world" [2 3 9] <]
+
+> drop "wo" find
+[ "hello world" [6] <]
+
+> drop "sky" find
+[ "hello world" [] <]
+
+> clear "XXXXXX" "XX" find
+[ "XXXXXX" [0 2 4] <]
+
+> drop "" find
+-:1:6: ERROR: 'find' expects a non-empty substring
+```
+
 #### The `chr` operation
 
-This operation converts a an integer in the Unicode interval to the corresponding single-character string.
+This operation converts an integer in the Unicode interval to the corresponding single-character string.
 
 ```
 chr : [ c:integer <] ---> [ x:string(1) <]

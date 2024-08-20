@@ -483,6 +483,14 @@ located in the top directory of said project.
     "slice err 1"       [ "hello world"   0 99 slice                         ] mt_assertError
     "slice err 2"       [                 0 99 slice                         ] mt_assertError
 
+    "find str preserve" [ "hello world"  "l" find       swap "hello world" = ] mt_assert
+    "find 0"            [ "hello world"  "X" find       [] =                 ] mt_assert
+    "find 1"            [ "hello world"  "l" find       [2 3 9] =            ] mt_assert
+    "find 2"            [ "hello world"  "wo" find      [6] =                ] mt_assert
+    "find err 0"        [                find                                ] mt_assertError
+    "find err 1"        [ "hello world"  find                                ] mt_assertError
+    "find err 2"        [ "hello world"  "" find                             ] mt_assertError
+    
     "chr 1"             [ 64             chr            "@" =                ] mt_assert
     "ord 1"             [ "@"            ord            64 =                 ] mt_assert
 ] mt_suite

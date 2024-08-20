@@ -1,5 +1,11 @@
 # Revision history for Stacky
 
+## 0.2.4 -- PRELIMINARY
+
+### Language changes
+
+* Added the find operation that find substrings in strings.
+
 ## 0.2.3 -- 2024-08-19
 
 ### BUG FIXES

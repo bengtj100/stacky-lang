@@ -29,6 +29,7 @@ module BuiltIns (
 
 -- System modules
 import Data.Char(chr, ord)
+import Data.List(isPrefixOf)
 import Text.Read(readMaybe)
 import System.Exit(ExitCode(..), die, exitWith)
 import Control.Exception(catch)
@@ -116,7 +117,7 @@ builtIns =
                defToList, defFromList,
                defToString, defFromString,
                defReverse, defToStr, defSlice,
-               defChr, defOrd,
+               defFind, defChr, defOrd,
                        
                -- Input/output operations
                defPrint, defPut, defPutLn, defPrompt, defReadFile,
@@ -629,6 +630,33 @@ doSlice _ _ _ pos _ =
 checkSlice :: Integer -> Integer -> [a] -> Bool
 checkSlice from to xs =
     0 <= from && from <= to && fromInteger to <= length xs
+
+-------------------------------------------------------------------------------------------------------
+
+defFind :: Value
+defFind =
+    defOp "find" $ \cxt@Cxt{stack = s0} ->
+        case s0 of
+            ValString pos "" : _ : _ ->
+                newErrPos pos "'find' expects a non-empty substring" 
+            ValString _ sub : sval@(ValString pos str) : s1 ->
+                let
+                    ixs = indicies sub str
+                    s2  = ValList pos [ ValInt pos (toInteger ix) | ix <- ixs ] : sval : s1
+                in
+                    Right cxt{stack = s2}
+            other1 : other2  : _  ->
+                typeError2 other2 "find" "a string and a substring" other2 other1
+            _ ->
+                stackUnderflowError ValNoop "find"
+
+indicies :: String -> String -> [Int]
+indicies sub str =
+    ixs 0 sub str
+    where ixs _ _ "" = []
+          ixs p s cs | isPrefixOf s cs = p : ixs (p + len) s (drop len cs)
+                     | otherwise       =     ixs (p + 1)   s (tail cs)
+          len = length sub
 
 -------------------------------------------------------------------------------------------------------
 
