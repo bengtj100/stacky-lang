@@ -13,10 +13,11 @@ located in the top directory of said project.
 ## Prelude book-keeping operations
 
 ```
-[ [isInteractive] [@] [drop] ? ] 'ifInteractive;
-
+isInteractive print
+[ [ isInteractive 1 drop] [@] [drop] ? ] 'ifInteractive global
+__POS__ print
 [ "\nLoading the Prelude ... " put] ifInteractive
-
+__POS__ print
 ```
 
 ## Logical and boolean operations
@@ -425,7 +426,7 @@ Implementation:
     [ [ to from - step * 0 >=]
          [ from body
            from step + 'from;=; f ]
-         []
+         [env]
          ?
     ] 'f;
     f
@@ -545,5 +546,7 @@ isDef : [ atom <] --> [ truthiness <]
 # THAT'S ALL FOLKS!!
 
 ```
+__POS__ print
 [ "DONE\n\n" put] ifInteractive
+__POS__ print
 ```

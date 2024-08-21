@@ -864,7 +864,8 @@ findModule name pos cxt handler =
 
 defEnv :: Value
 defEnv = ValOp noPos "env" $ \cxt@Cxt{envs = e0} ->
-         do putStrLn $ unlines $ map (\(k,v,_) -> show k ++ " : " ++ show v) $ concat e0
+         do putStrLn $ show e0
+            putStrLn $ unlines $ map (\(k,v,_) -> show k ++ " : " ++ show v) $ concat e0
             return $ Right cxt
 
 -------------------------------------------------------------------------------------------------------

@@ -115,7 +115,7 @@ makePrelude opts =
 -- Create a variable definition
 --
 setDef :: String -> Value -> [Value]
-setDef name val = [val, ValAtom noPos "'", ValAtom noPos name, ValAtom noPos ";"]
+setDef name val = [val, ValAtom noPos "'", ValAtom noPos name, ValAtom noPos "global"]
 
 -------------------------------------------------------------------------------------------------------
 --  That's all folks!!

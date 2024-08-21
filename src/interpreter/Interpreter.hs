@@ -18,13 +18,12 @@
 module Interpreter (
                     interpreter,
                     runValues,
-                    runValue,
                     defApply,
                     runLocalValues
                    ) where
 
 -- Base modules 
-import CoreTypes( Cxt(..),     lookupEnv, pushLocal, popLocal
+import CoreTypes( Cxt(..),     lookupEnv, pushLocal, popLocal, clearLocal
                 , Value(..)
                 , Result,      ifOk
                 , Name
@@ -48,28 +47,36 @@ interpreter = runValues
 --
 runValues :: Cxt -> [Value] -> IO (Result Cxt)
 runValues cxt []       = return $ Right cxt
-runValues cxt (v : vs) = do res <- runValue cxt v
+runValues cxt [v]      = do runValue cxt v True
+runValues cxt (v : vs) = do res <- runValue cxt v False
                             ifOk res $ flip runValues vs
 
 --
 -- Execute a single operation in a given context.
 -- Return the updated context or and error.
 --
-runValue :: Cxt -> Value -> IO (Result Cxt)
-runValue cxt (ValAtom pos atom)   = runAtom pos cxt atom
-runValue cxt (ValOp   pos _ op)   = injectPos pos $ op cxt
-runValue cxt@Cxt{stack = s} val = leaveVal cxt val s
+runValue :: Cxt -> Value -> Bool -> IO (Result Cxt)
+runValue cxt                (ValAtom pos atom) l = runAtom pos cxt atom l
+runValue cxt                (ValOp   pos _ op) _ = injectPos pos $ op cxt
+runValue cxt@Cxt{stack = s} val                _ = leaveVal cxt val s
 
 --
 -- Evaluate an atom by looking it up in the environment.
 -- If inhibitors are present on the stack, act accordlingly.
 --
-runAtom :: Position -> Cxt -> Name -> IO (Result Cxt)
-runAtom pos cxt@Cxt{stack = s} atom =
+runAtom :: Position -> Cxt -> Name -> Bool -> IO (Result Cxt)
+runAtom pos cxt@Cxt{stack = s} atom l =
     case s of
            (ValAtom _ "'") : s1 -> leaveVal cxt (ValAtom pos atom) s1
            (ValAtom _ "^") : s1 -> lookupAtom cxt atom pos s1 $ \val -> leaveVal cxt val s1
-           _                    -> lookupAtom cxt atom pos s  $ \val -> runValue cxt{stack = val : s, callPos = pos} defApply
+           _                    -> lookupAtom cxt atom pos s  $ \val -> runApply cxt{callPos = pos} val l
+
+runApply :: Cxt -> Value -> Bool -> IO (Result Cxt)
+runApply cxt (ValList _   cmds) False = runLocalValues cxt cmds
+runApply cxt (ValList _   cmds) True  = runValues (clearLocal cxt) cmds
+runApply cxt (ValAtom pos atom) l     = runAtom pos cxt atom l
+runApply cxt (ValOp   pos _ op) _     = injectPos pos $ op cxt
+runApply cxt val                _     = leaveVal cxt val (stack cxt)
 
 -------------------------------------------------------------------------------------------------------
 -- Auxilliary public functions
@@ -84,11 +91,8 @@ defApply :: Value
 defApply =
     ValOp noPos "@" $ \cxt@Cxt{stack = s0} ->
            case s0 of
-              ValList _   cmds : s1 -> runLocalValues cxt{stack = s1} cmds
-              ValAtom pos atom : s1 -> runAtom pos cxt{stack = s1} atom
-              ValOp   pos _ op : s1 -> injectPos pos $ op cxt{stack = s1}
-              _                : _  -> return $ Right cxt
-              _                     -> return $ stackUnderflowError ValNoop "@"
+              val : s1 -> runApply cxt{stack = s1} val False
+              _        -> return $ stackUnderflowError ValNoop "@"
 
 --
 -- Evaluate a list of operations in its own local environment, which

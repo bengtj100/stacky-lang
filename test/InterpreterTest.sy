@@ -338,8 +338,8 @@ located in the top directory of said project.
 
     "Global"          [ [ "foo" 'bar global ] @                "foo" bar =                       ] mt_assert
     
-    "Global update"   [ [ 33 'x UPDATE ] @                     33 x =
-                        [ 42 'x UPDATE ] @                     42 x = and                        ] mt_assert
+    "Global update"   [ [ 33 'x UPDATE ] @                     33 x dup print =
+                        [ 42 'x UPDATE ] @                     42 x dup print = and                        ] mt_assert
 
     "Redefine name"   [ 42 'x;    33 'x;                                                         ] mt_assertError
     "Update readonly" [ 42 'x;    33 'x ;=;                                                      ] mt_assertError

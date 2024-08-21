@@ -1,4 +1,4 @@
-mt
+
 [comment]: # (-*-Markdown-*-  First line intentionally left blank!)
 
 # MiniTest for Stacky
@@ -58,7 +58,7 @@ Implementation:
     
     [pred] [swap drop ^pos swap throw] catch
         ^pred toStr
-        __mt_report
+        '__mt_report @
 ] 'mt_assert global
 ```
 
@@ -84,7 +84,7 @@ Implementation:
     
     [test 0] [1] catch
         "EXPECTED TO FAIL WITH ERROR! DID NOT!"
-        __mt_report
+        `__mt_report @
 ] 'mt_assertError global
 ```
 
