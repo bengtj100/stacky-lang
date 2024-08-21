@@ -413,20 +413,26 @@ Implementation:
 
 ```
 [
-    'f; 'xs;
-    [^xs]
-        [ ^xs head f    ^xs tail ^f foreach ]
-        []
-        ?
+    'body;
+    
+    [
+        [dup]
+            [ dup 'xs; head body     ^xs tail ^f ]
+            []
+            ?
+            inline
+    ]'f;
+    f
 ] 'foreach;
 
 [
     'body; 'step; 'to; 'from;=;
     [ [ to from - step * 0 >=]
          [ from body
-           from step + 'from;=; f ]
-         []
+           from step + 'from;=; ^f  ]
+         [[]]
          ?
+         inline
     ] 'f;
     f
 ] 'for;
@@ -505,11 +511,11 @@ while : [ pred body <] --> [ ... <]
 ~~~
 ```
 [
-    '___body; '___pred;
+    'body; 'pred;
     
-    [ ^___pred [___body ___loop] [] ? ]'___loop;
+    [ ^pred [body ^loop] [[]] ? inline]'loop;
     
-    ___loop
+    loop
 ]'while;
 ```
 

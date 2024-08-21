@@ -19,7 +19,7 @@ module Interpreter (
                     interpreter,
                     runValues,
                     runValue,
-                    defApply,
+                    defApply, defInline,
                     runLocalValues
                    ) where
 
@@ -89,6 +89,16 @@ defApply =
               ValOp   pos _ op : s1 -> injectPos pos $ op cxt{stack = s1}
               _                : _  -> return $ Right cxt
               _                     -> return $ stackUnderflowError ValNoop "@"
+                                       
+defInline :: Value
+defInline =
+    ValOp noPos "inline" $ \cxt@Cxt{stack = s0} ->
+           case s0 of
+              ValList _   cmds : s1 -> runValues cxt{stack = s1} cmds
+              ValAtom pos atom : s1 -> runAtom pos cxt{stack = s1} atom
+              ValOp   pos _ op : s1 -> injectPos pos $ op cxt{stack = s1}
+              _                : _  -> return $ Right cxt
+              _                     -> return $ stackUnderflowError ValNoop "inline"
 
 --
 -- Evaluate a list of operations in its own local environment, which

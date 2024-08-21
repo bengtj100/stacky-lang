@@ -36,7 +36,7 @@ import Control.Exception(IOException, catch)
 import System.Environment(lookupEnv, setEnv)
 
 -- Base modules
-import CoreTypes(Cxt(..), insertEnv, insertEnvGlobal, updateEnv, updateEnvGlobal,
+import CoreTypes(Cxt(..), insertEnv, insertEnvGlobal, updateEnv, updateEnvGlobal, clearLocal,
                  Env,
                  Name,
                  Result,        ifOk, stackUnderflowError, typeError1, typeError2, newErrPos,
@@ -49,7 +49,7 @@ import InputOutput(getLines)
 import LibraryPath(findLibModule)
 
 -- Interpreter modules
-import Interpreter(defApply, runValues, runLocalValues)
+import Interpreter(defApply, defInline,  runValues, runLocalValues)
 
 -- Frontend modules
 import FrontEnd(parseLine, parseFile)
@@ -125,7 +125,7 @@ builtIns =
                defPrint, defPut, defPutLn, defPrompt, defReadFile,
 
                -- Reflection/introspection operations
-               defApply, defApplyList, defEval, defImport, defEnv, defTypeOf,
+               defApply, defInline, defClearLocal, defApplyList, defEval, defImport, defEnv, defTypeOf,
                defTypeInfo, defExpectType, defExpectDepth, defCallPos,
 
               -- Execution environment operations
@@ -805,6 +805,12 @@ defReadFile = ValOp noPos "readFile" $ \cxt@Cxt{stack = s0} ->
 
 -------------------------------------------------------------------------------------------------------
 
+defClearLocal :: Value
+defClearLocal =
+    defOp "clearLocal" $ \cxt -> return $ clearLocal cxt
+
+-------------------------------------------------------------------------------------------------------
+
 defApplyList :: Value
 defApplyList =
     ValOp noPos "$" $ \cxt@Cxt{stack = s0} ->
@@ -864,7 +870,8 @@ findModule name pos cxt handler =
 
 defEnv :: Value
 defEnv = ValOp noPos "env" $ \cxt@Cxt{envs = e0} ->
-         do putStrLn $ unlines $ map (\(k,v,_) -> show k ++ " : " ++ show v) $ concat e0
+         do putStrLn $ show e0
+            putStrLn $ unlines $ map (\(k,v,_) -> show k ++ " : " ++ show v) $ concat e0
             return $ Right cxt
 
 -------------------------------------------------------------------------------------------------------

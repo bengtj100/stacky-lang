@@ -19,7 +19,7 @@ module CoreTypes (
                   insertEnv, insertEnvGlobal,
                   updateEnv, updateEnvGlobal,
                   lookupEnv,
-                  pushLocal, popLocal,
+                  pushLocal, popLocal, clearLocal,
 
                   ---- Stack ----
                   Stack,
@@ -116,8 +116,10 @@ isIn key env = key `elem` map (\(k,_,_)->k) env
 
 updateEnv :: Cxt -> Name -> Value -> Result Cxt
 updateEnv cxt@Cxt{envs = e : es} key val =
-    do e' <- updateToEnv e key val
-       return $ cxt{envs = e' : es}
+    if isIn key $ concat (e:es)
+    then do es' <- updateToEnvs (e:es) key val
+            return $ cxt{envs = es'}
+    else return cxt{envs =((key,val, True) : e) : es}
 updateEnv _ _ _ =
     error "UPDATEENV CALLED WITH EMPTY ENV STACK! THIS SHOULD NEVER HAPPEN!"
 
@@ -130,6 +132,18 @@ updateEnvGlobal cxt@Cxt{envs = es0@(_:_)} key val =
 updateEnvGlobal _ _ _ =
     error "UPDATEENVGLOBAL CALLED WITH EMPTY ENV STACK! THIS SHOULD NEVER HAPPEN!"
 
+updateToEnvs :: [Env] -> Name -> Value -> Result [Env]
+updateToEnvs ([] : es) key value =
+    do es' <- updateToEnvs es key value
+       return $ [] : es'
+updateToEnvs (e : es) key value
+    | isIn key e = do e' <- updateToEnv e key value
+                      return $ e' : es
+    | otherwise  = do es' <- updateToEnvs es key value
+                      return $ e : es'
+updateToEnvs [] _ _ =
+    return []
+    
 updateToEnv :: Env -> Name -> Value -> Result Env
 updateToEnv (kv@(k,_,flg) : kvs) key value
     | k == key  = if flg then
@@ -153,6 +167,9 @@ pushLocal cxt@Cxt{envs = es} = cxt{envs = [] : es}
 
 popLocal :: Cxt -> Cxt
 popLocal cxt@Cxt{envs = es} = cxt{envs = tail es}
+
+clearLocal :: Cxt -> Cxt
+clearLocal cxt@Cxt{envs = es} = cxt{envs = [] : tail es}
 
 -------------------------------------------------------------------------------------------------------
 --  Stack - The main evaluation stack

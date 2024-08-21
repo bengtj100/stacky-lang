@@ -539,6 +539,11 @@ I/O operations are difficult to test automatically as long as Stacky lacks good 
     "expectType 1" [ 42                                     ["integer" 1 2] expectType    42 =    ] mt_assert
     "expectType 2" [ "foo"                                  ["string" 1 10] expectType    "foo" = ] mt_assert
     "expectType 3" [ 42.0                                   ["string" 1 10] expectType            ] mt_assertError
+    
+    "inline 1"     [ [10000'foo;]                           inline                    foo 10000 = ] mt_assert
+    "inline 2"     [ 333'foo;=; [20000'foo;=;]              inline                    foo 20000 = ] mt_assert
+    
+    "clearLocal 1" [ 444'xyz;                               clearLocal                xyz         ] mt_assertError
 ] mt_suite
 ```
 
