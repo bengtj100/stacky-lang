@@ -551,7 +551,18 @@ I/O operations are difficult to test automatically as long as Stacky lacks good 
 ```
 "Built-in operations: Execution environment"
 [
-    "argv 1"       [ argv ["foo" "bar" "cicada 3301"] = ] mt_assert
+    "argv 1"    [ argv                     ["foo" "bar" "cicada 3301"] = ] mt_assert
+
+    "getEnv 1"  [ "SHELL" getEnv           "/bin/bash" =                 ] mt_assert
+    "getEnv 2"  [ "GULF" getEnv                                          ] mt_assertError
+    "getEnv 3a" [ "gas" "SHELL" getEnvSafe "/bin/bash" =                 ] mt_assert
+    "getEnv 3b" [ "gas" "GULF" getEnvSafe  "gas" =                       ] mt_assert
+   
+    "setEnv 1"  [ "foo" "bar" setEnv       "bar" getEnv "foo" =          ] mt_assert
+    "setEnv 2"  [ "" "bar" setEnv          "bar" getEnv                  ] mt_assertError
+    "setEnv 3"  [ "foo" "" setEnv                                        ] mt_assertError
+    "setEnv 4"  [ "foo" "bar=" setEnv                                    ] mt_assertError
+    
 ] mt_suite
 ```
 
