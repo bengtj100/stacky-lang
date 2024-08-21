@@ -45,7 +45,7 @@
             drop
         ]
         ?
-    __loop
+    ^__loop inline
 ]'__loop;
 ```
 
