@@ -25,6 +25,9 @@ DOC_FILES          = $(wildcard $(DOC)/*.md)
 PDF_FILES	   = $(DOC_FILES:.md=.pdf)
 PDF_FILES	  += $(DOC)/Prelude.pdf
 
+PANDOC             = pandoc
+PANDOC_ARGS        = -f markdown -t pdf
+
 CABAL              = cd $(SRC_FULL) && ~/.cabal/bin/cabal
 
 PROJECT            = stacky
@@ -117,9 +120,9 @@ doc_print:
 	@echo ">>>>>>>>>>>>    Generating documentation files ..."
 
 %.pdf: %.md
-	pandoc -f markdown -t pdf -o $@ $<
+	$(PANDOC) $(PANDOC_ARGS) -o $@ $<
 $(DOC)/%.pdf: $(PRELUDE)/%.sy
-	pandoc -f markdown -t pdf -o $@ $<
+	$(PANDOC) $(PANDOC_ARGS) -o $@ $<
 
 ## ----------------------------------------------------------------------------------------------------
 

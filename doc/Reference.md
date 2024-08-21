@@ -9,7 +9,7 @@ The Stacky language is still in beta version 0.3.x, so things are moving fast an
 **USE THIS LANGUAGE AT YOUR OWN RISK!**
 
 **IT SHOULD NOT BE CONSIDERED FOR PRODUCTION DEPLOYMENTS UNTIL FURTHER NOTICE!!!**
-
+ 
 ## Notational conventions
 
 ### Stack operations
@@ -68,9 +68,6 @@ Examples:
 ```
 ++ : [ xs:list(m) ys:list(n) <] ---> [ zx:list(m+n)
 ```
-
-
-
 
 ## Execution environment
 
