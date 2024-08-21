@@ -1,5 +1,11 @@
 # Revision history for Stacky
 
+## 0.3.1 -- PRELIMINARY
+
+### Language changes
+
+* Added loop operations `for` and `foreach` to the Prelude.
+
 ## 0.3 -- 2024-08-20
 
 ### Language changes

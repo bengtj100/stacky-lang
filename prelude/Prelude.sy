@@ -388,6 +388,52 @@ Implementation:
 ] 'fold;
 ```
 
+### The `foreach` operation
+
+This operation iterates over a list of elements in a fashion akin to `map`. The difference is that it does not require a return value from the body, making it useful for side-effecting operations.
+
+~~~
+foreach : [ list operation:list <] --> [ ... <]
+~~~
+
+Example:
+~~~
+> [1 2 3 4] [print] foreach
+1
+2
+3
+4
+[  <]
+
+> 0 [1 2 3 4] [+] foreach
+[ 10 <]
+~~~
+
+Implementation:
+
+```
+[
+    'f; 'xs;
+    [^xs]
+        [ ^xs head f    ^xs tail ^f foreach ]
+        []
+        ?
+] 'foreach;
+
+[
+    'body; 'step; 'to; 'from;=;
+    [ [ to from - step * 0 >=]
+         [ from body
+           from step + 'from;=; f ]
+         []
+         ?
+    ] 'f;
+    f
+] 'for;
+
+
+```
+
 ## String operations
 
 ### The `explode` and `implode` operations
