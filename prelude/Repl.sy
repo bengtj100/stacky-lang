@@ -11,7 +11,7 @@
             "[  <]" putLn
         ]
         [
-            [ [dup 0 >] [dup 1 + nover " " put toStr put 1 - pstack][]?]'pstack;
+            [ [dup] [dup 1 + nover " " put toStr put 1 - ^pstack][]?inline]'pstack;
             "[" put depth pstack drop " <]" putLn
         ]
         ?
