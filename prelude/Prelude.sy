@@ -348,6 +348,10 @@ Implementation:
 
 ```
 [
+    'f; dup length 'n;
+    ^f foreach n toList
+] 'map;
+[
     'f; 'xs;
     [^xs]
         [
@@ -358,7 +362,7 @@ Implementation:
         [
             []
         ] ?
-] 'map;
+] 'oldmap;
 
 [
     'pred; 'xs;
@@ -380,11 +384,12 @@ Implementation:
             ^xs tail
             ^acc ^xs head op
             ^op
-            fold
+            ^fold
         ]
         [
-            ^acc
+            ^acc 1 toList
         ] ?
+    tcall
 ] 'fold;
 ```
 
