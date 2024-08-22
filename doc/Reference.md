@@ -1629,6 +1629,18 @@ This is a operation that returns a list with the file-name, the line and charact
 __CALLPOS__ : [ <] --> [ [fname:string line:integer char:integer] <]
 ```
 
+#### The `inline` operation
+
+TBD
+
+#### The `tcall` operation
+
+TBD
+
+#### The `clearLocal` operation
+
+TBD
+
 ### Execution environment operations
 
 This section contains operations that interact with the environment the interpreter is running in.

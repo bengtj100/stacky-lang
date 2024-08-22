@@ -49,7 +49,7 @@ import InputOutput(getLines)
 import LibraryPath(findLibModule)
 
 -- Interpreter modules
-import Interpreter(defApply, defInline,  runValues, runLocalValues)
+import Interpreter(runApply, runValues, runLocalValues)
 
 -- Frontend modules
 import FrontEnd(parseLine, parseFile)
@@ -125,7 +125,8 @@ builtIns =
                defPrint, defPut, defPutLn, defPrompt, defReadFile,
 
                -- Reflection/introspection operations
-               defApply, defInline, defClearLocal, defApplyList, defEval, defImport, defEnv, defTypeOf,
+               defApply, defInline, defClearLocal, defTcall, defApplyList,
+               defEval, defImport, defEnv, defTypeOf,
                defTypeInfo, defExpectType, defExpectDepth, defCallPos,
 
               -- Execution environment operations
@@ -801,7 +802,14 @@ defReadFile = ValOp noPos "readFile" $ \cxt@Cxt{stack = s0} ->
 --  Reflection/introspection operations
 -------------------------------------------------------------------------------------------------------
 
--- defApply is defined in Interpreter
+defApply :: Value
+defApply = runApply "@" runLocalValues
+                                       
+defInline :: Value
+defInline = runApply "inline" runValues
+                                       
+defTcall :: Value
+defTcall = runApply "tcall" $ \cxt cmds -> runValues (clearLocal cxt) cmds
 
 -------------------------------------------------------------------------------------------------------
 

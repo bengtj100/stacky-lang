@@ -542,8 +542,12 @@ I/O operations are difficult to test automatically as long as Stacky lacks good 
     
     "inline 1"     [ [10000'foo;]                           inline                    foo 10000 = ] mt_assert
     "inline 2"     [ 333'foo;=; [20000'foo;=;]              inline                    foo 20000 = ] mt_assert
+    "inline 3"     [ 333'foo;   [20000'foo;]                inline                                ] mt_assertError
     
     "clearLocal 1" [ 444'xyz;                               clearLocal                xyz         ] mt_assertError
+
+    "tcall 1"      [ [10000'foo;]                           tcall                     foo 10000 = ] mt_assert
+    "tcall 2"      [ 333'foo;   [20000'foo;]                tcall                     foo 20000 = ] mt_assert
 ] mt_suite
 ```
 

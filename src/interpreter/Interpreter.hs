@@ -19,8 +19,7 @@ module Interpreter (
                     interpreter,
                     runValues,
                     runValue,
-                    defApply, defInline,
-                    runLocalValues
+                    runLocalValues, runApply
                    ) where
 
 -- Base modules 
@@ -69,36 +68,24 @@ runAtom pos cxt@Cxt{stack = s} atom =
     case s of
            (ValAtom _ "'") : s1 -> leaveVal cxt (ValAtom pos atom) s1
            (ValAtom _ "^") : s1 -> lookupAtom cxt atom pos s1 $ \val -> leaveVal cxt val s1
-           _                    -> lookupAtom cxt atom pos s  $ \val -> runValue cxt{stack = val : s, callPos = pos} defApply
+           _                    -> lookupAtom cxt atom pos s  $ \val -> runValue cxt{stack = val : s, callPos = pos} localApply
+
+localApply :: Value
+localApply = runApply "@" runLocalValues
 
 -------------------------------------------------------------------------------------------------------
 -- Auxilliary public functions
 -------------------------------------------------------------------------------------------------------
-
---
--- This is the definition of the apply ('@') operation. It is located
--- here to avoid circular dependencies between the interpreter and the
--- BuiltIns module.
---
-defApply :: Value
-defApply =
-    ValOp noPos "@" $ \cxt@Cxt{stack = s0} ->
-           case s0 of
-              ValList _   cmds : s1 -> runLocalValues cxt{stack = s1} cmds
-              ValAtom pos atom : s1 -> runAtom pos cxt{stack = s1} atom
-              ValOp   pos _ op : s1 -> injectPos pos $ op cxt{stack = s1}
-              _                : _  -> return $ Right cxt
-              _                     -> return $ stackUnderflowError ValNoop "@"
                                        
-defInline :: Value
-defInline =
-    ValOp noPos "inline" $ \cxt@Cxt{stack = s0} ->
+runApply :: String -> (Cxt -> [Value] -> IO (Result Cxt)) -> Value
+runApply name runner =
+    ValOp noPos name $ \cxt@Cxt{stack = s0} ->
            case s0 of
-              ValList _   cmds : s1 -> runValues cxt{stack = s1} cmds
+              ValList _   cmds : s1 -> runner cxt{stack = s1} cmds
               ValAtom pos atom : s1 -> runAtom pos cxt{stack = s1} atom
               ValOp   pos _ op : s1 -> injectPos pos $ op cxt{stack = s1}
               _                : _  -> return $ Right cxt
-              _                     -> return $ stackUnderflowError ValNoop "inline"
+              _                     -> return $ stackUnderflowError ValNoop name
 
 --
 -- Evaluate a list of operations in its own local environment, which
