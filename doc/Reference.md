@@ -1337,7 +1337,9 @@ As of now, there are no operations for *type introspection*, but such will be ad
 | [`catch`](#the-catch-operation)             | Catches and handles run-time errors.                                        |
 | [`__POS__`](#the-pos-operation)             | Meta operation that reports current position in the source file             |
 | [`__CALLPOS__`](#the-pos-operation)         | Operation that reports from where the current operation was called.         |
-
+| [`inline`](#the-inline-operation)           | Operation executes an apply in the current local environment.               |
+| [`tcall`](#the-tcall-operation)             | Effectively `clearLocal inline`.                                            |
+| [`clearLocal`](#the-clearlocal-operation)   | Operation resets the local environment.                                     |
 
 #### The apply operation
 
@@ -1631,15 +1633,48 @@ __CALLPOS__ : [ <] --> [ [fname:string line:integer char:integer] <]
 
 #### The `inline` operation
 
-TBD
+This operation is equivalent to [`@`](#the-apply-operation), but will not create a new local environment while executing.
+
+This is useful when recursing large data structures, and you don't want to fill the environment with local environments that will not be used anymore. This allows the user to effectively implement tail recursing functions. Using this methodology, real gains in execution speed can easily be achieved.
+
+Given the two count-down functions:
+```
+[ [dup] [ 1 - count ] [] ? ]'count
+
+[ [dup] [ 1 - ^count ] [] ? inline ]'count
+```
+
+When executed on a typical machine we get the following real execution times:
+
+| Argument |  Normal | Inline | Comments           |
+|---------:|--------:|-------:|:-------------------|
+|    10000 |  1.333s | 0.042s |                    |
+|    20000 |  3.523s | 0.062s |                    |
+|    40000 | 21.114s | 0.113s |                    |
+|   200000 |    350s | 0.483s | Extrapolated value |
+|  2000000 |  35000s | 4.775s | =""=               |
+
+The extrapolated results are based on the observation that the execution time is $\mathcal{O}(n^2)$ on the value of $n$.
+
+Examples:
+
 
 #### The `tcall` operation
 
-TBD
+This operation effectively does `clearLocal inline` and is used to to tail recursive calls.
+
 
 #### The `clearLocal` operation
 
-TBD
+This operation clears the local environment. Used prior to an `inline` operation to clear out local variables that might conflict.
+
+Examples:
+```
+> 100'x; 200'x;     
+-:1:13: ERROR: Redefining name: 'x'
+> 100'x; clearLocal 200'x; x
+[ 200 <]
+```
 
 ### Execution environment operations
 
