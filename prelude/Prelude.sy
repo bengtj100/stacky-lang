@@ -351,30 +351,24 @@ Implementation:
     'f; dup length 'n;
     ^f foreach n toList
 ] 'map;
-[
-    'f; 'xs;
-    [^xs]
-        [
-            ^xs head f
-            ^xs tail ^f map
-            cons
-        ]
-        [
-            []
-        ] ?
-] 'oldmap;
 
 [
-    'pred; 'xs;
-    [^xs]
-        [
-            ^xs head              'hd;
-            ^xs tail ^pred filter 'tl;
-            [^hd pred] [^hd ^tl cons] [^tl] ?
-        ]
-        [
-            []
-        ] ?
+    'pred;
+    [
+        'xs;
+        [^xs]
+            [
+                ^xs head 'hd;
+                [^hd pred]
+                    [^hd ^xs tail f cons]
+                    [    ^xs tail f     ]
+                    ?
+            ]
+            [
+                []
+            ] ?
+    ]'f;
+    f
 ]'filter;
 
 [
