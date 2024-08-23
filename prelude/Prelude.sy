@@ -353,38 +353,37 @@ Implementation:
 ] 'map;
 
 [
-    'pred;
-    [
-        'xs;
-        [^xs]
-            [
-                ^xs head 'hd;
-                [^hd pred]
-                    [^hd ^xs tail f cons]
-                    [    ^xs tail f     ]
-                    ?
-            ]
-            [
-                []
-            ] ?
-    ]'f;
-    f
+    'pred; 'xs;
+    ^xs [] [
+               dup pred
+                   [
+                       swap    `Get the parameters in the right order
+                       cons    `Put them together
+                   ]
+                   [
+                       drop    `No need for this since pred was not satisfied.
+                   ]
+                   ?
+           ]
+           fold
+    reverse    `The list comes out backwards...
 ]'filter;
 
 [
-    'op; 'acc; 'xs;
-    [^xs]
-        [
-            ^xs tail
-            ^acc ^xs head op
-            ^op
-            ^fold
-        ]
-        [
-            ^acc 1 toList
-        ] ?
-    tcall
-] 'fold;
+    swap lrot `Get the params in the order [ acc xs op <] for foreach
+    foreach
+]'fold;
+
+
+
+
+
+
+
+
+
+
+
 ```
 
 ### The `foreach` operation
@@ -412,12 +411,20 @@ Implementation:
 
 ```
 [
-    'body;
+    'body;    `This must be stashed since we may produce arbitrary output to the stack.
     
     [
         [dup]
-            [ dup 'xs; head body     ^xs tail ^f ]
-            []
+            [
+                dup 'xs;       `Get the list
+                head body      `Give the head of the list to the body and execute
+                ^xs tail ^f    `Get the rest of the list and recurse (inline)
+            ]
+            [
+                `We're done.
+                drop    `The inline will consume the empty list.
+                []      `If were running over another sequence, let's put a list there.
+            ]
             ?
             inline
     ]'f;
