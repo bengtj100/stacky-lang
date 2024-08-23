@@ -7,6 +7,7 @@
 * Added loop operations `for` and `foreach` to the Prelude.
 * Added operations `inline` and `clearLocal` to be able to implement manual tail-calls
 * Added operation `tcall` which effectively performs `clearLocal inline`.
+* The sequence operations in the Prelude are optimized to perform properly on long inputs.
 
 ## 0.3 -- 2024-08-20
 
