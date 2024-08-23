@@ -353,19 +353,20 @@ Implementation:
 ] 'map;
 
 [
-    'pred; 'xs;
-    ^xs [] [
-               dup pred
-                   [
-                       swap    `Get the parameters in the right order
-                       cons    `Put them together
-                   ]
-                   [
-                       drop    `No need for this since pred was not satisfied.
-                   ]
-                   ?
-           ]
-           fold
+    'pred;    `Let's stash the predicate.
+    []
+    [
+        dup pred        `Save the element for later and apply the predicate to it
+            [
+                swap    `Get the parameters in the right order
+                cons    `Put them together
+            ]
+            [
+                drop    `No need for this since pred was not satisfied.
+            ]
+            ?
+    ]
+    fold
     reverse    `The list comes out backwards...
 ]'filter;
 
