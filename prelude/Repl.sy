@@ -7,6 +7,7 @@
 ```
 0    'vertStack ;=;
 1024 'maxStack  ;=;
+-1   'maxElem   ;=;
 
 [
     [
@@ -19,10 +20,28 @@
         ?
 ]'__pruneStack;
 [
+    toStr
+    [
+        maxElem 0 >=
+    ]
+        [
+            [
+                dup length maxElem >
+            ]
+                [
+                    maxElem left "..." ++
+                ]
+                []
+                ?
+       ]
+       []
+       ?
+]'__pruneElem;
+[
     "[" put
     depth toList dup
     __pruneStack [ " ..." put] [] ?
-    [" " put toStr put] foreach
+    [" " put __pruneElem put] foreach
     " <]" putLn
     fromList drop
 ] '__printStackH;
@@ -30,7 +49,7 @@
     "[" putLn
     depth toList dup
     __pruneStack ["     ..." putLn] [] ?
-    ["     " put toStr putLn] foreach
+    ["     " put __pruneElem putLn] foreach
     "<]" putLn
     fromList drop
 ] '__printStackV;

@@ -2,6 +2,10 @@
 
 ## 0.3.1 -- 2024-08-25
 
+### Implementation changes
+
+* Added the variable `maxElem` that limits the printed length of the individual elements on the stack. Default valie i `-1` which means no limit.
+
 ### Language changes
 
 * Added loop operations `for` and `foreach` to the Prelude.
