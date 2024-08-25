@@ -476,7 +476,7 @@ forever : [ body <] --> [ ... <]
 ```
 [
     'body;
-    [body loop inline]'loop;
+    [body ^loop inline]'loop;
     loop
 ]'forever;
 ```

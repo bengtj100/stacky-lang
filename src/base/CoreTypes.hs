@@ -67,6 +67,7 @@ data Cxt = Cxt{ stack :: Stack
               , callPos :: Position
               , argv :: [String]
               }
+         deriving Show
 
 initCxt :: Env -> Cxt
 initCxt initEnv = Cxt{ stack   = newStack

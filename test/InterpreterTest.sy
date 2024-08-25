@@ -336,7 +336,8 @@ located in the top directory of said project.
     "Stash update"    [ 33 'x ;=;                              33 x =
                         42 'x ;=;                              42 x = and                        ] mt_assert
 
-    "Global"          [ [ "foo" 'bar global ] @                "foo" bar =                       ] mt_assert
+    "Global 1"        [ "foo" 'bar1 global                     "foo" bar1 =                       ] mt_assert
+    "Global 2"        [ [ "foo" 'bar2 global ] @               "foo" bar2 =                       ] mt_assert
     
     "Global update"   [ [ 33 'x UPDATE ] @                     33 x =
                         [ 42 'x UPDATE ] @                     42 x = and                        ] mt_assert

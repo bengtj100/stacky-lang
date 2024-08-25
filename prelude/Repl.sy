@@ -5,16 +5,37 @@
 
 ## Print the stack
 ```
+0    'vertStack ;=;
+1024 'maxStack  ;=;
+
 [
-    [depth 0 =]
-        [
-            "[  <]" putLn
-        ]
-        [
-            [ [dup] [dup 1 + nover " " put toStr put 1 - ^pstack][]?inline]'pstack;
-            "[" put depth pstack drop " <]" putLn
-        ]
+    [
+        dup length maxStack >
+        maxStack 0 >=
+        and
+    ]
+        [maxStack right 1]
+        [0]
         ?
+]'__pruneStack;
+[
+    "[" put
+    depth toList dup
+    __pruneStack [ " ..." put] [] ?
+    [" " put toStr put] foreach
+    " <]" putLn
+    fromList drop
+] '__printStackH;
+[
+    "[" putLn
+    depth toList dup
+    __pruneStack ["     ..." putLn] [] ?
+    ["     " put toStr putLn] foreach
+    "<]" putLn
+    fromList drop
+] '__printStackV;
+[
+    vertStack ^__printStackV ^__printStackH ?
 ]'__printStack;
 ```
 

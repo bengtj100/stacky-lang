@@ -1,13 +1,18 @@
 # Revision history for Stacky
 
-## 0.3.1 -- PRELIMINARY
+## 0.3.1 -- 2024-08-25
 
 ### Language changes
 
 * Added loop operations `for` and `foreach` to the Prelude.
 * Added operations `inline` and `clearLocal` to be able to implement manual tail-calls
 * Added operation `tcall` which effectively performs `clearLocal inline`.
+
+### Implementation changes
 * The sequence operations in the Prelude are optimized to perform properly on long inputs.
+* The REPL now supports a vertical stack format. Just assign a true value to the variable `vertStack` to get a vertical stack printout. Like so: `1 'vertStack;=;`
+  * Setting `vertStack` to a false value will cause the REPL to return to the normal horizontal mode.
+* The variable `maxStack` can be used to increase or decrease the number of elements printed on the stack. If set to $n$ it will print the $n$ topmost elements on the stack. If set to a negative value, no limit is set. The default limit is 1024.
 
 ## 0.3 -- 2024-08-20
 
