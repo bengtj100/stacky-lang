@@ -106,11 +106,7 @@ Implementation:
 
 ```
 [
-    [ 2 "cons"] expectDepth
-    [ "sequence" 0 -1 "cons" ] expectType
-    
     fromSeq swap 1 + swap toSeq
-
 ] 'cons;
 ```
 
@@ -139,11 +135,7 @@ Implementation:
 
 ```
 [
-    [ 1 "head"] expectDepth
-    [ "sequence" 1 -1 "head" ] expectType
-    
     0 1 slice fromSeq 2 ndrop
-
 ] 'head;
 ```
 
@@ -168,11 +160,7 @@ Implementation:
 
 ```
 [
-    [ 1 "tail"] expectDepth
-    [ "sequence" 1 -1 "tail" ] expectType
-
     1 over length slice
-    
 ] 'tail;
         
 ```

@@ -3,12 +3,28 @@
 
 # The Stacky REPL
 
-## Print the stack
+## Global parameters
 ```
 0    'vertStack ;=;
 1024 'maxStack  ;=;
 -1   'maxElem   ;=;
+```
 
+## Print information about the REPL
+```
+[
+    "---------------------------" putLn
+    "replInfo:"                   putLn
+    "  vertStack: " put vertStack putLn
+    "  maxStack:  " put maxStack  putLn
+    "  maxElem:   " put maxElem   putLn
+    "---------------------------" putLn
+]'replInfo;
+```
+
+## Print the stack
+
+```
 [
     [
         dup length maxStack >
@@ -93,6 +109,7 @@
 ```
 [
     [
+         "For information about the REPL state, use 'replInfo'.\n"  putLn
         __printStack
         __loop
     ]

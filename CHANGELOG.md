@@ -5,6 +5,7 @@
 ### Implementation changes
 
 * Added the variable `maxElem` that limits the printed length of the individual elements on the stack. Default valie i `-1` which means no limit.
+* Added the operation `replInfo`, available in the REPL only, that prints information about global REPL settings.
 
 ### Language changes
 
