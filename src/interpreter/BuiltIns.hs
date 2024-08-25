@@ -669,8 +669,11 @@ doSlice from to xs pos cont
 doSlice from to xs _ cont
     | checkSlice from to xs =
         cont $ take (fromInteger (to - from)) $ drop (fromInteger from) xs
-doSlice _ _ _ pos _ =
-    newErrPos pos "'slice' expects '0 <= from <= to <= length'"
+doSlice from to xs pos _ =
+    newErrPos pos ("'slice' expects '0 <= from <= to <= length'"
+                   ++ ": Got from = " ++ show from
+                   ++ ", to = " ++ show to
+                   ++ ", length = " ++ show (length xs))
 
 --
 -- Check the arguments to slice for validity.

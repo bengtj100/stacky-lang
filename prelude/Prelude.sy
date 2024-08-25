@@ -200,11 +200,7 @@ Implementation:
 
 ```
 [
-    [ 1 "init"] expectDepth
-    [ "sequence" 1 -1 "init" ] expectType
-
     0 over length 1 - slice
-
 ] 'init;
 
 ```
@@ -226,9 +222,6 @@ Implementation:
 
 ```
 [
-    [ 1 "last"] expectDepth
-    [ "sequence" 1 -1 "last" ] expectType
-
     dup length dup 1 - swap slice head
 
 ] 'last;
@@ -273,29 +266,16 @@ Implementation:
 
 ```
 [
-    [ 2 "left"] expectDepth
-    over [ "sequence" 1 -1 "left" ] expectType drop
-    [ "integer" 1 2 "left" ] expectType
-
     0 swap slice
 ] 'left;
 
 [
-    [ 2 "right"] expectDepth
-    over [ "sequence" 1 -1 "right" ] expectType drop
-    [ "integer" 1 2 "right" ] expectType
-
     over length
     dup rot -
     swap slice
 ] 'right;
 
 [
-    [ 3 "mid"] expectDepth
-    3 nover [ "sequence" 1 -1 "mid" ] expectType drop
-    over [ "integer" 1 2 "mid" ] expectType drop
-    [ "integer" 1 2 "mid" ] expectType
-
     over + slice
 ] 'mid;
 ```
@@ -478,19 +458,11 @@ Implementation:
 
 ```
 [
-    [ 1 "explode"] expectDepth
-    [ "string" 0 -1 "explode" ] expectType
-        
     fromString toList
-
 ] 'explode;
 
 [
-    [ 1 "implode"] expectDepth
-    [ "list" 0 -1 "implode" ] expectType
-        
     fromList toString
-
 ] 'implode;
 ```
 
@@ -503,11 +475,9 @@ forever : [ body <] --> [ ... <]
 ~~~
 ```
 [
-    '___body;
-    
-    [___body ___loop]'___loop;
-    
-    ___loop
+    'body;
+    [body loop inline]'loop;
+    loop
 ]'forever;
 ```
 

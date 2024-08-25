@@ -68,7 +68,9 @@ runAtom pos cxt@Cxt{stack = s} atom =
     case s of
            (ValAtom _ "'") : s1 -> leaveVal cxt (ValAtom pos atom) s1
            (ValAtom _ "^") : s1 -> lookupAtom cxt atom pos s1 $ \val -> leaveVal cxt val s1
-           _                    -> lookupAtom cxt atom pos s  $ \val -> runValue cxt{stack = val : s, callPos = pos} localApply
+           _                    -> lookupAtom cxt atom pos s  $ \val ->
+                                           runValue cxt{stack   = val : s,
+                                                        callPos = pos    } localApply
 
 localApply :: Value
 localApply = runApply "@" runLocalValues
