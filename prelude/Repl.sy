@@ -22,6 +22,24 @@
 ]'replInfo;
 ```
 
+## Load the config file.
+
+```
+[
+    [
+        "HOME" getEnv "/.config/stacky/config.sy" ++ readFile
+    ]
+        [
+            drop drop
+            "Config file not found or is unreadable" putLn
+            ""
+        ]
+        catch
+        
+    eval
+] '__loadConfig;
+```
+
 ## Print the stack
 
 ```
@@ -109,7 +127,8 @@
 ```
 [
     [
-         "For information about the REPL state, use 'replInfo'.\n"  putLn
+        __loadConfig
+         "\nFor information about the REPL state, use 'replInfo'.\n"  putLn
         __printStack
         __loop
     ]

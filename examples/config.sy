@@ -1,0 +1,30 @@
+`
+` This is an example config file with values set to the default values.
+' This file goes in '~/.config/stacky/config.sy'
+`
+
+"Loading config file ... " put
+
+`
+` Uncomment and set to true for vertical stack
+`
+`0 'vertStack ;=; 
+
+`
+` Uncomment and set to change the number of stack elements to be
+` shown in the REPL. Set to '-1' for unlimited elements.
+`
+`1024 'maxStack ;=;
+
+`
+` Uncomment and set the change the number of bytes of each element to show.
+` '-1' means no limit.
+`
+`-1 'maxElem ;=;
+
+`
+` Any other definitions or common code can be put here.
+`
+
+
+"DONE" putLn

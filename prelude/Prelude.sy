@@ -516,5 +516,5 @@ isDef : [ atom <] --> [ truthiness <]
 # THAT'S ALL FOLKS!!
 
 ```
-[ "DONE\n\n" put] ifInteractive
+[ "DONE" putLn] ifInteractive
 ```
