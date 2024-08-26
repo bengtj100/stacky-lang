@@ -10,6 +10,10 @@
 * Added missing documentation for `dup` and `ndup` operations.
 * Added tests of Prelude functions.
 
+### Language changes
+
+* Added multi clause conditional operator `cond` to the Prelude.
+
 ## 0.3.1 -- 2024-08-25
 
 ### Language changes

@@ -477,6 +477,30 @@ Implementation:
 [ 0 exit ] 'quit;
 ```
 
+### The `cond` operation
+
+Implementation:
+
+```
+[
+    'clauses;
+    
+    [^clauses]
+        [
+            [^clauses head @]
+                [drop ^clauses tail head @]
+                [^clauses tail tail cond]
+                ?
+        ]
+        [
+            drop
+        ]
+        ?
+]'cond;
+
+            
+```
+
 ## Input/output operations
 
 ### `input`
