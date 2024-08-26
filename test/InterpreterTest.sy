@@ -1,7 +1,7 @@
 
 [comment]: # (-*-Markdown-*-  First line intentionally left blank! -----------------------------------)
 
-# Compliance tests for the Stacky interpreter
+# Compliance tests for the Stacky interpreter built-in operations
 
 ## *Copyright (c) 2024 Bengt Johansson <bengtj100 at gmail dot com> - All rights reserved.*
 
@@ -22,23 +22,7 @@ located in the top directory of said project.
 
 ```
 "test/MiniTest" import
-```
-
-## Helper operations
-
-```
-[ - abs 0.00000001 < ] 'nearZ;
-
-[ 'eVal; depth toList ^eVal = ] 'stackIs;
-
-[ depth toList dup print fromList drop] 'dbgStack;
-
-[
-    'p;
-    ^p 0 index typeOf "string" =
-    ^p 1 index typeOf "integer" = and
-    ^p 2 index typeOf "integer" = and
-]'isPos;
+"helpers"       import
 ```
 
 ## Basic interpreter tests
@@ -570,8 +554,5 @@ I/O operations are difficult to test automatically as long as Stacky lacks good 
     
 ] mt_suite
 ```
-
-## Prelude operations
-
 
 ## This is the end

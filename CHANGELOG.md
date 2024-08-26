@@ -8,6 +8,7 @@
 * Added the operation `replInfo`, available in the REPL only, that prints information about global REPL settings.
 * Added support for user configuration file. See 'examples/config.sy' for more information.
 * Added missing documentation for `dup` and `ndup` operations.
+* Added tests of Prelude functions.
 
 ## 0.3.1 -- 2024-08-25
 

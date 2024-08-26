@@ -1,0 +1,43 @@
+
+[comment]: # (-*-Markdown-*-  First line intentionally left blank! -----------------------------------)
+
+# Helper operations for the Stacky test suites
+
+## *Copyright (c) 2024 Bengt Johansson <bengtj100 at gmail dot com> - All rights reserved.*
+
+This software is part of the stacky project and its use is
+regulated by the conditions stipulated in the file named 'LICENCE',
+located in the top directory of said project.
+
+## Begin Guard
+
+The guard allows this module to be included multiple times.
+
+```
+['__StackyTestHelpers_Guard__ isDef] [[]] [[ 1 '__StackyTestHelpers_Guard__ global
+```
+
+## Helper operations
+
+```
+[ - abs 0.00000001 < ] 'nearZ;
+
+[ 'eVal; depth toList ^eVal = ] 'stackIs;
+
+[ depth toList dup print fromList drop] 'dbgStack;
+
+[
+    'p;
+    ^p 0 index typeOf "string" =
+    ^p 1 index typeOf "integer" = and
+    ^p 2 index typeOf "integer" = and
+]'isPos;
+```
+
+## End guard
+
+```
+]]? inline
+```
+
+## This is the end

@@ -13,7 +13,6 @@ located in the top directory of said project.
 
 `MiniTest.sy` implements a barebones unit-test framework for Stacky.
 
-<!--
 ## Begin Guard
 
 The guard allows this module to be included multiple times.
@@ -21,7 +20,6 @@ The guard allows this module to be included multiple times.
 ```
 ['__MiniTest_Guard__ isDef] [] [ 1 '__MiniTest_Guard__ global
 ```
--->
 
 ## Public API Operations
 
@@ -283,10 +281,10 @@ __mt_left : [ s:string(l) n:integer char:string(1) <] --> [ s2:string(max(l,n)) 
 ] '__mt_run_test global
 ```
 
-<!--
 ## End guard
 
 ```
 ]?
 ```
--->
+
+## That's all folks!

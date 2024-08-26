@@ -25,6 +25,7 @@ mt_init
 
 ```
 "InterpreterTest" import
+"PreludeTest"     import
 ```
 
 ## This is the end

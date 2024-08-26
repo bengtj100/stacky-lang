@@ -1,0 +1,172 @@
+
+[comment]: # (-*-Markdown-*-  First line intentionally left blank! -----------------------------------)
+
+# Compliance tests for the Stacky interpreter Prelude
+
+## *Copyright (c) 2024 Bengt Johansson <bengtj100 at gmail dot com> - All rights reserved.*
+
+This software is part of the stacky project and its use is
+regulated by the conditions stipulated in the file named 'LICENCE',
+located in the top directory of said project.
+
+## Dependencies
+
+```
+"test/MiniTest" import
+"helpers"       import
+```
+
+## Logical and boolean operations
+
+```
+"Logical and boolean operations"
+[
+    "false" [ false 0 = ] mt_assert
+    "true"  [ true  1 = ] mt_assert
+] mt_suite
+```
+
+## Mathematical operations
+
+```
+"Mathematical operations"
+[
+    "ceil 1"  [  1            ceil    2 = ] mt_assert
+    "ceil 2"  [  1.0000000001 ceil    2 = ] mt_assert
+    "ceil 3"  [  1.9999999999 ceil    2 = ] mt_assert
+    "ceil 4"  [ -1            ceil    0 = ] mt_assert
+    "ceil 5"  [ -0.9999999999 ceil    0 = ] mt_assert
+    "ceil 6"  [ -0.0000000001 ceil    0 = ] mt_assert
+
+    "round 1" [  2.0          round   2 = ] mt_assert
+    "round 2" [  2.4999999999 round   2 = ] mt_assert
+    "round 3" [  2.5          round   3 = ] mt_assert
+    "round 1" [  -2.0         round  -2 = ] mt_assert
+    "round 2" [  -1.500000001 round  -2 = ] mt_assert
+    "round 3" [  -1.5         round  -1 = ] mt_assert
+    
+    "pi"      [ pi       3.14159265358979323846 nearZ ] mt_assert
+    "euler"   [ euler    2.71828182845904523536 nearZ ] mt_assert
+    
+] mt_suite
+```
+
+## List operations
+
+```
+"List operations"
+[
+    "nil" [ nil    [] = ] mt_assert
+    
+    "index list  0" [ [1 4 9 16]  0 index     1 = ] mt_assert
+    "index list  3" [ [1 4 9 16]  3 index    16 = ] mt_assert
+    "index list -1" [ [1 4 9 16] -1 index         ] mt_assertError
+    "index list  4" [ [1 4 9 16]  4 index         ] mt_assertError
+    "index str   0" [ "ABCD"      0 index   "A" = ] mt_assert
+    "index str   3" [ "ABCD"      3 index   "D" = ] mt_assert
+    "index str  -1" [ "ABCD"     -1 index         ] mt_assertError
+    "index str   4" [ "ABCD"      4 index         ] mt_assertError
+    
+    "cons list 1" [ 0 []    cons    [ 0 ]   = ] mt_assert
+    "cons list 2" [ 0 [ 1 ] cons    [ 0 1 ] = ] mt_assert
+    "cons str  1" [ "A" ""  cons    "A"     = ] mt_assert
+    "cons str  2" [ "A" "B" cons    "AB"    = ] mt_assert
+    
+    "head list 1" [ [1 4 9] head    1   = ] mt_assert
+    "head list 2" [ []      head          ] mt_assertError
+    "head str  1" [ "ABC"   head    "A" = ] mt_assert
+    "head str  2" [ ""      head          ] mt_assertError
+    
+    "tail list 1" [ [1 4 9] tail    [4 9] = ] mt_assert
+    "tail list 2" [ []      tail            ] mt_assertError
+    "tail str  1" [ "ABC"   tail    "BC"  = ] mt_assert
+    "tail str  2" [ ""      tail            ] mt_assertError
+    
+    "init list 1" [ [1 4 9] init    [1 4] = ] mt_assert
+    "init list 2" [ []      init    []    = ] mt_assert
+    "init str  1" [ "ABC"   init    "AB"  = ] mt_assert
+    "init str  2" [ ""      init    ""    = ] mt_assert
+    
+    "last list 1" [ [1 4 9] last    9     = ] mt_assert
+    "last list 2" [ []      last            ] mt_assertError
+    "last str  1" [ "ABC"   last    "C"   = ] mt_assert
+    "last str  2" [ ""      last            ] mt_assertError
+    
+    "left  list 1" [ [1 2 3 4 5 6 7 8 9 0]  0 left     []          = ] mt_assert
+    "left  list 2" [ [1 2 3 4 5 6 7 8 9 0]  5 left     [1 2 3 4 5] = ] mt_assert
+    "left  list 3" [ [1 2 3 4 5 6 7 8 9 0] 50 left                   ] mt_assertError
+    "left  str  1" [ "HELLO WORLD"          0 left     ""          = ] mt_assert
+    "left  str  2" [ "HELLO WORLD"          5 left     "HELLO"     = ] mt_assert
+    "left  str  3" [ "HELLO WORLD"         50 left                   ] mt_assertError
+    
+    "right list 1" [ [1 2 3 4 5 6 7 8 9 0]  0 right     []          = ] mt_assert
+    "right list 2" [ [1 2 3 4 5 6 7 8 9 0]  5 right     [6 7 8 9 0] = ] mt_assert
+    "right list 3" [ [1 2 3 4 5 6 7 8 9 0] 50 right                   ] mt_assertError
+    "right str  1" [ "HELLO WORLD"          0 right     ""          = ] mt_assert
+    "right str  2" [ "HELLO WORLD"          5 right     "WORLD"     = ] mt_assert
+    "right str  3" [ "HELLO WORLD"         50 right                   ] mt_assertError
+    
+    "mid   list 1" [ [1 2 3 4 5 6 7 8 9 0]  4  0 mid     []          = ] mt_assert
+    "mid   list 2" [ [1 2 3 4 5 6 7 8 9 0]  4  3 mid     [5 6 7]     = ] mt_assert
+    "mid   list 3" [ [1 2 3 4 5 6 7 8 9 0] 50  3 mid                   ] mt_assertError
+    "mid   list 4" [ [1 2 3 4 5 6 7 8 9 0]  5 30 mid                   ] mt_assertError
+    "mid   str  1" [ "HELLO WORLD"          4  0 mid     ""          = ] mt_assert
+    "mid   str  2" [ "HELLO WORLD"          4  3 mid     "O W"       = ] mt_assert
+    "mid   str  3" [ "HELLO WORLD"         50  3 mid                   ] mt_assertError
+    "mid   str  4" [ "HELLO WORLD"          5 30 mid                   ] mt_assertError
+    
+    "map 0"    [ []                     [dup *] map    []          = ] mt_assert
+    "map 1"    [ [1 2 3 4]              [dup *] map    [1 4 9 16]  = ] mt_assert
+    
+    "filter 0" [ []                     [2%] filter    []          = ] mt_assert
+    "filter 1" [ [1 2 3 4 5 6 7 8 9 0]  [2%] filter    [1 3 5 7 9] = ] mt_assert
+    
+    "fold 0"   [ []                     1 [*] fold     1!          = ] mt_assert
+    "fold 1"   [ [1 2 3 4 5 6 7 8 9 10] 1 [*] fold     10!         = ] mt_assert
+] mt_suite
+```
+
+## String operations
+
+```
+"String operations"
+[
+    "explode 0" [ "" explode                       []            = ] mt_assert
+    "explode 1" [ "FOO" explode                    ["F" "O" "O"] = ] mt_assert
+
+    "implode 0" [ [] implode                       ""            = ] mt_assert
+    "implode 1" [ ["F" "O" "O"] implode            "FOO"         = ] mt_assert
+    "implode 2" [ ["HELLO" " " "WORLD"] implode    "HELLO WORLD" = ] mt_assert
+] mt_suite
+```
+
+## Control operations
+
+```
+"Control operations"
+[
+    "while 0" [ 0 [false] [42] while                                     0   = ] mt_assert
+    "while 1" [ 1 10 [dup 0>] [2 ndup * rot drop swap 1 -] while drop    10! = ] mt_assert
+    
+    "foreach 0" [ clear []        [dup *] foreach    []         stackIs ] mt_assert
+    "foreach 0" [ clear [1 2 3 4] [dup *] foreach    [1 4 9 16] stackIs ] mt_assert
+    
+    ` quit can not be tested here yet.
+] mt_suite
+```
+
+## Input/output operations
+
+`prompt` can not be automatically tested yet.
+
+## Reflection/introspection operations
+
+```
+"Reflection/introspection operations"
+[
+    "isDef 0" [ 'foadoasdoasdoafoadfoafo isDef 0 = ] mt_assert
+    "isDef 1" [ 'isDef                   isDef 1 = ] mt_assert
+] mt_suite
+```
+
+## This is the end

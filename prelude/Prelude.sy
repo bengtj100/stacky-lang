@@ -342,77 +342,6 @@ Implementation:
     swap lrot `Get the params in the order [ acc xs op <] for foreach
     foreach
 ]'fold;
-
-
-
-
-
-
-
-
-
-
-
-```
-
-### The `foreach` operation
-
-This operation iterates over a list of elements in a fashion akin to `map`. The difference is that it does not require a return value from the body, making it useful for side-effecting operations.
-
-~~~
-foreach : [ list operation:list <] --> [ ... <]
-~~~
-
-Example:
-~~~
-> [1 2 3 4] [print] foreach
-1
-2
-3
-4
-[  <]
-
-> 0 [1 2 3 4] [+] foreach
-[ 10 <]
-~~~
-
-Implementation:
-
-```
-[
-    'body;    `This must be stashed since we may produce arbitrary output to the stack.
-    
-    [
-        [dup]
-            [
-                dup 'xs;       `Get the list
-                head body      `Give the head of the list to the body and execute
-                ^xs tail ^f    `Get the rest of the list and recurse (inline)
-            ]
-            [
-                `We're done.
-                drop    `The inline will consume the empty list.
-                []      `If were running over another sequence, let's put a list there.
-            ]
-            ?
-            inline
-    ]'f;
-    f
-] 'foreach;
-
-[
-    'body; 'step; 'to; 'from;=;
-    [ [ to from - step * 0 >=]
-         [ from body
-           from step + 'from;=; ^f  ]
-         [[]]
-         ?
-         inline
-    ] 'f;
-    f
-] 'for;
-
-
 ```
 
 ## String operations
@@ -484,6 +413,64 @@ while : [ pred body <] --> [ ... <]
 ]'while;
 ```
 
+### The `foreach` operation
+
+This operation iterates over a list of elements in a fashion akin to `map`. The difference is that it does not require a return value from the body, making it useful for side-effecting operations.
+
+~~~
+foreach : [ list operation:list <] --> [ ... <]
+~~~
+
+Example:
+~~~
+> [1 2 3 4] [print] foreach
+1
+2
+3
+4
+[  <]
+
+> 0 [1 2 3 4] [+] foreach
+[ 10 <]
+~~~
+
+Implementation:
+
+```
+[
+    'body;    `This must be stashed since we may produce arbitrary output to the stack.
+    
+    [
+        [dup]
+            [
+                dup 'xs;       `Get the list
+                head body      `Give the head of the list to the body and execute
+                ^xs tail ^f    `Get the rest of the list and recurse (inline)
+            ]
+            [
+                `We're done.
+                drop    `The inline will consume the empty list.
+                []      `If were running over another sequence, let's put a list there.
+            ]
+            ?
+            inline
+    ]'f;
+    f
+] 'foreach;
+
+[
+    'body; 'step; 'to; 'from;=;
+    [ [ to from - step * 0 >=]
+         [ from body
+           from step + 'from;=; ^f  ]
+         [[]]
+         ?
+         inline
+    ] 'f;
+    f
+] 'for;
+```
+
 ### `quit`
 
 ```
@@ -509,7 +496,7 @@ isDef : [ atom <] --> [ truthiness <]
 ~~~
 
 ```
-[ [ @ drop 1][3 ndrop 0] catch ]'isDef;
+[ ['^ swap @ drop 1][3 ndrop 0]catch ]'isDef;
 ```
 
 
