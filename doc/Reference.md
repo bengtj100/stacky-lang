@@ -619,14 +619,18 @@ Stacky implements the following stack operations:
 | [`clear`](#the-clear-operation) | Clear the stack, i.e., removes any information stored on the stack.                 |
 | [`depth`](#the-depth-operation) | Return the number of elements on the stack.                                         |
 | [`drop`](#the-drop-operation)   | Remove the topmost element on the stack                                             |
-| [`lrot`](#the-lrot-operation)   | Rotate the three topmost elements by moving the top element to the third position.. |
-| [`nlrot`](#the-nlrot-operation) | Rotate the N topmost elements by moving the top element to the N:th position..      |
-| [`nover`](#the-nover-operation) | Copy the N:th topmost element to the top of the stack.                              |
-| [`nrot`](#the-nrot-operation)   | Rotate the N topmost elements by moving the N:th element to the top.                |
-| [`nswap`](#the-nswap-operation) | Swap (reverse) the N topmost elements                                               |
+| [`ndrop`](#the-ndrop-operation) | Remove the N topmost elements on the stack                                          |
+| [`dup`](#the-dup-operation)     | Duplicate the element on top of the stack.                                          |
+| [`ndup`](#the-ndup-operation)   | Duplicate N topmost elements of the stack.                                          |
 | [`over`](#the-over-operation)   | Copy the second topmost element to the top of the stack.                            |
+| [`nover`](#the-nover-operation) | Copy the N:th topmost element to the top of the stack.                              |
 | [`rot`](#the-rot-operation)     | Rotate the three topmost elements by moving the third element to the top.           |
+| [`lrot`](#the-lrot-operation)   | Rotate the three topmost elements by moving the top element to the third position.. |
+| [`nrot`](#the-nrot-operation)   | Rotate the N topmost elements by moving the N:th element to the top.                |
+| [`nlrot`](#the-nlrot-operation) | Rotate the N topmost elements by moving the top element to the N:th position..      |
 | [`swap`](#the-swap-operation)   | Swap the two topmost elements                                                       |
+| [`nswap`](#the-nswap-operation) | Swap (reverse) the N topmost elements                                               |
+
 
 #### The `clear` operation
 
@@ -711,6 +715,44 @@ ERROR: Stack underflow in operation: 'ndrop'
 ```
 
 **NOTE:** `drop` is equivalent to `1 ndrop`
+
+#### The `dup` operation
+
+Duplicate the topmost element on the stack. If the stack is empty, an error will occur.
+
+```
+dup : [x <] ---> [ x x <]
+```
+
+Example:
+
+```
+[ 1 2 3 <]
+> dup
+[ 1 2 3 3 <]
+
+[ <]
+> dup
+-:1:1: ERROR: Stack underflow in operation: 'dup'
+```
+
+#### The `ndup` operation
+
+Duplicate the $N$ topmost element on the stack. If the stack depth is less than $N$ elements, an error will occur.
+
+```
+dup : [x_1 ... x_N N  <] ---> [ x_1 ... x_N x_1 ... x_N <]
+```
+
+Example:
+
+```
+[ 10 40 90 <]
+> 2 ndup
+[ 10 40 90 40 90 <]
+> 10 ndup
+-:1:4: ERROR: Stack underflow in operation: 'ndup'
+```
 
 #### The `over` operation
 
