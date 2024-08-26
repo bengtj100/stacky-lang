@@ -479,23 +479,25 @@ Implementation:
 
 ### The `cond` operation
 
+This is an implementation of Dijkstra’s guarded commands 
+
 Implementation:
 
 ```
 [
     'clauses;
-    
     [^clauses]
         [
             [^clauses head @]
-                [drop ^clauses tail head @]
-                [^clauses tail tail cond]
+                [^clauses tail head @]
+                [^clauses tail tail ^cond]
                 ?
         ]
         [
-            drop
+            `tcall will eat the empty list
         ]
         ?
+    tcall
 ]'cond;
 
             

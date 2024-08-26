@@ -153,10 +153,40 @@ located in the top directory of said project.
     
     ` quit can not be tested here yet.
     
-    "cond 0" [ 42 []                                                cond   []      stackIs ] mt_assert
-    "cond 1" [ 42 [[dup 33 =]["foo"]]                               cond   []      stackIs ] mt_assert
-    "cond 2" [ 42 [[dup 33 =]["foo"][dup 42 =]["bar"]]              cond   ["bar"] stackIs ] mt_assert
-    "cond 2" [ 55 [[dup 33 =]["foo"][dup 42 =]["bar"][true]["baz"]] cond   ["baz"] stackIs ] mt_assert
+    "cond 0" [
+                 42
+                 [
+                 ]
+                 cond
+                 [42] stackIs
+             ] mt_assert
+    "cond 1" [
+                 42
+                 [
+                     [dup 33 =] ["foo"]
+                 ]
+                 cond
+                 [42] stackIs
+             ] mt_assert
+    "cond 2" [
+                 42
+                 [
+                     [dup 33 =] ["foo"]
+                     [dup 42 =] ["bar"]
+                 ]
+                 cond
+                 [42 "bar"] stackIs
+             ] mt_assert
+    "cond 3" [
+                 55
+                 [
+                     [dup 33 =] ["foo"]
+                     [dup 42 =] ["bar"]
+                     [true]     [toStr]
+                 ]
+                 cond
+                 ["55"] stackIs
+             ] mt_assert
     
 ] mt_suite
 ```
