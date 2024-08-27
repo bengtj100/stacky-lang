@@ -42,6 +42,9 @@ located in the top directory of said project.
 -1.0 0.0 / 'NegInf;
 
 PosInf 'Infinity;
+
+[ [2 ndup >] [] [swap] ? drop ]'max;
+[ [2 ndup <] [] [swap] ? drop ]'min;
 ```
 
 ## List operations
@@ -534,6 +537,14 @@ isDef : [ atom <] --> [ truthiness <]
 
 ```
 [ ['^ swap @ drop 1][3 ndrop 0]catch ]'isDef;
+```
+
+### `env`
+
+See Reference manual for information
+
+```
+[ listEnv [fromList drop swap put " : " put putLn] foreach ]'env;
 ```
 
 ## Debug operations

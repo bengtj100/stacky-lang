@@ -9,11 +9,13 @@
 * Added support for user configuration file. See 'examples/config.sy' for more information.
 * Added missing documentation for `dup` and `ndup` operations.
 * Added tests of Prelude functions.
-* Added local updateable variables via the `local` operation.
 
 ### Language changes
 
 * Added multi clause conditional operator `cond` to the Prelude.
+* Added local updateable variables via the `local` operation.
+* Added the `listEnv` operation that returns the environment as a key-value pair list on the stack.
+* `env` is now a prelude operation.
 
 ## 0.3.1 -- 2024-08-25
 

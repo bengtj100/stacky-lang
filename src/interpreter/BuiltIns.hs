@@ -885,9 +885,12 @@ findModule name pos cxt handler =
 -------------------------------------------------------------------------------------------------------
 
 defEnv :: Value
-defEnv = ValOp noPos "env" $ \cxt@Cxt{envs = e0} ->
-         do putStrLn $ unlines $ map (\(k,v,_) -> show k ++ " : " ++ show v) $ concat e0
-            return $ Right cxt
+defEnv = ValOp noPos "listEnv" $ \cxt@Cxt{stack = s0, envs = e0} ->
+         do let es    = concat e0
+                elems = [ ValList noPos [ValString noPos k, v]
+                          | (k, v, _) <- es ]         
+                res   = ValList noPos elems
+            return $ Right cxt{stack = res : s0}
 
 -------------------------------------------------------------------------------------------------------
 

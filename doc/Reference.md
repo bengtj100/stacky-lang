@@ -1402,6 +1402,7 @@ As of now, there are no operations for *type introspection*, but such will be ad
 | [`eval`](#the-eval-operation)               | Evaluates a string as if it was code.                                       |
 | [`import`](#the-import-operation)           | Reads the contents of a file and executes its contents as code.             |
 | [`env`](#the-env-operation)                 | Prints a list of all defined names on stdout.                               |
+| [`listEnv`](#the-listenv-operation)         | Returns a list of all defined names on the stack.                           |
 | [`typeOf`](#the-typeof-operation)           | Returns a string representing the type of the value on the top of the stack |
 | [`typeInfo`](#the-typeinfo-operation)       | Returns information about the type of the top element.                      |
 | [`expectType`](#the-expecttype-operation)   | Throws an error if the top element does not match a description.            |
@@ -1571,6 +1572,14 @@ This operation prints the bound names in the [environment](#variables-and-the-en
 
 ```
 env : [ <] ---> [ <]
+```
+
+#### The `listEnv` operation
+
+This operation returns a list of key value pairs of the bound names in the [environment](#variables-and-the-environment).
+
+```
+listEnv : [ <] ---> [ env:list(string, value) <]
 ```
 
 Example (after loading the Collatz conjecture tester):
