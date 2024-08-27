@@ -1,9 +1,36 @@
+
+[comment]: # (-*-Markdown-*-  First line intentionally left blank! -----------------------------------)
+
 # Collatz Conjecture
 
+## Introduction
+
+Imagine a simple number series. Suppose the $n$:th element, $C_n$ is even, then the next element $C_{n+1} = 2C_n$. On the other hand, if $C_n$ is odd then $C_{n+1} = 3C_n + 1$.
+
+This is called the [*Collatz conjecture*](https://en.wikipedia.org/wiki/Collatz_conjecture) after the mathematician Lothar Collatz, who in 1937 conjectured that for any positive integer $n$, the series will always reach 1. His conjecture has noy yet been neiter proved nor disproved.
+
+## The `collatz` operation
+
+This operation takes the initial value on the top of the stack and produces all values until the series reaches one.
+
+#### Example
+~~~
+> 10 collatz
+5
+16
+8
+4
+2
+1
+N = 6
+[ <]
+~~~
+
+It ends by printing the number of steps until one is reached.
+
+#### Implementation
+
 ```
-
-[ 2 % 0 = ] 'isEven;
-
 [
     0 swap
     [dup 1 >]
@@ -16,7 +43,56 @@
         drop
     "N = " put putLn
 ] 'collatz;
+```
 
+## Helper operations
+
+### The `isEven` operation
+
+This operation returns true if the value on the top of the stack is even.
+
+#### Implementation
+
+```
+[ 2 % 0 = ] 'isEven;
+```
+
+### The `ones` operation
+
+`ones` can be used to generate a large odd number that will take a large number of steps to reach one.
+
+#### Examples
+
+~~~
+> 100 ones
+[ 1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 <]
+
+> 100 ones collatz
+3333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333334
+1666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666667
+5000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+2500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001
+...
+...
+...
+26
+13
+40
+20
+10
+5
+16
+8
+4
+2
+1
+N = 1963
+[ <]
+~~~
+
+#### Implementation
+
+```
 [
     'n;
     0
@@ -25,5 +101,6 @@
     ] for
 ] 'ones;
 
+```
 
-
+# That's all folks!

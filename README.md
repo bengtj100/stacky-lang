@@ -12,6 +12,32 @@ It is intended to be small and simple to implement and write code in, and should
 
 The reference implementation is an interpreter, but there should be nothing that prevents a compiler to be implemented in the future.
 
+## Example
+
+Here is an implementation of the $Fizz Buzz$ algorithm in Stacky
+
+```
+[
+    'n;
+    
+    1 n 1
+    [
+        [
+            [dup 15 % 0 =] ["Fizz Buzz"]
+            [dup  5 % 0 =] ["Buzz"]
+            [dup  3 % 0 =] ["Fizz"]
+            [true]         [dup]
+        ]
+        cond
+        putLn
+        drop
+    ]
+    for
+]'fizzbuzz;
+
+100 fizzbuzz
+```
+
 ## Documentation
 
 Installation and building instructions are available in the [installation guide](https://github.com/bengtj100/stacky-lang/blob/main/doc/Installation.md).
