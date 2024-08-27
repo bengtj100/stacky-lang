@@ -154,10 +154,11 @@ located in the top directory of said project.
                     clear
                     "ABC" [
                         "123" [
-                            dbgStack
+                            over swap ++ swap
                         ] foreach
+                        drop
                     ] foreach
-                    depth toString "A123B123C123" =
+                    depth toList implode "A1A2A3B1B2B3C1C2C3" = 
                 ] mt_assert
     
     ` quit can not be tested here yet.

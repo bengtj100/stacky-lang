@@ -441,19 +441,18 @@ Implementation:
     'body;    `This must be stashed since we may produce arbitrary output to the stack.
     
     [
-        [dup]
+        'xs;
+        [^xs]
             [
-                dup 'xs;       `Get the list
-                head body      `Give the head of the list to the body and execute
-                ^xs tail ^f    `Get the rest of the list and recurse (inline)
+                ^xs head body    `Give the head of the list to the body and execute
+                ^xs tail ^f      `Get the rest of the list and recurse (inline)
             ]
             [
                 `We're done.
-                drop    `The inline will consume the empty list.
                 []      `If were running over another sequence, let's put a list there.
             ]
             ?
-            inline
+            tcall
     ]'f;
     f
 ] 'foreach;
