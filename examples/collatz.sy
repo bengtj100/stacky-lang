@@ -5,24 +5,25 @@
 [ 2 % 0 = ] 'isEven;
 
 [
-    swap 1 + swap
-    [dup isEven] [2 /] [3 * 1 +] ?
-    dup print
-    [dup 1 >] [collatzLoop] [] ?
-] 'collatzLoop;
-
-[
     0 swap
-    collatzLoop
-    drop
+    [dup 1 >]
+        [
+            swap 1 + swap
+            [dup isEven] [2 /] [3 * 1 +] ?
+            dup print
+        ]
+        while
+        drop
     "N = " put putLn
 ] 'collatz;
 
 [
-    [dup 0 >] [swap 10 * 1 + swap 1 - onesLoop] [] ?
-] 'onesLoop;    
-
-[ 1 swap onesLoop drop ] 'ones;
+    'n;
+    0
+    1 n 1 [
+        drop 10 * 1 +
+    ] for
+] 'ones;
 
 
 
