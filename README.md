@@ -37,6 +37,8 @@ Here is an implementation of the *Fizz Buzz* algorithm in Stacky
 100 fizzbuzz
 ```
 
+Stacky is designed for [literate programming] and integrates very well with markup languages like HTML, Markdown, and LaTeX. A full literate example can be found [here](https://github.com/bengtj100/stacky-lang/blob/main/examples/fizzbuzz.sy).
+
 ## Documentation
 
 Installation and building instructions are available in the [installation guide](https://github.com/bengtj100/stacky-lang/blob/main/doc/Installation.md).
