@@ -1,0 +1,39 @@
+
+[comment]: # (-*-Markdown-*-  First line intentionally left blank! -----------------------------------)
+
+# Fizz-Buzz
+
+## Introduction
+
+The game *Fizz Buzz* is often used as a screening exercise in job interviews for programmers.
+
+The program runs through and prints all numbers from one to one hundred, except if:
+* the number is divisible by 3, then it prints "Fizz",
+* the number is divisible by 5, then it prints "Buzz",
+* the number is divisible by 15, then it prints "Fizz Buzz".
+
+## Implementation
+
+```
+[
+    'n;
+    
+    1 n 1
+    [
+        [
+            [dup 15 % 0 =] ["Fizz Buzz"]
+            [dup  5 % 0 =] ["Buzz"]
+            [dup  3 % 0 =] ["Fizz"]
+            [true]         [dup]
+        ]
+        cond
+        putLn
+        drop
+    ]
+    for
+]'fizzbuzz;
+
+100 fizzbuzz
+```
+
+# That's all folks!
