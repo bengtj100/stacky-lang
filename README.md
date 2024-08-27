@@ -1,5 +1,4 @@
 # Stacky - A simple stack language
-
 **Welcome to the home of the *Stacky* programming language!**
 
 ## Introduction
@@ -14,7 +13,7 @@ The reference implementation is an interpreter, but there should be nothing that
 
 ## Example
 
-Here is an implementation of the $Fizz Buzz$ algorithm in Stacky
+Here is an implementation of the *Fizz Buzz* algorithm in Stacky
 
 ```
 [
