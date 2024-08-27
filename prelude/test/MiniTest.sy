@@ -103,7 +103,7 @@ Implementation:
     'suite; 'name;
 
     "" putLn
-    "Suite " name ++ " " ++ 80 "-" __mt_left putLn 
+    "Suite " name ++ " " ++ 78 "-" __mt_left putLn 
 
     0 '__mt_passedTests UPDATE
 
@@ -120,7 +120,7 @@ Implementation:
     catch
     
     "Sucessful tests: " put  __mt_passedTests putLn
-    "" 80 "-" __mt_left putLn
+    "" 78 "-" __mt_left putLn
 ] 'mt_suite global
 
 ```
@@ -132,7 +132,7 @@ Conclude the tests and report an error if there were errors in the suites
 ```
 [
     "" putLn
-    "" 80 "-" __mt_left putLn
+    "" 78 "-" __mt_left putLn
 
     __mt_suite_had_errors
         [
@@ -144,7 +144,7 @@ Conclude the tests and report an error if there were errors in the suites
         ]
         ?
 
-    "" 80 "-" __mt_left putLn
+    "" 78 "-" __mt_left putLn
     "" putLn
 ] 'mt_conclude global
 ```
