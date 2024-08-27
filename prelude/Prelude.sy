@@ -459,9 +459,9 @@ Implementation:
 ] 'foreach;
 
 [
-    'body; 'step; 'to; 'from;=;
+    'body; 'step; 'to; 'from local
     [ [ to from - step * 0 >=]
-         [ from body
+         [ from [body]@
            from step + 'from;=; ^f  ]
          [[]]
          ?
@@ -469,6 +469,18 @@ Implementation:
     ] 'f;
     f
 ] 'for;
+
+[
+    'body; 'step; 'to; 'from2;=;
+    [ [ to from2 - step * 0 >=]
+         [ from2 [body]@
+           from2 step + 'from2;=; ^f2  ]
+         [[]]
+         ?
+         inline
+    ] 'f2;
+    f2
+] 'for2;
 ```
 
 ### `quit`
@@ -525,6 +537,21 @@ isDef : [ atom <] --> [ truthiness <]
 [ ['^ swap @ drop 1][3 ndrop 0]catch ]'isDef;
 ```
 
+## Debug operations
+
+```
+[
+    __CALLPOS__ fromList drop
+    rot [dup "" =] [drop "-"] [] ? put ":" put 
+    swap put ":" put
+    put ": DEBUG: " put
+    print
+]'dbgPrint;
+
+[
+    depth toList dup dbgPrint fromList drop
+]'dbgStack;
+```
 
 # THAT'S ALL FOLKS!!
 

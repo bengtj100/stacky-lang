@@ -149,7 +149,16 @@ located in the top directory of said project.
     "while 1" [ 1 10 [dup 0>] [2 ndup * rot drop swap 1 -] while drop    10! = ] mt_assert
     
     "foreach 0" [ clear []        [dup *] foreach    []         stackIs ] mt_assert
-    "foreach 0" [ clear [1 2 3 4] [dup *] foreach    [1 4 9 16] stackIs ] mt_assert
+    "foreach 1" [ clear [1 2 3 4] [dup *] foreach    [1 4 9 16] stackIs ] mt_assert
+    "foreach 2" [
+                    clear
+                    "ABC" [
+                        "123" [
+                            dbgStack
+                        ] foreach
+                    ] foreach
+                    depth toString "A123B123C123" =
+                ] mt_assert
     
     ` quit can not be tested here yet.
     

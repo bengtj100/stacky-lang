@@ -36,11 +36,13 @@ import Control.Exception(IOException, catch)
 import System.Environment(lookupEnv, setEnv)
 
 -- Base modules
-import CoreTypes(Cxt(..), insertEnv, insertEnvGlobal, updateEnv, updateEnvGlobal, clearLocal,
-                 Env,
-                 Name,
-                 Result,        ifOk, stackUnderflowError, typeError1, typeError2, newErrPos,
-                 Value(..),     isComparable, getValPos, isSequence, valueType, valueTypeSize)
+import CoreTypes( Cxt(..), insertEnv, insertEnvGlobal, updateEnv
+                         , updateEnvLocal, updateEnvGlobal, clearLocal
+                , Env
+                , Name
+                , Result,        ifOk, stackUnderflowError, typeError1, typeError2, newErrPos
+                , Value(..),     isComparable, getValPos, isSequence, valueType, valueTypeSize
+                )
 
 import Position(Position(..),   mkPos, noPos)
 
@@ -106,7 +108,7 @@ builtIns =
 
                -- Control operations
                defStash, defGlobal,
-               defAssign, defUpdate,
+               defAssign, defLocal, defUpdate,
                defCond,
                defThrow, defCatch,
 
@@ -316,6 +318,9 @@ defGlobal = stash "global" insertEnvGlobal
 
 defAssign :: Value
 defAssign = stash ";=;" updateEnv
+
+defLocal :: Value
+defLocal = stash "local" updateEnvLocal
 
 defUpdate :: Value
 defUpdate = stash "UPDATE" updateEnvGlobal

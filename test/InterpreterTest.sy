@@ -62,72 +62,72 @@ located in the top directory of said project.
 ```
 "Built-in operations: Arithmetic"
 [
-    "Add zero 1"     [   0   0 +    0 = ] mt_assert
-    "Add zero 2"     [   0   1 +    1 = ] mt_assert
-    "Add zero 3"     [   1   0 +    1 = ] mt_assert
-    "Add positive"   [  42  33 +   75 = ] mt_assert
-    "Add negative 1" [  42 -33 +    9 = ] mt_assert
-    "Add negative 2" [ -42 -33 +  -75 = ] mt_assert
-    "Add float 1a"   [ 1.0 2.0 +  3.0 = ] mt_assert
-    "Add float 2a"   [ 1   2.0 +  3.0 = ] mt_assert
-    "Add float 3a"   [ 1.0 2   +  3.0 = ] mt_assert
+    "Add zero 1"     [   0   0 +                0 = ] mt_assert
+    "Add zero 2"     [   0   1 +                1 = ] mt_assert
+    "Add zero 3"     [   1   0 +                1 = ] mt_assert
+    "Add positive"   [  42  33 +               75 = ] mt_assert
+    "Add negative 1" [  42 -33 +                9 = ] mt_assert
+    "Add negative 2" [ -42 -33 +              -75 = ] mt_assert
+    "Add float 1a"   [ 1.0 2.0 +              3.0 = ] mt_assert
+    "Add float 2a"   [ 1   2.0 +              3.0 = ] mt_assert
+    "Add float 3a"   [ 1.0 2   +              3.0 = ] mt_assert
     "Add type 0b"    [ 1   2   + typeOf "integer" = ] mt_assert
-    "Add type 1b"    [ 1.0 2.0 + typeOf "float"   = ] mt_assert
-    "Add type 2b"    [ 1   2.0 + typeOf "float"   = ] mt_assert
-    "Add type 3b"    [ 1.0 2   + typeOf "float"   = ] mt_assert
+    "Add type 1b"    [ 1.0 2.0 + typeOf   "float" = ] mt_assert
+    "Add type 2b"    [ 1   2.0 + typeOf   "float" = ] mt_assert
+    "Add type 3b"    [ 1.0 2   + typeOf   "float" = ] mt_assert
 
-    "Sub zero 1"     [   0   0 -    0 = ] mt_assert
-    "Sub zero 2"     [   0   1 -   -1 = ] mt_assert
-    "Sub zero 3"     [   1   0 -    1 = ] mt_assert
-    "Sub positive"   [  42  33 -    9 = ] mt_assert
-    "Sub negative 1" [  42 -33 -   75 = ] mt_assert
-    "Sub negative 2" [ -42 -33 -   -9 = ] mt_assert
-    "Sub float 1a"   [ 1.0 2.0 -  -1.0 = ] mt_assert
-    "Sub float 2a"   [ 1   2.0 -  -1.0 = ] mt_assert
-    "Sub float 3a"   [ 1.0 2   -  -1.0 = ] mt_assert
+    "Sub zero 1"     [   0   0 -                0 = ] mt_assert
+    "Sub zero 2"     [   0   1 -               -1 = ] mt_assert
+    "Sub zero 3"     [   1   0 -                1 = ] mt_assert
+    "Sub positive"   [  42  33 -                9 = ] mt_assert
+    "Sub negative 1" [  42 -33 -               75 = ] mt_assert
+    "Sub negative 2" [ -42 -33 -               -9 = ] mt_assert
+    "Sub float 1a"   [ 1.0 2.0 -             -1.0 = ] mt_assert
+    "Sub float 2a"   [ 1   2.0 -             -1.0 = ] mt_assert
+    "Sub float 3a"   [ 1.0 2   -             -1.0 = ] mt_assert
     "Sub type 0b"    [ 1   2   - typeOf "integer" = ] mt_assert
     "Sub type 1b"    [ 1.0 2.0 - typeOf "float"   = ] mt_assert
     "Sub type 2b"    [ 1   2.0 - typeOf "float"   = ] mt_assert
     "Sub type 3b"    [ 1.0 2   - typeOf "float"   = ] mt_assert
 
-    "Mul zero 1"     [   0   0 *      0 = ] mt_assert
-    "Mul zero 2"     [   0   1 *      0 = ] mt_assert
-    "Mul zero 3"     [   1   0 *      0 = ] mt_assert
-    "Mul positive"   [  42  33 *   1386 = ] mt_assert
-    "Mul negative 1" [  42 -33 *  -1386 = ] mt_assert
-    "Mul negative 2" [ -42 -33 *   1386 = ] mt_assert
-    "Mul float 1a"   [ 1.0 2.0 *  2.0 = ] mt_assert
-    "Mul float 2a"   [ 1   2.0 *  2.0 = ] mt_assert
-    "Mul float 2a"   [ 1.0 2   *  2.0 = ] mt_assert
+    "Mul zero 1"     [   0   0 *                0 = ] mt_assert
+    "Mul zero 2"     [   0   1 *                0 = ] mt_assert
+    "Mul zero 3"     [   1   0 *                0 = ] mt_assert
+    "Mul positive"   [  42  33 *             1386 = ] mt_assert
+    "Mul negative 1" [  42 -33 *            -1386 = ] mt_assert
+    "Mul negative 2" [ -42 -33 *             1386 = ] mt_assert
+    "Mul float 1a"   [ 1.0 2.0 *              2.0 = ] mt_assert
+    "Mul float 2a"   [ 1   2.0 *              2.0 = ] mt_assert
+    "Mul float 2a"   [ 1.0 2   *              2.0 = ] mt_assert
     "Mul type 0b"    [ 1   2   * typeOf "integer" = ] mt_assert
-    "Mul type 1b"    [ 1.0 2.0 * typeOf "float"   = ] mt_assert
-    "Mul type 2b"    [ 1   2.0 * typeOf "float"   = ] mt_assert
-    "Mul type 3b"    [ 1.0 2   * typeOf "float"   = ] mt_assert
+    "Mul type 1b"    [ 1.0 2.0 * typeOf   "float" = ] mt_assert
+    "Mul type 2b"    [ 1   2.0 * typeOf   "float" = ] mt_assert
+    "Mul type 3b"    [ 1.0 2   * typeOf   "float" = ] mt_assert
 
-    "Div zero 1"     [   0   0 /       ] mt_assertError
-    "Div zero 2"     [   0   1 /   0 = ] mt_assert
-    "Div zero 3"     [   1   0 /       ] mt_assertError
-    "Div positive"   [  20   5 /   4 = ] mt_assert
-    "Div negative 1" [  20  -5 /  -4 = ] mt_assert
-    "Div negative 2" [ -20  -5 /   4 = ] mt_assert
-    "Div float 1a"   [ 1.0 2.0 /  0.5 = ] mt_assert
-    "Div float 2a"   [ 1   2.0 /  0.5 = ] mt_assert
-    "Div float 2a"   [ 1.0 2   /  0.5 = ] mt_assert
+    "Div zero 1"     [   0   0 /                    ] mt_assertError
+    "Div zero 2"     [   0   1 /                0 = ] mt_assert
+    "Div zero 3"     [   1   0 /                    ] mt_assertError
+    "Div positive"   [  20   5 /                4 = ] mt_assert
+    "Div negative 1" [  20  -5 /               -4 = ] mt_assert
+    "Div negative 2" [ -20  -5 /                4 = ] mt_assert
+    "Div float 1a"   [ 1.0 2.0 /              0.5 = ] mt_assert
+    "Div float 2a"   [ 1   2.0 /              0.5 = ] mt_assert
+    "Div float 2a"   [ 1.0 2   /              0.5 = ] mt_assert
     "Div type 0b"    [ 1   2   / typeOf "integer" = ] mt_assert
-    "Div type 1b"    [ 1.0 2.0 / typeOf "float"   = ] mt_assert
-    "Div type 2b"    [ 1   2.0 / typeOf "float"   = ] mt_assert
-    "Div type 3b"    [ 1.0 2   / typeOf "float"   = ] mt_assert
+    "Div type 1b"    [ 1.0 2.0 / typeOf   "float" = ] mt_assert
+    "Div type 2b"    [ 1   2.0 / typeOf   "float" = ] mt_assert
+    "Div type 3b"    [ 1.0 2   / typeOf   "float" = ] mt_assert
 
-    "Rem 1"          [ 20   2   %   0 = ] mt_assert
-    "Rem 2"          [ 21   2   %   1 = ] mt_assert
-    "Rem zero"       [ 20   0   %       ] mt_assertError
-    "Rem float 1"    [ 20.0 2.0 % 0.0 = ] mt_assert
-    "Rem float 2"    [ 21.0 2.0 % 1.0 = ] mt_assert
-    "Rem float zero" [ 20.0 0.0 %       ] mt_assertError
+    "Rem 1"          [ 20   2   %                0 = ] mt_assert
+    "Rem 2"          [ 21   2   %                1 = ] mt_assert
+    "Rem zero"       [ 20   0   %                    ] mt_assertError
+    "Rem float 1"    [ 20.0 2.0 %              0.0 = ] mt_assert
+    "Rem float 2"    [ 21.0 2.0 %              1.0 = ] mt_assert
+    "Rem float zero" [ 20.0 0.0 %                    ] mt_assertError
     "Rem type 0"     [ 20   1   % typeOf "integer" = ] mt_assert
-    "Rem type 1"     [ 20.0 1   % typeOf "float"   = ] mt_assert
-    "Rem type 2"     [ 20   1.0 % typeOf "float"   = ] mt_assert
-    "Rem type 3"     [ 20.0 1.0 % typeOf "float"   = ] mt_assert
+    "Rem type 1"     [ 20.0 1   % typeOf   "float" = ] mt_assert
+    "Rem type 2"     [ 20   1.0 % typeOf   "float" = ] mt_assert
+    "Rem type 3"     [ 20.0 1.0 % typeOf   "float" = ] mt_assert
     
     "Int   pow  -16" [ 2   -16   pow                 0 = ] mt_assert
     "Int   pow   -1" [ 2    -1   pow                 0 = ] mt_assert
@@ -314,30 +314,42 @@ located in the top directory of said project.
 ```
 "Built-in operations: Control"
 [
-    "Stash defined"   [ 42 'x;                                 42 x =                            ] mt_assert
-    "Stash local"     [ 42 'x; [ 33 'x; x ] @                  33 = 42 x = and                   ] mt_assert
+    "Stash defined"   [ 42 'x;                   42 x =          ] mt_assert
+    "Stash local"     [ 42 'x; [ 33 'x; x ] @    33 = 42 x = and ] mt_assert
     
-    "Stash update"    [ 33 'x ;=;                              33 x =
-                        42 'x ;=;                              42 x = and                        ] mt_assert
+    "Stash update 1"  [ 33 'x ;=;        33 x =
+                        42 'x ;=;        42 x = and ] mt_assert
+    "Stash update 2"  [ 33 'x ;=;        33 x =
+                        [42 'x ;=;] @    42 x = and ] mt_assert
 
-    "Global 1"        [ "foo" 'bar1 global                     "foo" bar1 =                       ] mt_assert
-    "Global 2"        [ [ "foo" 'bar2 global ] @               "foo" bar2 =                       ] mt_assert
-    
-    "Global update"   [ [ 33 'x UPDATE ] @                     33 x =
-                        [ 42 'x UPDATE ] @                     42 x = and                        ] mt_assert
+    "Stash loc 1"     [ 33 'x ;=;            33 x =
+                        42 'x local          42 x = and ] mt_assert
+    "Stash loc 2"     [ 33 'x ;=;            33 x =
+                        [42 'x local] @      33 x = and ] mt_assert
+    "Stash loc 2"     [ 33 'x ;=; x          33 =
+                        [42 'x local x] @    42 = and   ] mt_assert
 
-    "Redefine name"   [ 42 'x;    33 'x;                                                         ] mt_assertError
-    "Update readonly" [ 42 'x;    33 'x ;=;                                                      ] mt_assertError
+    "Global 1"        [ "foo" 'bar1 global          "foo" bar1 = ] mt_assert
+    "Global 2"        [ [ "foo" 'bar2 global ] @    "foo" bar2 = ] mt_assert
+    
+    "Global update"   [ [ 33 'x UPDATE ] @     33 x =
+                        [ 42 'x UPDATE ] @     42 x = and ] mt_assert
 
-    "Cond true"       [ [33 42 =] ["then"] ["else"] ?          "else" =                          ] mt_assert
-    "Cond false"      [ [42 42 =] ["then"] ["else"] ?          "then" =                          ] mt_assert
+    "Redefine name"   [ 42 'x;    33 'x;    ] mt_assertError
+    "Update readonly" [ 42 'x;    33 'x ;=; ] mt_assertError
+
+    "Cond true"       [ [33 42 =] ["then"] ["else"] ?    "else" = ] mt_assert
+    "Cond false"      [ [42 42 =] ["then"] ["else"] ?    "then" = ] mt_assert
     
-    "throw 1"         [ "foo" "bar"                            throw                             ] mt_assertError
-    "throw 2"         [ ["foo" "bar" throw] [] catch           typeOf "string" = swap isPos and  ] mt_assert
-    "throw 3"         [ [["foo" 10 20] "bar" throw] [] catch   "bar" = swap ["foo" 10 20]= and   ] mt_assert
-    "throw 4"         [ [["Q" 1 2] "f" "b" throw] [] catch     "In 'f': b" = swap ["Q" 1 2]= and ] mt_assert
+    "throw 1"         [ "foo" "bar"    throw ] mt_assertError
+    "throw 2"         [ ["foo" "bar" throw] [] catch
+                        typeOf "string" = swap isPos and  ] mt_assert
+    "throw 3"         [ [["foo" 10 20] "bar" throw] [] catch
+                        "bar" = swap ["foo" 10 20]= and   ] mt_assert
+    "throw 4"         [ [["Q" 1 2] "f" "b" throw] [] catch
+                        "In 'f': b" = swap ["Q" 1 2]= and ] mt_assert
     
-    "catch 1"         [ [1 0 / 100] [42]                       catch       42 =                  ] mt_assert
+    "catch 1"         [ [1 0 / 100] [42] catch       42 = ] mt_assert
 ] mt_suite
 ```
 

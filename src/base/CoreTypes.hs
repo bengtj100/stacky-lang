@@ -17,7 +17,7 @@ module CoreTypes (
                   ---- Env ----
                   Env,
                   insertEnv, insertEnvGlobal,
-                  updateEnv, updateEnvGlobal,
+                  updateEnv, updateEnvLocal, updateEnvGlobal,
                   lookupEnv,
                   pushLocal, popLocal, clearLocal,
 
@@ -123,6 +123,15 @@ updateEnv cxt@Cxt{envs = e : es} key val =
     else return cxt{envs =((key,val, True) : e) : es}
 updateEnv _ _ _ =
     error "UPDATEENV CALLED WITH EMPTY ENV STACK! THIS SHOULD NEVER HAPPEN!"
+
+updateEnvLocal :: Cxt -> Name -> Value -> Result Cxt
+updateEnvLocal cxt@Cxt{envs = e : es} key val =
+    if isIn key e
+    then do e' <- updateToEnv e key val
+            return $ cxt{envs = e':es}
+    else return cxt{envs =((key,val, True) : e) : es}
+updateEnvLocal _ _ _ =
+    error "UPDATEENVLOCAL CALLED WITH EMPTY ENV STACK! THIS SHOULD NEVER HAPPEN!"
 
 updateEnvGlobal :: Cxt -> Name -> Value -> Result Cxt
 updateEnvGlobal cxt@Cxt{envs = es0@(_:_)} key val =

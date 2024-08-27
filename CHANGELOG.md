@@ -9,6 +9,7 @@
 * Added support for user configuration file. See 'examples/config.sy' for more information.
 * Added missing documentation for `dup` and `ndup` operations.
 * Added tests of Prelude functions.
+* Added local updateable variables via the `local` operation.
 
 ### Language changes
 

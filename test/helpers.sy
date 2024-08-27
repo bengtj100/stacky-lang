@@ -24,8 +24,6 @@ The guard allows this module to be included multiple times.
 
 [ 'eVal; depth toList ^eVal = ] 'stackIs;
 
-[ depth toList dup print fromList drop] 'dbgStack;
-
 [
     'p;
     ^p 0 index typeOf "string" =

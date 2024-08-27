@@ -304,20 +304,21 @@ fullEpoch                             `The stack becomes [ 1970 1 1 0 0 0 <]
 
 **NOTE:** Best practice is to always inhibit an atom if it is going to be used as a value. Even if it isn't defined for the moment, it might become so in the future of the program's execution.
 
-| Operation  | Syntax | Stack                              | Comment                       |
-|:-----------|:------:|:-----------------------------------|-------------------------------|
-| Stash      | `;`    | `[ y a:atom ; <] ---> [  <]`       | Stash readonly value          |
-|            | `;=;   | =""=                               | Stash updateable value        |
-|            | global | =""=                               | Stash globally                |
-|            | UPDATE | =""=                               | Stash updateable global value |
-|            |        |                                    |                               |
-| Evaluation | n/a    | `[ a:atom <]   ---> [ env(a) @ <]` | if *a* is defined.            |
-|            |        | `[ a:atom <]   ---> [ a <]`        | Otherwise.                    |
-|            |        |                                    |                               |
-| Inhibitor  | `'`    | `[ ' a:atom <] ---> [ a <]`        |                               |
-|            |        |                                    |                               |
-|            | `^`    | `[ ^ a:atom <] ---> [ env(a) <]`   | if *a* is defined.            |
-|            |        | `[ ^ a:atom <]   ---> [ a <]`      | Otherwise.                    |
+| Operation  | Syntax   | Stack                              | Comment                       |
+|:-----------|:--------:|:-----------------------------------|-------------------------------|
+| Stash      | `;`      | `[ y a:atom ; <] ---> [  <]`       | Stash readonly value          |
+|            | `;=;`    | =""=                               | Stash updateable value        |
+|            | `local`  | =""=                               | Stash local updateable value  |
+|            | `global` | =""=                               | Stash globally                |
+|            | `UPDATE` | =""=                               | Stash updateable global value |
+|            |          |                                    |                               |
+| Evaluation | n/a      | `[ a:atom <]   ---> [ env(a) @ <]` | if *a* is defined.            |
+|            |          | `[ a:atom <]   ---> [ a <]`        | Otherwise.                    |
+|            |          |                                    |                               |
+| Inhibitor  | `'`      | `[ ' a:atom <] ---> [ a <]`        |                               |
+|            |          |                                    |                               |
+|            | `^`      | `[ ^ a:atom <] ---> [ env(a) <]`   | if *a* is defined.            |
+|            |          | `[ ^ a:atom <]   ---> [ a <]`      | Otherwise.                    |
 
 ### Strings
 
@@ -508,7 +509,37 @@ theAnswer square             ' Compute 42 * 42 = 1764
 
 #### The `global` operation
 
-This works exactly as the [stash operation](#the-stash-operation), but will always stash the name in the global scope.
+This works as the [stash operation](#the-stash-operation), but will always stash the name in the global scope.
+
+#### The `;=;` operation
+
+This works as the [stash operation](#the-stash-operation), but will always stash an updateable variable. It will also look for any existing version of the variable and use it. This is to allow updating of variables inside local contexts, like conditionals, loops and local functions. Otherwise it would be difficult to, e.g., update counter variables etc.
+
+#### The `local` operation
+
+This works as the [stash operation](#the-stash-operation), but will always a local updateable variable, i.e., it will create a new variable if it isn't allready available in the local environment.
+
+This is very useful to hide local variables in functions etc, and can be thought of as a variable declaration.
+
+Example:
+```
+[
+    'n;
+    1 'prod local
+    1 n 1 [
+        prod * 'prod ;=;
+    ] for
+    prod
+]'factorial
+```
+
+Here we "define" the local variable `prod` using `local` and update it using `;=;`. If we call factorial we will get the correct result:
+```
+> 10 factorial
+[ 3628800 <]
+> 10!
+[ 3628800 3628800 <]
+```
 
 #### The `cond` operation
 
