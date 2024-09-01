@@ -16,6 +16,8 @@
 * Added local updateable variables via the `local` operation.
 * Added the `listEnv` operation that returns the environment as a key-value pair list on the stack.
 * `env` is now a prelude operation.
+* Added the operation `sort` defined on lists.
+* All types are now in a total ordering.
 
 ## 0.3.1 -- 2024-08-25
 

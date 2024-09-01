@@ -457,7 +457,19 @@ Stacky defines the following mathematical operations. They operate on floating p
 
 ### Comparison operations
 
-It is possible to compare all built-in data types. However, both arguments must be of the same type. Different types will never return a true values, e.g., comparing an integer and string will always return a false value.
+It is possible to compare all built-in data types. The comparison operators form a total ordering for all types. The types *integer* and *float* datatypes, as well as the *atom* and *op* types are intercomparable in the following manner:
+
+* Comparing an *integer* with a *float* is the same as converting the integer to a float and then performing the comparison.
+* *Atoms* and *operations* are compared on their names.
+
+The non inter-comparable types are ordered as follows (in increasing order):
+
+* *integer*, *float*
+* *atom*, *operation*
+* *string*
+* *list*
+
+This means, e.g., that an integer will always compare a less than an atom, string or list.
 
 | Operation | Stack                       | Comment                         |
 |:---------:|:----------------------------|:--------------------------------|

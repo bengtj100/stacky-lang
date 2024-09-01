@@ -28,7 +28,7 @@ module CoreTypes (
                   ---- Value ----
                   Value(..),
                   valueType, valueTypeSize,
-                  isComparable, isSequence,
+                  isSequence,
                   getValPos,
 
                   ---- Operation ----
@@ -222,12 +222,16 @@ instance Eq Value where
     (ValFloat  _ f1)   == (ValFloat  _ f2)   =  f1 == f2
     (ValInt    _ i1)   == (ValFloat  _ f2)   =  fromIntegral i1 == f2
     (ValFloat  _ f1)   == (ValInt    _ i2)   =  f1 == fromIntegral i2
+
     (ValAtom   _ a1)   == (ValAtom   _ a2)   =  a1 == a2
-    (ValString _ s1)   == (ValString _ s2)   =  s1 == s2
-    (ValList   _ xs1)  == (ValList   _ xs2)  = xs1 == xs2
     (ValOp     _ n1 _) == (ValOp     _ n2 _) =  n1 == n2
     (ValAtom   _ n1)   == (ValOp     _ n2 _) =  n1 == n2
     (ValOp     _ n1 _) == (ValAtom   _ n2)   =  n1 == n2
+
+    (ValString _ s1)   == (ValString _ s2)   =  s1 == s2
+
+    (ValList   _ xs1)  == (ValList   _ xs2)  = xs1 == xs2
+
     _                  == _                  =  False
 
 instance Ord Value where
@@ -235,26 +239,29 @@ instance Ord Value where
     (ValFloat  _ f1)   <= (ValFloat  _ f2)   =  f1 <= f2
     (ValInt    _ i1)   <= (ValFloat  _ f2)   =  fromIntegral i1 <= f2
     (ValFloat  _ f1)   <= (ValInt    _ i2)   =  f1 <= fromIntegral i2
+    (ValInt    _  _)   <= (ValAtom   _  _)   =  True
+    (ValInt    _  _)   <= (ValOp  _  _  _)   =  True
+    (ValInt    _  _)   <= (ValString _  _)   =  True
+    (ValInt    _  _)   <= (ValList   _  _)   =  True
+    (ValFloat  _  _)   <= (ValAtom   _  _)   =  True
+    (ValFloat  _  _)   <= (ValOp  _  _  _)   =  True
+    (ValFloat  _  _)   <= (ValString _  _)   =  True
+    (ValFloat  _  _)   <= (ValList   _  _)   =  True
+                                                
     (ValAtom   _ a1)   <= (ValAtom   _ a2)   =  a1 <= a2
-    (ValString _ s1)   <= (ValString _ s2)   =  s1 <= s2
     (ValOp     _ s1 _) <= (ValOp     _ s2 _) =  s1 <= s2
     (ValOp     _ s1 _) <= (ValAtom   _ s2)   =  s1 <= s2
     (ValAtom   _ s1)   <= (ValOp     _ s2 _) =  s1 <= s2
+    (ValAtom   _ _)    <= (ValString _ _)    =  True
+    (ValAtom   _ _)    <= (ValList   _ _)    =  True
+    (ValOp   _ _ _)    <= (ValString _ _)    =  True
+    (ValOp   _ _ _)    <= (ValList   _ _)    =  True
+                                               
+    (ValString _ s1)   <= (ValString _ s2)   =  s1 <= s2
+    (ValString _  _)   <= (ValList _ _)      =  True
+
     (ValList   _ xs1)  <= (ValList   _ xs2)  = xs1 <= xs2
     _                  <= _                  =  False
-
-isComparable :: Value -> Value -> Bool
-isComparable (ValInt _ _)    (ValInt _ _)    = True
-isComparable (ValFloat _ _)  (ValFloat _ _)  = True
-isComparable (ValInt _ _)    (ValFloat _ _)  = True
-isComparable (ValFloat _ _)  (ValInt _ _)    = True
-isComparable (ValString _ _) (ValString _ _) = True
-isComparable (ValList _ _)   (ValList _ _)   = True
-isComparable (ValAtom _ _)   (ValAtom _ _)   = True
-isComparable (ValOp _ _ _)   (ValAtom _ _)   = True
-isComparable (ValAtom _ _)   (ValOp _ _ _)   = True
-isComparable (ValOp _ _ _)   (ValOp _ _ _)   = True
-isComparable _             _                 = False
 
 isSequence :: Value -> Bool
 isSequence (ValList _ _)   = True

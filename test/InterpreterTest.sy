@@ -191,15 +191,15 @@ located in the top directory of said project.
     "EQ float  float   2"  [ 5.0 5.0 =   1 = ] mt_assert
     "EQ float  int     1"  [ 4   4.0 =   1 = ] mt_assert
     "EQ float  int     2"  [ 5.0 5   =   1 = ] mt_assert
-    "EQ int    atom"       [ 42    'foo   =  ] mt_assertError
-    "EQ int    string"     [ 42    "foo"  =  ] mt_assertError
-    "EQ int    list"       [ 42    [42]   =  ] mt_assertError
-    "EQ float  atom"       [ 42.0  'foo   =  ] mt_assertError
-    "EQ float  string"     [ 42.0  "foo"  =  ] mt_assertError
-    "EQ float  list"       [ 42.0  [42.0] =  ] mt_assertError
-    "EQ atom   string"     [ 'foo  "foo" =   ] mt_assertError
-    "EQ atom   list"       [ 'foo  "foo" =   ] mt_assertError
-    "EQ string list"       [ "foo" ["foo"] = ] mt_assertError
+    "EQ int    atom"       [ 42    'foo   <  ] mt_assert
+    "EQ int    string"     [ 42    "foo"  <  ] mt_assert
+    "EQ int    list"       [ 42    [42]   <  ] mt_assert
+    "EQ float  atom"       [ 42.0  'foo   <  ] mt_assert
+    "EQ float  string"     [ 42.0  "foo"  <  ] mt_assert
+    "EQ float  list"       [ 42.0  [42.0] <  ] mt_assert
+    "EQ atom   string"     [ 'foo  "foo" <   ] mt_assert
+    "EQ atom   list"       [ 'foo  ["foo"] < ] mt_assert
+    "EQ string list"       [ "foo" ["foo"] < ] mt_assert
         
     "NEQ int    int     1"  [ 4   5   <>   1 = ] mt_assert
     "NEQ int    int     2"  [ 5   5   <>   0 = ] mt_assert
@@ -207,15 +207,15 @@ located in the top directory of said project.
     "NEQ float  float   2"  [ 5.0 5.0 <>   0 = ] mt_assert
     "NEQ float  int     1"  [ 4   5.0 <>   1 = ] mt_assert
     "NEQ float  int     2"  [ 5.0 4   <>   1 = ] mt_assert
-    "NEQ int    atom"       [ 42    'foo   <>  ] mt_assertError
-    "NEQ int    string"     [ 42    "foo"  <>  ] mt_assertError
-    "NEQ int    list"       [ 42    [42]   <>  ] mt_assertError
-    "NEQ float  atom"       [ 42.0  'foo   <>  ] mt_assertError
-    "NEQ float  string"     [ 42.0  "foo"  <>  ] mt_assertError
-    "NEQ float  list"       [ 42.0  [42.0] <>  ] mt_assertError
-    "NEQ atom   string"     [ 'foo  "foo" <>   ] mt_assertError
-    "NEQ atom   list"       [ 'foo  "foo" <>   ] mt_assertError
-    "NEQ string list"       [ "foo" ["foo"] <> ] mt_assertError
+    "NEQ int    atom"       [ 42    'foo   <>  ] mt_assert
+    "NEQ int    string"     [ 42    "foo"  <>  ] mt_assert
+    "NEQ int    list"       [ 42    [42]   <>  ] mt_assert
+    "NEQ float  atom"       [ 42.0  'foo   <>  ] mt_assert
+    "NEQ float  string"     [ 42.0  "foo"  <>  ] mt_assert
+    "NEQ float  list"       [ 42.0  [42.0] <>  ] mt_assert
+    "NEQ atom   string"     [ 'foo  "foo" <>   ] mt_assert
+    "NEQ atom   list"       [ 'foo  "foo" <>   ] mt_assert
+    "NEQ string list"       [ "foo" ["foo"] <> ] mt_assert
         
     "LT int    int     1"  [ 4   5   <   1 = ] mt_assert
     "LT int    int     2"  [ 5   5   <   0 = ] mt_assert
@@ -223,15 +223,15 @@ located in the top directory of said project.
     "LT float  float   2"  [ 5.0 5.0 <   0 = ] mt_assert
     "LT float  int     1"  [ 4   5.0 <   1 = ] mt_assert
     "LT float  int     2"  [ 5.0 4   <   0 = ] mt_assert
-    "LT int    atom"       [ 42    'foo   <  ] mt_assertError
-    "LT int    string"     [ 42    "foo"  <  ] mt_assertError
-    "LT int    list"       [ 42    [42]   <  ] mt_assertError
-    "LT float  atom"       [ 42.0  'foo   <  ] mt_assertError
-    "LT float  string"     [ 42.0  "foo"  <  ] mt_assertError
-    "LT float  list"       [ 42.0  [42.0] <  ] mt_assertError
-    "LT atom   string"     [ 'foo  "foo" <   ] mt_assertError
-    "LT atom   list"       [ 'foo  "foo" <   ] mt_assertError
-    "LT string list"       [ "foo" ["foo"] < ] mt_assertError
+    "LT int    atom"       [ 42    'foo   <  ] mt_assert
+    "LT int    string"     [ 42    "foo"  <  ] mt_assert
+    "LT int    list"       [ 42    [42]   <  ] mt_assert
+    "LT float  atom"       [ 42.0  'foo   <  ] mt_assert
+    "LT float  string"     [ 42.0  "foo"  <  ] mt_assert
+    "LT float  list"       [ 42.0  [42.0] <  ] mt_assert
+    "LT atom   string"     [ 'foo  "foo" <   ] mt_assert
+    "LT atom   list"       [ 'foo  ["foo"] < ] mt_assert
+    "LT string list"       [ "foo" ["foo"] < ] mt_assert
         
     "GT int    int     1"  [ 5   4   >   1 = ] mt_assert
     "GT int    int     2"  [ 5   5   >   0 = ] mt_assert
@@ -239,15 +239,15 @@ located in the top directory of said project.
     "GT float  float   2"  [ 5.0 5.0 >   0 = ] mt_assert
     "GT float  int     1"  [ 5   4.0 >   1 = ] mt_assert
     "GT float  int     2"  [ 5.0 4   >   1 = ] mt_assert
-    "GT int    atom"       [ 42    'foo   >  ] mt_assertError
-    "GT int    string"     [ 42    "foo"  >  ] mt_assertError
-    "GT int    list"       [ 42    [42]   >  ] mt_assertError
-    "GT float  atom"       [ 42.0  'foo   >  ] mt_assertError
-    "GT float  string"     [ 42.0  "foo"  >  ] mt_assertError
-    "GT float  list"       [ 42.0  [42.0] >  ] mt_assertError
-    "GT atom   string"     [ 'foo  "foo" >   ] mt_assertError
-    "GT atom   list"       [ 'foo  "foo" >   ] mt_assertError
-    "GT string list"       [ "foo" ["foo"] > ] mt_assertError
+    "GT atom   int"        [ 'foo  42 >      ] mt_assert
+    "GT string int"        [ "foo" 42 >      ] mt_assert
+    "GT list   int"        [ [42]  42 >      ] mt_assert
+    "GT atom   float"      [ 'foo  42.0 >    ] mt_assert
+    "GT string float"      [ "foo" 42.0 >    ] mt_assert
+    "GT list   float"      [ [42.0] 42.0 >   ] mt_assert
+    "GT string atom"       [ "foo" 'foo >    ] mt_assert
+    "GT list   atom"       [ ["foo"] 'foo >  ] mt_assert
+    "GT lost   string"     [ ["foo"] "foo" > ] mt_assert
         
     "LE int    int     1"  [ 4   5   <=   1 = ] mt_assert
     "LE int    int     2"  [ 5   5   <=   1 = ] mt_assert
@@ -257,15 +257,15 @@ located in the top directory of said project.
     "LE float  float   3"  [ 6.0 5.0 <=   0 = ] mt_assert
     "LE float  int     1"  [ 4   5.0 <=   1 = ] mt_assert
     "LE float  int     2"  [ 4.0 5   <=   1 = ] mt_assert
-    "LE int    atom"       [ 42    'foo   <=  ] mt_assertError
-    "LE int    string"     [ 42    "foo"  <=  ] mt_assertError
-    "LE int    list"       [ 42    [42]   <=  ] mt_assertError
-    "LE float  atom"       [ 42.0  'foo   <=  ] mt_assertError
-    "LE float  string"     [ 42.0  "foo"  <=  ] mt_assertError
-    "LE float  list"       [ 42.0  [42.0] <=  ] mt_assertError
-    "LE atom   string"     [ 'foo  "foo" <=   ] mt_assertError
-    "LE atom   list"       [ 'foo  "foo" <=   ] mt_assertError
-    "LE string list"       [ "foo" ["foo"] <= ] mt_assertError
+    "LE int    atom"       [ 42    'foo   <=  ] mt_assert
+    "LE int    string"     [ 42    "foo"  <=  ] mt_assert
+    "LE int    list"       [ 42    [42]   <=  ] mt_assert
+    "LE float  atom"       [ 42.0  'foo   <=  ] mt_assert
+    "LE float  string"     [ 42.0  "foo"  <=  ] mt_assert
+    "LE float  list"       [ 42.0  [42.0] <=  ] mt_assert
+    "LE atom   string"     [ 'foo  "foo" <=   ] mt_assert
+    "LE atom   list"       [ 'foo  ["foo"] <= ] mt_assert
+    "LE string list"       [ "foo" ["foo"] <= ] mt_assert
         
     "GE int    int     1"  [ 5   4   >=   1 = ] mt_assert
     "GE int    int     2"  [ 5   5   >=   1 = ] mt_assert
@@ -275,15 +275,15 @@ located in the top directory of said project.
     "GE float  float   2"  [ 5.0 6.0 >=   0 = ] mt_assert
     "GE float  int     1"  [ 5   4.0 >=   1 = ] mt_assert
     "GE float  int     2"  [ 5.0 4   >=   1 = ] mt_assert
-    "GE int    atom"       [ 42    'foo   >=  ] mt_assertError
-    "GE int    string"     [ 42    "foo"  >=  ] mt_assertError
-    "GE int    list"       [ 42    [42]   >=  ] mt_assertError
-    "GE float  atom"       [ 42.0  'foo   >=  ] mt_assertError
-    "GE float  string"     [ 42.0  "foo"  >=  ] mt_assertError
-    "GE float  list"       [ 42.0  [42.0] >=  ] mt_assertError
-    "GE atom   string"     [ 'foo  "foo" >=   ] mt_assertError
-    "GE atom   list"       [ 'foo  "foo" >=   ] mt_assertError
-    "GE string list"       [ "foo" ["foo"] >= ] mt_assertError
+    "GE atom   int"        [ 'foo  42 >=      ] mt_assert
+    "GE string int"        [ "foo" 42 >=      ] mt_assert
+    "GE list   int"        [ [42]  42 >=      ] mt_assert
+    "GE atom   float"      [ 'foo  42.0 >=    ] mt_assert
+    "GE string float"      [ "foo" 42.0 >=    ] mt_assert
+    "GE list   float"      [ [42.0] 42.0 >=   ] mt_assert
+    "GE string atom"       [ "foo" 'foo >=    ] mt_assert
+    "GE list   atom"       [ ["foo"] 'foo >=  ] mt_assert
+    "GE lost   string"     [ ["foo"] "foo" >= ] mt_assert
         
 ] mt_suite
 ```
@@ -497,6 +497,10 @@ located in the top directory of said project.
     
     "chr 1"             [ 64             chr            "@" =                ] mt_assert
     "ord 1"             [ "@"            ord            64 =                 ] mt_assert
+    
+    "sort 0"            [ []             sort           [] =                 ] mt_assert
+    "sort 1"            [ [1 9 6 3 2 3]  sort           [1 2 3 3 6 9] =      ] mt_assert
+    "sort err"          [ "HELLO"        sort                                ] mt_assertError
 ] mt_suite
 ```
 

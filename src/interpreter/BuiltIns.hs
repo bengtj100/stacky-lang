@@ -29,7 +29,7 @@ module BuiltIns (
 
 -- System modules
 import Data.Char(chr, ord)
-import Data.List(isPrefixOf)
+import Data.List(isPrefixOf, sort)
 import Text.Read(readMaybe)
 import System.Exit(ExitCode(..), die, exitWith)
 import Control.Exception(IOException, catch)
@@ -41,7 +41,7 @@ import CoreTypes( Cxt(..), insertEnv, insertEnvGlobal, updateEnv
                 , Env
                 , Name
                 , Result,        ifOk, stackUnderflowError, typeError1, typeError2, newErrPos
-                , Value(..),     isComparable, getValPos, isSequence, valueType, valueTypeSize
+                , Value(..),     getValPos, isSequence, valueType, valueTypeSize
                 )
 
 import Position(Position(..),   mkPos, noPos)
@@ -122,6 +122,7 @@ builtIns =
                defToString, defFromString,
                defReverse, defToStr, defSlice,
                defFind, defChr, defOrd,
+               defSort,
                        
                -- Input/output operations
                defPrint, defPut, defPutLn, defPrompt, defReadFile,
@@ -276,11 +277,10 @@ fact n = product [1..n]
 -- Define a binary comparison operation
 --
 defBinCmpOp :: Name -> (Value -> Value -> Bool) -> Value
-defBinCmpOp name f = defBinOp name $ cmpBinOp name f
+defBinCmpOp name f = defBinOp name $ cmpBinOp f
 
-cmpBinOp :: Name -> (Value -> Value -> Bool) -> Value -> Value -> Result Value
-cmpBinOp name f x y | isComparable x y = Right $ bool2Truth (getValPos x) $ f x y
-                    | otherwise        = typeError2 x name "comparable arguments" x y
+cmpBinOp :: (Value -> Value -> Bool) -> Value -> Value -> Result Value
+cmpBinOp f x y = Right $ bool2Truth (getValPos x) $ f x y
 
 -------------------------------------------------------------------------------------------------------
 --  Boolean operations
@@ -743,6 +743,19 @@ defChr =
                 typeError1 other "chr" "an integer" other
             _ ->
                 stackUnderflowError ValNoop "chr"
+
+-------------------------------------------------------------------------------------------------------
+
+defSort :: Value
+defSort =
+    defOp "sort" $ \cxt@Cxt{stack = s0} ->
+        case s0 of
+            ValList pos xs : s1 ->
+                Right cxt{stack = ValList pos (sort xs) : s1}
+            other : _ ->
+                typeError1 other "sort" "an integer" other
+            _ ->
+                stackUnderflowError ValNoop "sort"
 
 -------------------------------------------------------------------------------------------------------
 --  Input/output operations
