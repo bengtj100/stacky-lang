@@ -1,6 +1,6 @@
 # Revision history for Stacky
 
-## 0.3.2 -- PRELIMINARY
+## 0.3.2 -- 2024-09-01
 
 ### Implementation changes
 
