@@ -1,0 +1,57 @@
+#!/bin/env -S stacky -b
+
+[comment]: # (-*-Markdown-*-  First line intentionally left blank! -----------------------------------)
+
+# Kaprekar's constant
+
+The number [6174](https://en.wikipedia.org/wiki/6174) is called *Kaprekar's constant* after the matemathician R. D. Kaprekar.
+
+It has the interesting property, which is that if one rearranges the digits to get the largest possible number using the same digits, i.e, sorting the digits in reverse one gets 7641. Rearranging them to get the smallest number gives us 1467. Now one interesting property of Kaprekars number is that if we take the difference of these numbers, $7641 - 1467$, we get back to 6174.
+
+The other interesting property is if you take any four digit number and repeatedly performs this difference between the largest and smallest possible number we eventually reaches Kaprekar's number.
+
+This program tests all numbers from 0000 to 9999 and checks if it ever reaches 6174 when repeating the difference. It also counts the number of iterations needed and presents the max of all initian numbers.
+
+The max is seven steps.
+
+This version is slightly optimized and runs approx. 20% faster than kaprekar.sy
+
+```
+
+[ [dup length 4 <] ["0" ++ addZeros] [] ?]'addZeros;
+
+[
+    toStr addZeros explode sort    `Get the numbers in ascending order
+    dup reverse implode eval       `Compute the largest possible
+    swap implode eval              `Compute the smallest possible
+    -                              `Take the difference
+]
+'diff;
+
+[
+    [dup 6174 <> over 0 <> and]
+        [
+            dup put " " put
+            diff
+            swap 1 + swap
+            kaprekar
+        ]
+        [
+            putLn
+        ]
+        ?
+]'kaprekar;
+
+0
+0 9999 1
+[
+    "Testing: " put 
+    0 swap kaprekar
+    "Steps = " put dup print
+    max
+] for
+
+"------------------------------------------------------------------------------" putLn
+"Max steps to reach 6174: " put print
+
+```
