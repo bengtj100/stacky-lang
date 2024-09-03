@@ -1,20 +1,34 @@
 #!/bin/env -S stacky -b
 ```
-[ "................................................................................"
-  swap left ] 'spaces;
+"................................................................................"'s;
+s length       'n;
+n 0.50 * round 'h;
+h 0.95 * round 'amp;
+
+[ s swap left ] 'spaces;
 
 [
-    1 swap 0.2
+    1 swap 0.1
     [
+        'th;
+        
+        [ 0 2 4 ] [ pi * 3 / th + sin amp * h + round] map
+        [h]$ ++ sort
+
         "|" put
-        dup  sin 30.0 * 40.0 + floor
-        over cos 30.0 * 40.0 + floor
-        2 ndup min dup spaces "*" ++ put
-        lrot max dup lrot swap - spaces "*" ++ put
-        80 swap - spaces "|" ++ putLn
+        0 swap
+        [
+            'p;
+            p swap - 0 max
+            [dup 0 >] [ 1 - spaces put "*" put] [drop]?
+            p
+        ]
+        foreach
+        n swap - spaces put "|" putLn
     ]
     for
-] 'sinus;
+] 'sinus2;
 
-2000 sinus
+
+200 sinus2
 ```
