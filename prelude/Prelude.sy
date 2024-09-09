@@ -360,7 +360,6 @@ Implementation:
 
 ```
 [
-    dup length  dbgPrint
     [dup]
         [
             dup head dup lrot
