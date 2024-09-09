@@ -1,5 +1,9 @@
 # Revision history for Stacky
 
+## 0.3.3 -- PRELIMINARY
+
+* Added the `nub` operation to the prelude.
+
 ## 0.3.2 -- 2024-09-01
 
 ### Implementation changes

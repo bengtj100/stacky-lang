@@ -347,6 +347,33 @@ Implementation:
 ]'fold;
 ```
 
+### The `nub` operation
+
+This operation removes all duplicate elements of a list, leaving only the first instance.
+
+Examples:
+
+~~~
+~~~
+
+Implementation:
+
+```
+[
+    dup length  dbgPrint
+    [dup]
+        [
+            dup head dup lrot
+            ^<> 2 toList filter
+            nub
+            cons
+        ]
+        [
+        ]
+        ?
+]'nub;
+```
+
 ## String operations
 
 ### The `explode` and `implode` operations
