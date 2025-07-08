@@ -22,7 +22,7 @@ Example:
 
 ```
 cd stacky.<VERSION>/
-sudo cp -p bin/stacky /usr/local/bin/
+sudo cp -p bin/* /usr/local/bin/
 sudo cp -r lib/stacky /usr/local/lib/
 ```
 
@@ -32,6 +32,8 @@ sudo cp -r lib/stacky /usr/local/lib/
 ....+--- bin
     |    |
     |    +--- stacky
+    |    |
+    |    +--- rlstacky
     |
     +--- lib
          |

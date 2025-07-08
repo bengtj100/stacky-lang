@@ -1,8 +1,11 @@
 # Revision history for Stacky
 
-## 0.3.3 -- PRELIMINARY
+## 0.3.4 -- PRELIMINARY
+
+## 0.3.3 -- 2025-07-08
 
 * Added the `nub` operation to the prelude.
+* Added the `rlstacky` executable which uses the *rlwrap* package to improve the user experience of the REPL by adding history, command editing etc.
 
 ## 0.3.2 -- 2024-09-01
 

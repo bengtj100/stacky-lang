@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -eu
 ## ====================================================================================================
 ##
 ## Copyright (c) 2024 Bengt Johansson <bengtj100 at gmail dot com>.
@@ -19,14 +19,13 @@ readonly COLS=$(( $(tput cols) - 1 ))
 readonly PROJECT='stacky'
 
 readonly SRC_DIR="${PHOME}/../src"
+readonly BIN_DIR="${PHOME}/../bin"
 readonly DOC_DIR="${PHOME}/../doc"
 readonly PRELUDE="${PHOME}/../prelude"
 readonly RELEASES="${PHOME}/../releases"
 
 readonly CPU_ARCH=$(uname -m)
 readonly KERNEL=$(uname -s)
-
-readonly CABAL=~/.cabal/bin/cabal
 
 ## ====================================================================================================
 
@@ -45,10 +44,7 @@ function message
 
 function getExecutable
 {
-    (
-        cd "$SRC_DIR";
-        ${CABAL} list-bin "$PROJECT";
-    )
+    "$PHOME/get-executable"
 }
 
 ## ----------------------------------------------------------------------------------------------------
@@ -85,6 +81,16 @@ function copyExecutable
     local binDir="$THIS_RELEASE/bin"
     mkdir -p "${binDir}"
     cp -p "${executable}" "${binDir}/"
+}
+
+## ----------------------------------------------------------------------------------------------------
+
+function copyBinFiles
+{
+    message "Copying bin files to release"
+    local binDir="$THIS_RELEASE/bin"
+    mkdir -p "${binDir}"
+    cp -p "${BIN_DIR}"/* "${binDir}/"
 }
 
 ## ----------------------------------------------------------------------------------------------------
@@ -143,6 +149,7 @@ function main
     loadVersionInfo
     setUpReleaseDirs
     copyExecutable
+    copyBinFiles
     copyLibFiles
     makeDocumentation
     makeTarBall

@@ -33,7 +33,7 @@ CABAL              = cd $(SRC_FULL) && ~/.cabal/bin/cabal
 PROJECT            = stacky
 CABAL_FILE         = $(SRC)/$(PROJECT).cabal
 
-EXECUTABLE         = $(shell $(CABAL) list-bin $(PROJECT))
+EXECUTABLE         = $(shell $(TOOLS)/get-executable)
 EXE_ARGS           = -IA $(PRELUDE)
 
 MKTAGS             = $(TOOLS)/mktags
@@ -80,7 +80,7 @@ test: build
 
 ## ----------------------------------------------------------------------------------------------------
 
-.PHONY: ghciInput/output
+.PHONY: ghci
 ghci:
 	ghci $(shell find src -maxdepth 1 -type d -exec printf '-i%s ' '{}' +)
 

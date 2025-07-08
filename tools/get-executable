@@ -1,0 +1,39 @@
+#!/bin/bash
+## ====================================================================================================
+##
+## Copyright (c) 2024-2025 Bengt Johansson <bengtj100 at gmail dot com>.
+## All rights reserved.
+##
+## This software is part of the stacky project and its use is
+## regulated by the conditions stipulated in the file named 'LICENCE',
+## located in the top directory of said project.
+##
+## ====================================================================================================
+
+readonly PHOME=$(dirname "$0")
+
+readonly PROJECT='stacky'
+
+readonly SRC_DIR="${PHOME}/../src"
+
+readonly CABAL=~/.cabal/bin/cabal
+
+## ====================================================================================================
+
+function getExecutable
+{
+    (
+        cd "$SRC_DIR";
+        ${CABAL} list-bin "$PROJECT";
+    )
+}
+
+
+## ====================================================================================================
+
+function main
+{
+    getExecutable
+}
+
+main "$0"

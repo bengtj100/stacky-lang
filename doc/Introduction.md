@@ -72,7 +72,14 @@ In stack oriented languages, like Stacky and Forth, almost all operations operat
 
 ## Using the interpreter
 
-When the Stacky intepreter is installed and put in a directory on the path, it is started by simply typing `stacky` into a command-line shell. Doing that will give you an output similar to this:
+When the Stacky intepreter is installed and put in a directory on the path, it is started by simply typing `stacky` into a command-line shell.
+
+It is also possible to use `rlwrap` which uses the *GNU Readline* library to add history and command-line editing. The command to use is then `rlstacky`
+
+**NOTE:** You'll need to install the package `rlwrap` on your OS for `rlstacky` to work!
+
+
+Doing any of the above will give you an output similar to this:
 
 ```
 $ stacky

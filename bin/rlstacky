@@ -1,0 +1,83 @@
+#!/bin/bash
+## ====================================================================================================
+##
+## Copyright (c) 2024-2025 Bengt Johansson <bengtj100 at gmail dot com>.
+## All rights reserved.
+##
+## This software is part of the stacky project and its use is
+## regulated by the conditions stipulated in the file named 'LICENCE',
+## located in the top directory of said project.
+##
+## ====================================================================================================
+
+readonly PNAME=$(basename "$0")
+readonly PHOME=$(dirname  "$0")
+
+## ----------------------------------------------------------------------------------------------------
+
+readonly WRAPPER='rlwrap'
+readonly WRAPPEE_NAME='stacky'
+
+## ====================================================================================================
+
+function error
+{
+    echo "${PNAME}: $*" 1>&2
+}
+
+## ----------------------------------------------------------------------------------------------------
+
+function errorExit
+{
+    error "$@"
+    exit 1
+}
+
+## ====================================================================================================
+
+function isInstalled
+{
+    which "$1" >/dev/null 2>&1
+}
+
+## ====================================================================================================
+
+function preChecks
+{
+    isInstalled "$WRAPPER" || errorExit "Wrapper program does not exist: '$WRAPPER'"
+}
+
+## ----------------------------------------------------------------------------------------------------
+
+function getWrappee
+{
+    if isInstalled "$WRAPPEE_NAME" ; then
+        which "$WRAPPEE_NAME"
+        return 0
+    fi
+
+    errorExit "Can't find any wrappee: '$WRAPPEE_NAME'"
+}
+
+## ====================================================================================================
+
+function execWrapper
+{
+    local wrappee=$(getWrappee)
+    echo "${PNAME}: Run $wrappee $*"
+    exec "$WRAPPER" "$wrappee" "$@"
+}
+
+## ====================================================================================================
+
+function main
+{
+    preChecks
+    execWrapper "$@"
+}
+
+## ----------------------------------------------------------------------------------------------------
+
+main "$@"
+
+## ====================================================================================================
