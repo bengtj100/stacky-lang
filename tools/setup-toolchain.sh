@@ -38,11 +38,13 @@ run sudo apt install -y ghc ghc-prof ghc-doc cabal-install git sudo \
                         pandoc texlive curl vim
 
 message "Clone the Stacky repo"
-run mkdir "${SOURCE_DIR}"
+run rm -rf "${SOURCE_DIR}"
+run mkdir -p "${SOURCE_DIR}"
 run cd "${SOURCE_DIR}"
 run git clone "${REPO}"
 
 message "Set up the build system"
+run rm -rf ~/.cabal
 run cabal update
 run cabal install cabal-install
 run ~/.cabal/bin/cabal install hasktags
