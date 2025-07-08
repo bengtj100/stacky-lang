@@ -10,6 +10,7 @@
 ## ====================================================================================================
 
 SRC                = ./src
+BIN		   = ./bin
 PRELUDE            = ./prelude
 RELEASES           = ./releases
 TOOLS              = ./tools
@@ -98,6 +99,7 @@ install: version all test doc
 	@echo ">>>>>>>>>>>>    Installing to: $(INST_BIN) ..."
 	sudo mkdir -p $(INST_BIN) $(INST_LIB)
 	sudo cp $(EXECUTABLE) $(INST_BIN)/
+	sudo cp $(BIN)/* $(INST_BIN)/
 	sudo cp -pPrv $(PRELUDE)/ $(INST_LIB)/
 
 ## ----------------------------------------------------------------------------------------------------
