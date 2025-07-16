@@ -55,6 +55,9 @@ BUILD_RELEASE      = $(TOOLS)/build-release
 
 all: build
 
+all__COMMENT__:
+	@echo 'Build all components.'
+
 ## ----------------------------------------------------------------------------------------------------
 
 build:  tags $(VERSION_FILE_HS) $(VERSION_FILE_SY)
@@ -63,11 +66,17 @@ build:  tags $(VERSION_FILE_HS) $(VERSION_FILE_SY)
 	$(CABAL) build
 	@echo 'Leaving directory `'"$(SRC_FULL)'"
 
+build__COMMENT__:
+	@echo 'Build the application using cabal.'
+
 ## ----------------------------------------------------------------------------------------------------
 
 run: build
 	@echo ">>>>>>>>>>>>    Running executable '$(shell basename $(EXECUTABLE))'..."
 	$(EXECUTABLE) $(EXE_ARGS)
+
+run__COMMENT__:
+	@echo 'Run application locally as a process on the dev. machine.'
 
 ## ----------------------------------------------------------------------------------------------------
 
@@ -79,11 +88,17 @@ test: build
 	@$(EXECUTABLE) $(EXE_ARGS) -b -IA $(TEST_FULL) 'RunTests' -- $(TEST_ARGS)
 	@echo 'Leaving directory `'$(TEST_FULL)"'"
 
+test__COMMENT__:
+	@echo 'Run unit tests using the test tool based on cabal.'
+
 ## ----------------------------------------------------------------------------------------------------
 
 .PHONY: ghci
 ghci:
 	ghci $(shell find src -maxdepth 1 -type d -exec printf '-i%s ' '{}' +)
+
+ghci__COMMENT__:
+	@echo 'Run the application in ghci for debugging.'
 
 ## ----------------------------------------------------------------------------------------------------
 
@@ -92,6 +107,9 @@ clean:
 	@echo ">>>>>>>>>>>>    Taking out the trash ..."
 	$(CABAL) clean
 	rm -rf TAGS $(VERSION_FILE_HS) $(VERSION_FILE_SY) $(RELEASES)/ $(PDF_FILES)
+
+clean__COMMENT__:
+	@echo 'Clean all build and temporary files.'
 
 ## ----------------------------------------------------------------------------------------------------
 
@@ -102,6 +120,9 @@ install: version all test doc
 	sudo cp $(BIN)/* $(INST_BIN)/
 	sudo cp -pPrv $(PRELUDE)/ $(INST_LIB)/
 
+install__COMMENT__:
+	@echo 'Install application to $(INST_BIN)'
+
 ## ----------------------------------------------------------------------------------------------------
 
 .PHONY: release
@@ -109,17 +130,29 @@ release: version all test doc
 	@echo ">>>>>>>>>>>>    Building release tar-ball ..."
 	$(BUILD_RELEASE)
 
+release__COMMENT__:
+	@echo 'Build a new release tar ball'
+
 ## ----------------------------------------------------------------------------------------------------
 
 tags:
 	$(MKTAGS) $(MKTAGS_ARGS)
 
+tags__COMMENT__:
+	@echo '(Re)generate TAGS file for emacs.'
+
 ## ----------------------------------------------------------------------------------------------------
 
 doc: doc_print $(PDF_FILES)
 
+doc__COMMENT__:
+	@echo 'Generate documentation files.'
+
 doc_print:
 	@echo ">>>>>>>>>>>>    Generating documentation files ..."
+
+.PHONY doc_print__NO_LIST__:
+doc_print__NO_LIST__:
 
 %.pdf: %.md
 	$(PANDOC) $(PANDOC_ARGS) -o $@ $<
@@ -132,6 +165,10 @@ $(DOC)/%.pdf: $(PRELUDE)/%.sy
 version:
 	@echo ">>>>>>>>>>>>    Generating new build version ..."
 	$(MAKE_VERSION_PATH) $(MAKE_VERSION_ARGS)
+
+version__COMMENT__:
+	@echo 'Generate a new version tag.'
+	@echo 'Use command: $(MAKE_VERSION_PATH)'
 
 ## ----------------------------------------------------------------------------------------------------
 
