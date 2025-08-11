@@ -22,10 +22,11 @@ These are the dependences you need to meet to build the interpreter using `make 
 
 ### Other dependencies
 
-| Type | Package  | Version                 | Repo Name               | Comments |
-|:----:|:--------:|:-----------------------:|:------------------------|:---------|
-| DNF  | Pandoc   | 3.1.3                   | `pandoc`                |          |
-| DNF  | PdfLaTeX | 3.141592653-2.6-1.40.25 | `texlive texlive-latex` |          |
+| Type | Package  | Version                 | Repo Name               | Comments                       |
+|:----:|:--------:|:-----------------------:|:------------------------|:-------------------------------|
+| DNF  | Pandoc   | 3.1.3                   | `pandoc`                |                                |
+| DNF  | PdfLaTeX | 3.141592653-2.6-1.40.25 | `texlive texlive-latex` |                                |
+| DNF  | rlwrap   | 0.46.2                  | `rlwrap`                | Used by the `rlstacky` command |
 
 ## Run-time dependencies
 
