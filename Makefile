@@ -122,6 +122,8 @@ install: version all test doc
 
 install__COMMENT__:
 	@echo 'Install application to $(INST_BIN)'
+	@echo 'This requires sudo rights during the install'
+	@echo 'DO NOT ISSUE THIS COMMAND AS ROOT!'
 
 ## ----------------------------------------------------------------------------------------------------
 
