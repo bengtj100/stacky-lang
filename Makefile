@@ -53,10 +53,8 @@ BUILD_RELEASE      = $(TOOLS)/build-release
 
 ## ====================================================================================================
 
-all: build
-
-all__COMMENT__:
-	@echo 'Build all components.'
+## Include misc.mk for the use build warning
+include ~/src/build-tools/makefiles/common/misc.mk
 
 ## ----------------------------------------------------------------------------------------------------
 
