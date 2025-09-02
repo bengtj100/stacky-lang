@@ -135,14 +135,6 @@ release__COMMENT__:
 
 ## ----------------------------------------------------------------------------------------------------
 
-tags:
-	$(MKTAGS) $(MKTAGS_ARGS)
-
-tags__COMMENT__:
-	@echo '(Re)generate TAGS file for emacs.'
-
-## ----------------------------------------------------------------------------------------------------
-
 doc: doc_print $(PDF_FILES)
 
 doc__COMMENT__:
@@ -181,3 +173,7 @@ $(VERSION_FILE_SY): $(VERSION_TEMPLATE) $(CABAL_FILE)
 	$(MAKE_VERSION_PATH) $(MAKE_VERSION_ARGS)
 
 ## ====================================================================================================
+
+## Include TAGS
+TAGS_LANG=haskell
+include ~/src/build-tools/makefiles/common/tags.mk
