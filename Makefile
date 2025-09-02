@@ -111,7 +111,7 @@ clean__COMMENT__:
 
 ## ----------------------------------------------------------------------------------------------------
 
-install: version all test doc
+install: version test doc
 	@echo ">>>>>>>>>>>>    Installing to: $(INST_BIN) ..."
 	sudo mkdir -p $(INST_BIN) $(INST_LIB)
 	sudo cp $(EXECUTABLE) $(INST_BIN)/
@@ -126,7 +126,7 @@ install__COMMENT__:
 ## ----------------------------------------------------------------------------------------------------
 
 .PHONY: release
-release: version all test doc
+release: version test doc
 	@echo ">>>>>>>>>>>>    Building release tar-ball ..."
 	$(BUILD_RELEASE)
 
