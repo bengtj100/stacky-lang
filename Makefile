@@ -64,7 +64,7 @@ build:  tags $(VERSION_FILE_HS) $(VERSION_FILE_SY)
 	$(CABAL) build
 	@echo 'Leaving directory `'"$(SRC_FULL)'"
 
-build__COMMENT__:
+__COMMENT__build:
 	@echo 'Build the application using cabal.'
 
 ## ----------------------------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ run: build
 	@echo ">>>>>>>>>>>>    Running executable '$(shell basename $(EXECUTABLE))'..."
 	$(EXECUTABLE) $(EXE_ARGS)
 
-run__COMMENT__:
+__COMMENT__run:
 	@echo 'Run application locally as a process on the dev. machine.'
 
 ## ----------------------------------------------------------------------------------------------------
@@ -86,7 +86,7 @@ test: build
 	@$(EXECUTABLE) $(EXE_ARGS) -b -IA $(TEST_FULL) 'RunTests' -- $(TEST_ARGS)
 	@echo 'Leaving directory `'$(TEST_FULL)"'"
 
-test__COMMENT__:
+__COMMENT__test:
 	@echo 'Run unit tests using the test tool based on cabal.'
 
 ## ----------------------------------------------------------------------------------------------------
@@ -95,7 +95,7 @@ test__COMMENT__:
 ghci:
 	ghci $(shell find src -maxdepth 1 -type d -exec printf '-i%s ' '{}' +)
 
-ghci__COMMENT__:
+__COMMENT__ghci:
 	@echo 'Run the application in ghci for debugging.'
 
 ## ----------------------------------------------------------------------------------------------------
@@ -106,7 +106,7 @@ clean:
 	$(CABAL) clean
 	rm -rf TAGS $(VERSION_FILE_HS) $(VERSION_FILE_SY) $(RELEASES)/ $(PDF_FILES)
 
-clean__COMMENT__:
+__COMMENT__clean:
 	@echo 'Clean all build and temporary files.'
 
 ## ----------------------------------------------------------------------------------------------------
@@ -118,7 +118,7 @@ install: version test doc
 	sudo cp $(BIN)/* $(INST_BIN)/
 	sudo cp -pPrv $(PRELUDE)/ $(INST_LIB)/
 
-install__COMMENT__:
+__COMMENT__install:
 	@echo 'Install application to $(INST_BIN)'
 	@echo 'This requires sudo rights during the install'
 	@echo 'DO NOT ISSUE THIS COMMAND AS ROOT!'
@@ -130,21 +130,21 @@ release: version test doc
 	@echo ">>>>>>>>>>>>    Building release tar-ball ..."
 	$(BUILD_RELEASE)
 
-release__COMMENT__:
+__COMMENT__release:
 	@echo 'Build a new release tar ball'
 
 ## ----------------------------------------------------------------------------------------------------
 
 doc: doc_print $(PDF_FILES)
 
-doc__COMMENT__:
+__COMMENT__doc:
 	@echo 'Generate documentation files.'
 
 doc_print:
 	@echo ">>>>>>>>>>>>    Generating documentation files ..."
 
-.PHONY doc_print__NO_LIST__:
-doc_print__NO_LIST__:
+.PHONY __NO_LIST__doc_print:
+__NO_LIST__doc_print:
 
 %.pdf: %.md
 	$(PANDOC) $(PANDOC_ARGS) -o $@ $<
@@ -158,7 +158,7 @@ version:
 	@echo ">>>>>>>>>>>>    Generating new build version ..."
 	$(MAKE_VERSION_PATH) $(MAKE_VERSION_ARGS)
 
-version__COMMENT__:
+__COMMENT__version:
 	@echo 'Generate a new version tag.'
 	@echo 'Use command: $(MAKE_VERSION_PATH)'
 
